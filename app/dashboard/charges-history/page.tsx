@@ -4,7 +4,7 @@ import { ChevronDown, ChevronLeft, ChevronRight, Crown, Gem, Gamepad2, MoreVerti
 import { useMemo, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
-type GachaHistoryItem = {
+type ChargeHistoryItem = {
   id: string;
   gameName: string;
   itemName: string;
@@ -13,15 +13,15 @@ type GachaHistoryItem = {
   iconClassName: string;
 };
 
-type GachaHistoryGroup = {
+type ChargeHistoryGroup = {
   date: string;
   weekday: string;
-  items: GachaHistoryItem[];
+  items: ChargeHistoryItem[];
 };
 
 const months = ['2026年5月', '2026年6月', '2026年7月'];
 
-const gachaHistoryByMonth: Record<string, GachaHistoryGroup[]> = {
+const chargeHistoryByMonth: Record<string, ChargeHistoryGroup[]> = {
   '2026年5月': [
     {
       date: '2026年5月28日',
@@ -129,10 +129,10 @@ function formatCurrency(value: number) {
   return `¥${value.toLocaleString()}`;
 }
 
-export default function GachaHistoryPage() {
+export default function ChargeHistoryPage() {
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(0);
   const selectedMonth = months[selectedMonthIndex];
-  const groups = gachaHistoryByMonth[selectedMonth] ?? [];
+  const groups = chargeHistoryByMonth[selectedMonth] ?? [];
   const totalCount = useMemo(() => groups.reduce((sum, group) => sum + group.items.length, 0), [groups]);
 
   function moveMonth(direction: -1 | 1) {
@@ -150,8 +150,8 @@ export default function GachaHistoryPage() {
     <main className="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
-          <p className="text-sm font-semibold text-slate-500">Gacha History</p>
-          <h1 className="mt-1 text-4xl font-bold text-slate-950">ガチャ履歴</h1>
+          <p className="text-sm font-semibold text-slate-500">Charge History</p>
+          <h1 className="mt-1 text-4xl font-bold text-slate-950">課金履歴</h1>
         </div>
 
         <div className="mb-6 flex flex-wrap items-center gap-3">
@@ -230,7 +230,7 @@ export default function GachaHistoryPage() {
             </div>
           ) : (
             <div className="flex min-h-[280px] items-center justify-center text-sm font-semibold text-slate-400">
-              この月のガチャ履歴はありません。
+              この月の課金履歴はありません。
             </div>
           )}
 
