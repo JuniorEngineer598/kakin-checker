@@ -16,7 +16,7 @@ type SidebarItem = {
 const sidebarItems: SidebarItem[] = [
   { label: 'ホーム', href: '/dashboard', icon: House },
   { label: '課金追加', href: '/dashboard/charges/new', icon: PlusCircle },
-  { label: 'ガチャ履歴', href: '/dashboard/gacha-history', icon: FileText },
+  { label: '課金履歴', href: '/dashboard/charges-history', icon: FileText },
   { label: 'ゲーム追加', href: '/dashboard/games', icon: Gamepad2 },
   { label: '分析', href: '/dashboard/analytics', icon: BarChart3 },
   { label: 'カレンダー', href: '/dashboard/calendar', icon: CalendarDays },
