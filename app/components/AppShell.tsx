@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowLeft, BarChart3, CalendarDays, Gamepad2, Home, PlusCircle, Settings } from 'lucide-react';
+import { ArrowLeft, BarChart3, CalendarDays, FileText, Gamepad2, House, PlusCircle, Settings } from 'lucide-react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
@@ -14,8 +14,9 @@ type SidebarItem = {
 };
 
 const sidebarItems: SidebarItem[] = [
-  { label: 'ホーム', href: '/dashboard', icon: Home },
+  { label: 'ホーム', href: '/dashboard', icon: House },
   { label: '課金追加', href: '/dashboard/charges/new', icon: PlusCircle },
+  { label: 'ガチャ履歴', href: '/dashboard/gacha-history', icon: FileText },
   { label: 'ゲーム追加', href: '/dashboard/games', icon: Gamepad2 },
   { label: '分析', href: '/dashboard/analytics', icon: BarChart3 },
   { label: 'カレンダー', href: '/dashboard/calendar', icon: CalendarDays },
