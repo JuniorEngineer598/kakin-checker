@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, Crown, Gem, Gamepad2, Pencil, Plus, Sparkles, Sword, Trash2, UploadCloud, X } from 'lucide-react';
+import { CheckCircle2, Crown, EllipsisVertical, Gem, Gamepad2, Plus, Sparkles, Sword, UploadCloud, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { createId, loadGames, saveGames } from '../../lib/storage';
@@ -24,6 +24,7 @@ export default function GamesPage() {
   const [games, setGames] = useState<Game[]>([]);
   const [gameName, setGameName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [openGameMenuId, setOpenGameMenuId] = useState<string | null>(null);
 
   useEffect(() => {
     setGames(loadGames());
@@ -50,6 +51,7 @@ export default function GamesPage() {
     saveGames(nextGames);
     setGameName('');
     setIsModalOpen(false);
+    setOpenGameMenuId(null);
   }
 
   return (
@@ -99,17 +101,7 @@ export default function GamesPage() {
                     <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ring-1 ${iconStyle.className}`}>
                       <Icon size={25} strokeWidth={2.2} aria-hidden="true" />
                     </div>
-                    <div className="flex min-w-0 items-center gap-2">
-                      <p className="truncate text-lg font-bold text-slate-950">{game.name}</p>
-                      <button
-                        type="button"
-                        title='編集'
-                        aria-label={`${game.name}を編集`}
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
-                      >
-                        <Pencil size={15} strokeWidth={2.2} aria-hidden="true" />
-                      </button>
-                    </div>
+                    <p className="min-w-0 truncate text-lg font-bold text-slate-950">{game.name}</p>
                   </div>
 
                   <p className="text-base font-bold text-slate-900">
@@ -123,13 +115,37 @@ export default function GamesPage() {
                     </span>
                   </div>
 
-                  <button
-                    type="button"
-                    className="inline-flex w-fit items-center gap-2 text-sm font-bold text-rose-500 transition hover:text-rose-600"
-                  >
-                    <Trash2 size={19} strokeWidth={2.2} aria-hidden="true" />
-                    削除
-                  </button>
+                  <div className="relative w-fit">
+                    <button
+                      type="button"
+                      title="メニュー"
+                      aria-label={`${game.name}のメニュー`}
+                      aria-expanded={openGameMenuId === game.id}
+                      onClick={() => {
+                        setOpenGameMenuId((current) => (current === game.id ? null : game.id));
+                      }}
+                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
+                    >
+                      <EllipsisVertical size={19} strokeWidth={2.2} aria-hidden="true" />
+                    </button>
+
+                    {openGameMenuId === game.id ? (
+                      <div className="absolute right-0 top-11 z-10 w-32 rounded-xl border border-slate-200 bg-white p-1 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.5)]">
+                        <button
+                          type="button"
+                          className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                        >
+                          編集
+                        </button>
+                        <button
+                          type="button"
+                          className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-rose-600 transition hover:bg-rose-50"
+                        >
+                          消去
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
                 </article>
               );
             })}

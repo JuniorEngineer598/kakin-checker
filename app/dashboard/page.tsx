@@ -1,5 +1,6 @@
 import { Crown } from 'lucide-react';
 
+// ダミーデータ
 const dummyGameTotals = [
   { name: '原神', total: 18000, color: 'linear-gradient(180deg, #7dd3fc 0%, #14b8a6 100%)' },
   { name: 'ブルアカ', total: 9800, color: 'linear-gradient(180deg, #60a5fa 0%, #2563eb 100%)' },
@@ -7,6 +8,7 @@ const dummyGameTotals = [
   { name: 'NIKKE', total: 12400, color: 'linear-gradient(180deg, #fb7185 0%, #dc2626 100%)' },
 ];
 
+// 日本円の表示に変更する関数
 function formatCurrency(value: number) {
   return `¥${value.toLocaleString()}`;
 }
@@ -79,7 +81,7 @@ export default function DashboardPage() {
           <div className="rounded-[24px] bg-slate-50 px-3 py-5 sm:rounded-[28px] sm:px-5">
             <div className="grid min-h-[280px] grid-cols-4 items-end gap-3 sm:gap-5">
               {dummyGameTotals.map((game) => {
-                const height = Math.max(36, (game.total / maxTotal) * 200);
+                const height = Math.max(36, (game.total / maxTotal) * 200); // グラフ最小36px、最大200pxで高さを調整
 
                 return (
                   <div key={game.name} className="flex min-w-0 flex-col items-center gap-3">
