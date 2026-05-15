@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { EllipsisVertical } from 'lucide-react';
 
 type ActiveTab = 'template' | 'new';
 
@@ -18,24 +19,13 @@ function formatCurrency(value: number) {
 
 export default function NewChargePage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('template');
-  const [isTemplateEditMode, setIsTemplateEditMode] = useState(false);
   const [selectedTemplateName, setSelectedTemplateName] = useState(dummyTemplates[0].name);
+  const [openTemplateMenuName, setOpenTemplateMenuName] = useState<string | null>(null);
   const selectedTemplate = dummyTemplates.find((template) => template.name === selectedTemplateName) ?? dummyTemplates[0];
 
   function handleTabChange(nextTab: ActiveTab) {
     setActiveTab(nextTab);
-
-    if (nextTab === 'new') {
-      setIsTemplateEditMode(false);
-    }
-  }
-
-  function handleEditToggle() {
-    setIsTemplateEditMode((current) => {
-      const nextValue = !current;
-
-      return nextValue;
-    });
+    setOpenTemplateMenuName(null);
   }
 
   return (
@@ -75,17 +65,6 @@ export default function NewChargePage() {
             <section className="flex h-[670px] flex-col rounded-[28px] bg-white p-4 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:p-5">
               <div className="flex items-center justify-between gap-4">
                 <span className="text-sm font-semibold text-slate-700">ゲームを選択</span>
-                <button
-                  type="button"
-                  onClick={handleEditToggle}
-                  className={`h-10 rounded-xl border bg-white px-5 text-sm font-bold shadow-sm transition hover:bg-slate-50 ${
-                    isTemplateEditMode
-                      ? 'border-rose-200 text-rose-600 hover:border-rose-300'
-                      : 'border-slate-200 text-slate-700 hover:border-slate-300'
-                  }`}
-                >
-                  {isTemplateEditMode ? '完了' : '編集'}
-                </button>
               </div>
 
               <label className="block">
@@ -111,15 +90,16 @@ export default function NewChargePage() {
                   {dummyTemplates.map((template) => (
                     <article
                       key={template.name}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 p-3.5 transition hover:border-slate-300 hover:bg-white"
+                      className={`rounded-2xl border bg-slate-50 p-3.5 transition hover:border-slate-300 hover:bg-white ${
+                        selectedTemplate?.name === template.name ? 'border-slate-400 bg-white' : 'border-slate-200'
+                      }`}
                     >
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex items-start gap-3">
                         <button
                           type="button"
                           onClick={() => {
-                            if (!isTemplateEditMode) {
-                              setSelectedTemplateName(template.name);
-                            }
+                            setSelectedTemplateName(template.name);
+                            setOpenTemplateMenuName(null);
                           }}
                           className="min-w-0 flex-1 text-left"
                         >
@@ -129,6 +109,43 @@ export default function NewChargePage() {
                           </p>
                         </button>
 
+                        <div className="relative shrink-0">
+                          <button
+                            type="button"
+                            title="メニュー"
+                            aria-label={`${template.name}のメニュー`}
+                            aria-expanded={openTemplateMenuName === template.name}
+                            onClick={() => {
+                              setOpenTemplateMenuName((current) => (current === template.name ? null : template.name));
+                            }}
+                            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
+                          >
+                            <EllipsisVertical className="h-5 w-5" aria-hidden="true" />
+                          </button>
+
+                          {openTemplateMenuName === template.name ? (
+                            <div className="absolute right-0 top-11 z-10 w-32 rounded-xl border border-slate-200 bg-white p-1 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.5)]">
+                              <button
+                                type="button"
+                                className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-rose-600 transition hover:bg-rose-50"
+                              >
+                                消去
+                              </button>
+                              <button
+                                type="button"
+                                className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                              >
+                                編集
+                              </button>
+                              <button
+                                type="button"
+                                className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                              >
+                                日付指定
+                              </button>
+                            </div>
+                          ) : null}
+                        </div>
                       </div>
                     </article>
                   ))}
@@ -136,19 +153,14 @@ export default function NewChargePage() {
               </div>
             </section>
 
-            {isTemplateEditMode ? (
-              <ChargeForm
-                title="テンプレートを編集"
-                template={selectedTemplate}
-                showSaveAsTemplate={false}
-                actions="edit"
-              />
+            {selectedTemplate ? (
+              <ChargeForm title="テンプレートから追加" template={selectedTemplate} showSaveAsTemplate={false} />
             ) : (
-              <BlankPanel />
+              <EmptyTemplatePanel />
             )}
           </div>
         ) : (
-          <ChargeForm title="新規で追加" template={undefined} showSaveAsTemplate actions="register" />
+          <ChargeForm title="新規で追加" template={undefined} showSaveAsTemplate />
         )}
       </div>
     </main>
@@ -159,12 +171,10 @@ function ChargeForm({
   title,
   template,
   showSaveAsTemplate,
-  actions,
 }: {
   title: string;
   template?: (typeof dummyTemplates)[number];
   showSaveAsTemplate: boolean;
-  actions: 'register' | 'edit';
 }) {
   return (
     <form className="rounded-[28px] bg-white p-4 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:p-5">
@@ -207,16 +217,14 @@ function ChargeForm({
           />
         </label>
 
-        {actions === 'register' ? (
-          <label className="block">
-            <span className="text-sm font-semibold text-slate-700">課金日</span>
-            <input
-              type="date"
-              defaultValue="2026-05-14"
-              className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:bg-white"
-            />
-          </label>
-        ) : null}
+        <label className="block">
+          <span className="text-sm font-semibold text-slate-700">課金日</span>
+          <input
+            type="date"
+            defaultValue="2026-05-14"
+            className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:bg-white"
+          />
+        </label>
 
         <label className="block">
           <span className="text-sm font-semibold text-slate-700">カテゴリ</span>
@@ -233,18 +241,16 @@ function ChargeForm({
           </select>
         </label>
 
-        {actions === 'register' ? (
-          <label className="block sm:col-span-2 lg:col-span-1">
-            <span className="text-sm font-semibold text-slate-700">メモ</span>
-            <textarea
-              rows={3}
-              key={`${template?.name ?? 'new'}-memo`}
-              defaultValue={template?.memo ?? ''}
-              placeholder="用途やイベント名など"
-              className="mt-2 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
-            />
-          </label>
-        ) : null}
+        <label className="block sm:col-span-2 lg:col-span-1">
+          <span className="text-sm font-semibold text-slate-700">メモ</span>
+          <textarea
+            rows={3}
+            key={`${template?.name ?? 'new'}-memo`}
+            defaultValue={template?.memo ?? ''}
+            placeholder="用途やイベント名など"
+            className="mt-2 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
+          />
+        </label>
       </div>
 
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -254,42 +260,25 @@ function ChargeForm({
             この内容をテンプレートとして保存する
           </label>
         ) : (
-          <p className="text-sm font-semibold text-slate-500">テンプレートを選ぶと内容がここに反映されます。</p>
+          <span />
         )}
 
-        {actions === 'edit' ? (
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className="flex h-11 min-w-[92px] items-center justify-center whitespace-nowrap rounded-xl bg-slate-900 px-5 text-sm font-bold text-white shadow-[0_12px_28px_-18px_rgba(15,23,42,0.9)] transition hover:bg-slate-800"
-            >
-              再登録
-            </button>
-            <button
-              type="button"
-              className="flex h-11 min-w-[92px] items-center justify-center whitespace-nowrap rounded-xl border border-rose-200 bg-white px-5 text-sm font-bold text-rose-600 transition hover:bg-rose-50"
-            >
-              消去
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            className="h-11 rounded-xl bg-slate-900 px-6 text-sm font-bold text-white shadow-[0_12px_28px_-18px_rgba(15,23,42,0.9)] transition hover:bg-slate-800"
-          >
-            登録
-          </button>
-        )}
+        <button
+          type="button"
+          className="h-11 rounded-xl bg-slate-900 px-6 text-sm font-bold text-white shadow-[0_12px_28px_-18px_rgba(15,23,42,0.9)] transition hover:bg-slate-800"
+        >
+          登録
+        </button>
       </div>
     </form>
   );
 }
 
-function BlankPanel() {
+function EmptyTemplatePanel() {
   return (
     <section className="flex min-h-[420px] items-center justify-center rounded-[28px] bg-white p-4 text-center shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:p-5">
       <p className="max-w-[240px] text-sm font-semibold leading-6 text-slate-400">
-        編集を押すと、選択中のテンプレート内容をここで確認できます。
+        テンプレートがありません。
       </p>
     </section>
   );
