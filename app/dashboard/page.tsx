@@ -1,24 +1,16 @@
 import { Crown } from 'lucide-react';
-
-// ダミーデータ
-const dummyGameTotals = [
-  { name: '原神', total: 18000, color: 'linear-gradient(180deg, #7dd3fc 0%, #14b8a6 100%)' },
-  { name: 'ブルアカ', total: 9800, color: 'linear-gradient(180deg, #60a5fa 0%, #2563eb 100%)' },
-  { name: 'モンスト', total: 7200, color: 'linear-gradient(180deg, #facc15 0%, #f97316 100%)' },
-  { name: 'NIKKE', total: 12400, color: 'linear-gradient(180deg, #fb7185 0%, #dc2626 100%)' },
-];
-
-// 日本円の表示に変更する関数
-function formatCurrency(value: number) {
-  return `¥${value.toLocaleString()}`;
-}
+import { formatCurrency } from '../lib/format';
+import {
+  mockDashboardGameTotals,
+  mockDashboardMonthlyChargeCount,
+  mockDashboardYearlyTopGame,
+  mockDashboardYearlyTotal,
+} from '../lib/mockData';
 
 export default function DashboardPage() {
-  const monthlyTotal = dummyGameTotals.reduce((sum, game) => sum + game.total, 0);
-  const yearlyTotal = 284600;
-  const topGame = dummyGameTotals.reduce((top, game) => (game.total > top.total ? game : top), dummyGameTotals[0]);
-  const yearlyTopGame = 'ブルアカ';
-  const maxTotal = Math.max(...dummyGameTotals.map((game) => game.total), 1);
+  const monthlyTotal = mockDashboardGameTotals.reduce((sum, game) => sum + game.total, 0);
+  const topGame = mockDashboardGameTotals.reduce((top, game) => (game.total > top.total ? game : top), mockDashboardGameTotals[0]);
+  const maxTotal = Math.max(...mockDashboardGameTotals.map((game) => game.total), 1);
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
@@ -34,7 +26,7 @@ export default function DashboardPage() {
             <p className="mt-5 text-5xl font-bold text-white sm:text-6xl">{formatCurrency(monthlyTotal)}</p>
             <div className="mt-6 border-t border-white/10 pt-4">
               <p className="text-sm font-medium text-slate-400">年間の課金総額</p>
-              <p className="mt-2 text-2xl font-bold text-slate-200 sm:text-3xl">{formatCurrency(yearlyTotal)}</p>
+              <p className="mt-2 text-2xl font-bold text-slate-200 sm:text-3xl">{formatCurrency(mockDashboardYearlyTotal)}</p>
             </div>
           </article>
 
@@ -42,12 +34,12 @@ export default function DashboardPage() {
             <div className="grid gap-4 sm:grid-cols-2">
             <article className="rounded-[24px] bg-white px-4 py-4 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)]">
               <p className="text-sm font-semibold text-slate-500">今月の課金件数</p>
-              <p className="mt-3 text-2xl font-bold text-slate-950">12件</p>
+              <p className="mt-3 text-2xl font-bold text-slate-950">{mockDashboardMonthlyChargeCount}件</p>
             </article>
 
             <article className="rounded-[24px] bg-white px-4 py-4 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)]">
               <p className="text-sm font-semibold text-slate-500">登録ゲーム数</p>
-              <p className="mt-3 text-2xl font-bold text-slate-950">{dummyGameTotals.length}</p>
+              <p className="mt-3 text-2xl font-bold text-slate-950">{mockDashboardGameTotals.length}</p>
             </article>
             </div>
 
@@ -63,7 +55,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="min-w-0 rounded-2xl border border-indigo-300 bg-indigo-50 px-3 py-3">
                   <p className="text-xs font-bold text-indigo-600">年間1位</p>
-                  <p className="mt-2 truncate text-xl font-bold text-slate-950">{yearlyTopGame}</p>
+                  <p className="mt-2 truncate text-xl font-bold text-slate-950">{mockDashboardYearlyTopGame}</p>
                 </div>
               </div>
             </article>
@@ -80,7 +72,7 @@ export default function DashboardPage() {
 
           <div className="rounded-[24px] bg-slate-50 px-3 py-5 sm:rounded-[28px] sm:px-5">
             <div className="grid min-h-[280px] grid-cols-4 items-end gap-3 sm:gap-5">
-              {dummyGameTotals.map((game) => {
+              {mockDashboardGameTotals.map((game) => {
                 const height = Math.max(36, (game.total / maxTotal) * 200); // グラフ最小36px、最大200pxで高さを調整
 
                 return (

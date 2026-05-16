@@ -2,35 +2,18 @@
 
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useState } from 'react';
-
-type ChargeDay = {
-  amount: number;
-  count: number;
-  items: {
-    name: string;
-    amount: number;
-  }[];
-};
-
-const days = Array.from({ length: 35 }, (_, index) => index + 1);
-const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-const chargeByDay: Record<number, ChargeDay> = {
-  3: { amount: 980, count: 1, items: [{ name: '祝福パック', amount: 980 }] },
-  8: { amount: 1220, count: 1, items: [{ name: '紀行', amount: 1220 }] },
-  14: { amount: 6100, count: 1, items: [{ name: '創世結晶', amount: 6100 }] },
-  21: { amount: 9800, count: 1, items: [{ name: '限定パック', amount: 9800 }] },
-  28: { amount: 29300, count: 1, items: [{ name: '大型パック', amount: 29300 }] },
-};
-const monthlyTotal = 47400;
-const monthlyChargeCount = 5;
-
-function formatCurrency(value: number) {
-  return `¥${value.toLocaleString()}`;
-}
+import { formatCurrency } from '../../lib/format';
+import {
+  mockCalendarDays,
+  mockCalendarMonthlyChargeCount,
+  mockCalendarMonthlyTotal,
+  mockChargeByDay,
+  mockWeekdays,
+} from '../../lib/mockData';
 
 export default function CalendarPage() {
   const [selectedDay, setSelectedDay] = useState(3);
-  const selectedCharge = chargeByDay[selectedDay];
+  const selectedCharge = mockChargeByDay[selectedDay];
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 sm:py-8">
@@ -62,13 +45,13 @@ export default function CalendarPage() {
                   </button>
                 </div>
 
-                <p className="text-center text-4xl font-bold text-slate-950 sm:text-5xl">{formatCurrency(monthlyTotal)}</p>
+                <p className="text-center text-4xl font-bold text-slate-950 sm:text-5xl">{formatCurrency(mockCalendarMonthlyTotal)}</p>
 
-                <p className="text-left text-sm font-bold text-slate-700 md:text-right">課金件数: {monthlyChargeCount}件</p>
+                <p className="text-left text-sm font-bold text-slate-700 md:text-right">課金件数: {mockCalendarMonthlyChargeCount}件</p>
               </div>
 
               <div className="mt-8 grid grid-cols-7 gap-2 text-center text-xs font-bold">
-                {weekdays.map((day, index) => (
+                {mockWeekdays.map((day, index) => (
                   <div key={day} className={index === 0 ? 'text-rose-500' : index === 6 ? 'text-blue-500' : 'text-slate-500'}>
                     {day}
                   </div>
@@ -76,9 +59,9 @@ export default function CalendarPage() {
               </div>
 
               <div className="mt-3 grid grid-cols-7 gap-2">
-                {days.map((day) => {
+                {mockCalendarDays.map((day) => {
                   const isRealDay = day <= 31;
-                  const charge = chargeByDay[day];
+                  const charge = mockChargeByDay[day];
                   const isChargeDay = Boolean(charge);
                   const isSelected = selectedDay === day;
                   const weekdayIndex = (day - 1) % 7;

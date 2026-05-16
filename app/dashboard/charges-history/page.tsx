@@ -1,144 +1,20 @@
 'use client';
 
-import { ChevronDown, ChevronLeft, ChevronRight, Crown, Gem, Gamepad2, MoreVertical, Sparkles, Sword } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, MoreVertical } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import type { LucideIcon } from 'lucide-react';
-
-type ChargeHistoryItem = {
-  id: string;
-  gameName: string;
-  itemName: string;
-  amount: number;
-  icon: LucideIcon;
-  iconClassName: string;
-};
-
-type ChargeHistoryGroup = {
-  date: string;
-  weekday: string;
-  items: ChargeHistoryItem[];
-};
-
-const months = ['2026年5月', '2026年6月', '2026年7月'];
-
-const chargeHistoryByMonth: Record<string, ChargeHistoryGroup[]> = {
-  '2026年5月': [
-    {
-      date: '2026年5月28日',
-      weekday: '木',
-      items: [
-        {
-          id: 'may28-1',
-          gameName: '原神',
-          itemName: '神里綾華 ピックアップ祈願',
-          amount: 1600,
-          icon: Sparkles,
-          iconClassName: 'bg-blue-50 text-blue-600 ring-blue-100',
-        },
-        {
-          id: 'may28-2',
-          gameName: 'ブルアカ',
-          itemName: 'ヒナ（ドレス）ピックアップ募集',
-          amount: 1600,
-          icon: Sword,
-          iconClassName: 'bg-indigo-50 text-indigo-600 ring-indigo-100',
-        },
-        {
-          id: 'may28-3',
-          gameName: 'NIKKE',
-          itemName: '新指揮官専用募集',
-          amount: 30000,
-          icon: Crown,
-          iconClassName: 'bg-rose-50 text-rose-500 ring-rose-100',
-        },
-      ],
-    },
-    {
-      date: '2026年5月21日',
-      weekday: '木',
-      items: [
-        {
-          id: 'may21-1',
-          gameName: 'モンスト',
-          itemName: '激・獣神祭',
-          amount: 1600,
-          icon: Gamepad2,
-          iconClassName: 'bg-emerald-50 text-emerald-600 ring-emerald-100',
-        },
-        {
-          id: 'may21-2',
-          gameName: '原神',
-          itemName: '空月の祝福（30日）',
-          amount: 610,
-          icon: Sparkles,
-          iconClassName: 'bg-blue-50 text-blue-600 ring-blue-100',
-        },
-      ],
-    },
-    {
-      date: '2026年5月14日',
-      weekday: '木',
-      items: [
-        {
-          id: 'may14-1',
-          gameName: 'ブルアカ',
-          itemName: 'ユウカ（体操服）ピックアップ募集',
-          amount: 1600,
-          icon: Sword,
-          iconClassName: 'bg-indigo-50 text-indigo-600 ring-indigo-100',
-        },
-        {
-          id: 'may14-2',
-          gameName: 'NIKKE',
-          itemName: 'デイリージュエルパック',
-          amount: 800,
-          icon: Crown,
-          iconClassName: 'bg-rose-50 text-rose-500 ring-rose-100',
-        },
-        {
-          id: 'may14-3',
-          gameName: 'ゼンレスゾーンゼロ',
-          itemName: '暗号化マスターテープ x10',
-          amount: 1480,
-          icon: Gem,
-          iconClassName: 'bg-amber-50 text-amber-600 ring-amber-100',
-        },
-      ],
-    },
-  ],
-  '2026年6月': [
-    {
-      date: '2026年6月7日',
-      weekday: '日',
-      items: [
-        {
-          id: 'jun7-1',
-          gameName: '原神',
-          itemName: '限定祈願パック',
-          amount: 3200,
-          icon: Sparkles,
-          iconClassName: 'bg-blue-50 text-blue-600 ring-blue-100',
-        },
-      ],
-    },
-  ],
-  '2026年7月': [],
-};
-
-function formatCurrency(value: number) {
-  return `¥${value.toLocaleString()}`;
-}
+import { formatCurrency } from '../../lib/format';
+import { mockChargeHistoryByMonth, mockChargeHistoryMonths } from '../../lib/mockData';
 
 export default function ChargeHistoryPage() {
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(0);
-  const selectedMonth = months[selectedMonthIndex];
-  const groups = chargeHistoryByMonth[selectedMonth] ?? [];
+  const selectedMonth = mockChargeHistoryMonths[selectedMonthIndex];
+  const groups = mockChargeHistoryByMonth[selectedMonth] ?? [];
   const totalCount = useMemo(() => groups.reduce((sum, group) => sum + group.items.length, 0), [groups]);
 
   function moveMonth(direction: -1 | 1) {
     setSelectedMonthIndex((current) => {
       const nextIndex = current + direction;
-      if (nextIndex < 0 || nextIndex >= months.length) {
+      if (nextIndex < 0 || nextIndex >= mockChargeHistoryMonths.length) {
         return current;
       }
 
