@@ -1,24 +1,12 @@
 'use client';
 
-import { CheckCircle2, Crown, EllipsisVertical, Gem, Gamepad2, Plus, Sparkles, Sword, UploadCloud, X } from 'lucide-react';
+import { CheckCircle2, EllipsisVertical, Gamepad2, Plus, UploadCloud, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
+import { formatCurrency } from '../../lib/format';
+import { mockGameIconStyles, mockGameTotalAmounts } from '../../lib/mockData';
 import { createId, loadGames, saveGames } from '../../lib/storage';
-import type { Game } from '../../lib/storage';
-
-const iconStyles = [
-  { icon: Sparkles, className: 'bg-blue-50 text-blue-600 ring-blue-100' },
-  { icon: Sword, className: 'bg-indigo-50 text-indigo-600 ring-indigo-100' },
-  { icon: Gamepad2, className: 'bg-emerald-50 text-emerald-600 ring-emerald-100' },
-  { icon: Gem, className: 'bg-amber-50 text-amber-600 ring-amber-100' },
-  { icon: Crown, className: 'bg-rose-50 text-rose-500 ring-rose-100' },
-];
-
-const dummyTotalAmounts = [18000, 9800, 7200, 12400, 3600];
-
-function formatCurrency(value: number) {
-  return `¥${value.toLocaleString()}`;
-}
+import type { Game } from '../../lib/types';
 
 export default function GamesPage() {
   const [games, setGames] = useState<Game[]>([]);
@@ -89,7 +77,7 @@ export default function GamesPage() {
 
           <div>
             {games.map((game, index) => {
-              const iconStyle = iconStyles[index % iconStyles.length];
+              const iconStyle = mockGameIconStyles[index % mockGameIconStyles.length];
               const Icon = iconStyle.icon;
 
               return (
@@ -105,7 +93,7 @@ export default function GamesPage() {
                   </div>
 
                   <p className="text-base font-bold text-slate-900">
-                    {formatCurrency(dummyTotalAmounts[index % dummyTotalAmounts.length])}
+                    {formatCurrency(mockGameTotalAmounts[index % mockGameTotalAmounts.length])}
                   </p>
 
                   <div>

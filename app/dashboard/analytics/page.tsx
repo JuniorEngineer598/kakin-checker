@@ -3,42 +3,15 @@
 import { CircleAlert, JapaneseYen, ReceiptText } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import { formatCurrency } from '../../lib/format';
+import { mockAnalyticsData, mockMonthLabels, mockSelectableYears } from '../../lib/mockData';
+import type { MockMonthAnalytics } from '../../lib/mockData';
 
-type MonthAnalytics = {
-  month: string;
-  amount: number;
-  count: number;
-};
-
-const analyticsData: Record<number, MonthAnalytics[]> = {
-  2026: [
-    { month: '1月', amount: 6200, count: 2 },
-    { month: '2月', amount: 9300, count: 3 },
-    { month: '3月', amount: 4800, count: 1 },
-    { month: '4月', amount: 11600, count: 4 },
-    { month: '5月', amount: 38400, count: 9 },
-    { month: '6月', amount: 17200, count: 5 },
-    { month: '7月', amount: 0, count: 0 },
-    { month: '8月', amount: 0, count: 0 },
-    { month: '9月', amount: 0, count: 0 },
-    { month: '10月', amount: 0, count: 0 },
-    { month: '11月', amount: 0, count: 0 },
-    { month: '12月', amount: 0, count: 0 },
-  ],
-};
-
-const selectableYears = Array.from({ length: 25 }, (_, index) => 2026 + index);
-const monthLabels = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-
-function formatCurrency(value: number) {
-  return `¥${value.toLocaleString()}`;
+function createEmptyYearData(): MockMonthAnalytics[] {
+  return mockMonthLabels.map((month) => ({ month, amount: 0, count: 0 }));
 }
 
-function createEmptyYearData(): MonthAnalytics[] {
-  return monthLabels.map((month) => ({ month, amount: 0, count: 0 }));
-}
-
-function getInitialMonthIndex(data: MonthAnalytics[]) {
+function getInitialMonthIndex(data: MockMonthAnalytics[]) {
   for (let index = data.length - 1; index >= 0; index -= 1) {
     if (data[index].amount > 0 || data[index].count > 0) {
       return index;
@@ -50,8 +23,8 @@ function getInitialMonthIndex(data: MonthAnalytics[]) {
 
 export default function AnalyticsPage() {
   const [selectedYear, setSelectedYear] = useState(2026);
-  const yearData = useMemo(() => analyticsData[selectedYear] ?? createEmptyYearData(), [selectedYear]);
-  const [selectedMonthIndex, setSelectedMonthIndex] = useState(() => getInitialMonthIndex(analyticsData[2026]));
+  const yearData = useMemo(() => mockAnalyticsData[selectedYear] ?? createEmptyYearData(), [selectedYear]);
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(() => getInitialMonthIndex(mockAnalyticsData[2026]));
 
   const selectedMonth = yearData[selectedMonthIndex] ?? yearData[4];
   const annualTotal = yearData.reduce((sum, item) => sum + item.amount, 0);
@@ -59,7 +32,7 @@ export default function AnalyticsPage() {
 
   function handleYearChange(value: string) {
     const nextYear = Number(value);
-    const nextData = analyticsData[nextYear] ?? createEmptyYearData();
+    const nextData = mockAnalyticsData[nextYear] ?? createEmptyYearData();
 
     setSelectedYear(nextYear);
     setSelectedMonthIndex(getInitialMonthIndex(nextData));
@@ -87,7 +60,7 @@ export default function AnalyticsPage() {
                 onChange={(event) => handleYearChange(event.target.value)}
                 className="h-11 rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-600 outline-none transition focus:border-slate-400 focus:bg-white"
               >
-                {selectableYears.map((year) => (
+                {mockSelectableYears.map((year) => (
                   <option key={year} value={year}>
                     {year}年
                   </option>
