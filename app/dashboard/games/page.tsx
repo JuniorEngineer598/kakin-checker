@@ -11,7 +11,6 @@ import {
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { formatCurrency } from "../../lib/format";
-import { mockGameIconStyles } from "../../lib/mockData";
 import {
   createId,
   loadGames,
@@ -22,6 +21,8 @@ import {
   saveChargeTemplates,
 } from "../../lib/storage";
 import type { ChargeRecord, Game } from "../../lib/types";
+import { getNextDefaultGameIconKey } from "../../lib/gameIcons";
+import GameIconView from "../../components/GameIconView";
 
 export default function GamesPage() {
   const [games, setGames] = useState<Game[]>([]);
@@ -55,14 +56,17 @@ export default function GamesPage() {
       return;
     }
 
-    const nextGames = [
-      ...games,
-      {
-        id: createId("game"),
-        name: trimmedName,
-        createdAt: new Date().toISOString(),
+    const newGame: Game = {
+      id: createId("game"),
+      name: trimmedName,
+      icon: {
+        type: "default",
+        key: getNextDefaultGameIconKey(games.length),
       },
-    ];
+      createdAt: new Date().toISOString(),
+    };
+
+    const nextGames = [...games, newGame];
 
     setGames(nextGames);
     saveGames(nextGames);
@@ -81,7 +85,9 @@ export default function GamesPage() {
 
     // ゲームを削除した後、そのゲームに関連する課金記録と課金テンプレートも削除
     const nextGames = games.filter((game) => game.id !== gameId);
-    const nextCharges = loadCharges().filter((charge) => charge.gameId !== gameId);
+    const nextCharges = loadCharges().filter(
+      (charge) => charge.gameId !== gameId,
+    );
     const nextChargeTemplates = loadChargeTemplates().filter(
       (template) => template.gameId !== gameId,
     );
@@ -187,22 +193,14 @@ export default function GamesPage() {
           </div>
 
           <div>
-            {games.map((game, index) => {
-              const iconStyle =
-                mockGameIconStyles[index % mockGameIconStyles.length];
-              const Icon = iconStyle.icon;
-
+            {games.map((game) => {
               return (
                 <article
                   key={game.id}
                   className="grid grid-cols-[minmax(0,1.2fr)_160px_160px_120px] items-center border-b border-slate-200 px-2 py-5 last:border-b-0"
                 >
                   <div className="flex min-w-0 items-center gap-5">
-                    <div
-                      className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ring-1 ${iconStyle.className}`}
-                    >
-                      <Icon size={25} strokeWidth={2.2} aria-hidden="true" />
-                    </div>
+                    <GameIconView icon={game.icon} className="h-14 w-14 shrink-0" />
                     <p className="min-w-0 truncate text-lg font-bold text-slate-950">
                       {game.name}
                     </p>
