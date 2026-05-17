@@ -1,6 +1,7 @@
 export type Game = {
   id: string;
   name: string;
+  icon: GameIcon;
   createdAt: string;
 };
 
@@ -28,3 +29,16 @@ export type ChargeRecord = {
 };
 
 export type ActiveTab = 'template' | 'new';
+
+export type DefaultGameIconKey = 'gamepad' | 'sparkles' | 'sword' | 'gem' | 'crown';
+
+export type GameIcon =
+  | {
+      type: 'default';
+      key: DefaultGameIconKey;
+    }
+  | {
+      type: 'upload';
+      imageUrl: string;
+    };
+
