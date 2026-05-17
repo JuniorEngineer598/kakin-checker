@@ -1,4 +1,4 @@
-import { defaultChargeTemplates, defaultGames } from './defaultData';
+
 import type { ChargeRecord, ChargeTemplate, Game } from './types';
 
 // ローカルストレージのキーを定義
@@ -41,7 +41,7 @@ function writeJson<T>(key: string, value: T) {
 }
 // ゲームデータをローカルストレージから読み込み
 export function loadGames() {
-  return readJson<Game[]>(STORAGE_KEYS.games, defaultGames);
+  return readJson<Game[]>(STORAGE_KEYS.games, []);
 }
 
 // ゲームデータをローカルストレージに保存
@@ -51,7 +51,7 @@ export function saveGames(games: Game[]) {
 
 // 課金テンプレートをローカルストレージから読み込み
 export function loadChargeTemplates() {
-  return readJson<ChargeTemplate[]>(STORAGE_KEYS.chargeTemplates, defaultChargeTemplates);
+  return readJson<ChargeTemplate[]>(STORAGE_KEYS.chargeTemplates, []);
 }
 
 // 課金テンプレートをローカルストレージに保存
