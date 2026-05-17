@@ -1,4 +1,5 @@
 import type { ChargeTemplate, Game } from './types';
+import { Crown, Gamepad2, Gem, Sparkles, Sword } from 'lucide-react';
 
 const now = new Date().toISOString();
 
