@@ -1,9 +1,9 @@
 "use client";
 
 import {
+  AppWindow,
   CheckCircle2,
   EllipsisVertical,
-  Gamepad2,
   Plus,
   UploadCloud,
   X,
@@ -40,19 +40,19 @@ export default function GamesPage() {
     setCharges(loadCharges());
   }, []);
 
-  // 新しいゲームを追加する処理
+  // 新しいアプリを追加する処理
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const trimmedName = gameName.trim();
     if (!trimmedName) {
-      setGameNameError("※ゲーム名を入力してください");
+      setGameNameError("※アプリ名を入力してください");
       return;
     }
-    // 同じ名前のゲームが既に存在するかチェック
+    // 同じ名前のアプリが既に存在するかチェック
     const existsGame = games.find((game) => game.name === trimmedName);
     if (existsGame) {
-      setGameNameError("※同じ名前のゲームが既に存在しています");
+      setGameNameError("※同じ名前のアプリが既に存在しています");
       return;
     }
 
@@ -75,15 +75,15 @@ export default function GamesPage() {
     setOpenGameMenuId(null);
   }
 
-  // ゲームを削除する処理
+  // アプリを削除する処理
   const handleDeleteGame = (gameId: string) => {
-    // ゲームを削除する前に確認ダイアログを表示
+    // アプリを削除する前に確認ダイアログを表示
     const ok = window.confirm(
-      "このゲームを本当に削除しますか？\n※このゲームの課金履歴とテンプレートも削除されます",
+      "このアプリを本当に削除しますか？\n※このアプリの課金履歴とテンプレートも削除されます",
     );
     if (!ok) return;
 
-    // ゲームを削除した後、そのゲームに関連する課金記録と課金テンプレートも削除
+    // アプリを削除した後、そのアプリに関連する課金記録と課金テンプレートも削除
     const nextGames = games.filter((game) => game.id !== gameId);
     const nextCharges = loadCharges().filter(
       (charge) => charge.gameId !== gameId,
@@ -99,7 +99,7 @@ export default function GamesPage() {
     setOpenGameMenuId(null);
   };
 
-  // ゲーム編集モーダルを開く処理
+  // アプリ編集モーダルを開く処理
   const openEditModal = (game: Game) => {
     setEditGameId(game.id);
     setEditGameName(game.name);
@@ -113,27 +113,27 @@ export default function GamesPage() {
     setEditGameNameError("");
   }
 
-  // ゲーム名を編集して保存する処理
+  // アプリ名を編集して保存する処理
   const handleEditSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedName = editGameName.trim();
-    // ゲーム名が空の場合はエラーを表示して保存処理を中断
+    // アプリ名が空の場合はエラーを表示して保存処理を中断
     if (!trimmedName) {
-      setEditGameNameError("※ゲーム名を入力してください");
+      setEditGameNameError("※アプリ名を入力してください");
       return;
     }
 
-    // 同じ名前のゲームが既に存在するかチェック
+    // 同じ名前のアプリが既に存在するかチェック
     const existsGame = games.find(
       (game) => game.id !== editGameId && game.name === trimmedName,
     );
     if (existsGame) {
-      setEditGameNameError("※同じ名前のゲームが既に存在しています");
+      setEditGameNameError("※同じ名前のアプリが既に存在しています");
       return;
     }
 
-    // ゲーム名を更新した新しいゲームの配列を作成
+    // アプリ名を更新した新しいアプリの配列を作成
     const nextGames = games.map((game) => {
       if (game.id === editGameId) {
         return {
@@ -150,7 +150,7 @@ export default function GamesPage() {
     closeEditModal();
   };
 
-  // ゲームごとの総課金額を計算
+  // アプリごとの総課金額を計算
   function getGameTotalAmount(gameId: string) {
     return charges
       .filter((charge) => charge.gameId === gameId)
@@ -162,15 +162,15 @@ export default function GamesPage() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-10">
           <div>
-            <p className="text-sm font-semibold text-slate-500">Games</p>
+            <p className="text-sm font-semibold text-slate-500">Apps</p>
             <h1 className="mt-2 text-3xl font-bold text-slate-950">
-              ゲーム追加
+              アプリ追加
             </h1>
           </div>
         </div>
 
         <div className="mb-6 flex items-center justify-between gap-4">
-          <h2 className="text-xl font-bold text-slate-950">登録済みのゲーム</h2>
+          <h2 className="text-xl font-bold text-slate-950">登録済みのアプリ</h2>
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
@@ -184,8 +184,8 @@ export default function GamesPage() {
         <section className="overflow-hidden rounded-[28px] bg-white px-6 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)]">
           <div className="grid grid-cols-[minmax(0,1.2fr)_160px_160px_120px] border-b border-slate-200 px-2 py-5 text-sm font-bold text-slate-500">
             <div className="flex items-center gap-3">
-              <Gamepad2 size={18} strokeWidth={2.2} aria-hidden="true" />
-              ゲーム名
+              <AppWindow size={18} strokeWidth={2.2} aria-hidden="true" />
+              アプリ名
             </div>
             <div>総課金額</div>
             <div>登録状況</div>
@@ -279,7 +279,7 @@ export default function GamesPage() {
             >
               <div className="flex items-center justify-between gap-4">
                 <h2 className="text-2xl font-bold text-slate-950">
-                  ゲームを追加
+                  アプリを追加
                 </h2>
                 <button
                   type="button"
@@ -293,7 +293,7 @@ export default function GamesPage() {
 
               <label className="mt-8 block">
                 <span className="text-sm font-bold text-slate-700">
-                  ゲーム名
+                  アプリ名
                 </span>
                 <input
                   type="text"
@@ -372,7 +372,7 @@ export default function GamesPage() {
             >
               <div className="flex items-center justify-between gap-4">
                 <h2 className="text-2xl font-bold text-slate-950">
-                  ゲーム名を編集
+                  アプリ名を編集
                 </h2>
                 <button
                   type="button"
@@ -386,7 +386,7 @@ export default function GamesPage() {
 
               <label className="mt-8 block">
                 <span className="text-sm font-bold text-slate-700">
-                  ゲーム名
+                  アプリ名
                 </span>
                 <input
                   type="text"

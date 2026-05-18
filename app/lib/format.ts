@@ -11,3 +11,30 @@ export function formatDateInputValue(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+
+export function parseChargeDate(value: string) {
+  return new Date(`${value}T00:00:00`);
+}
+
+// Dateオブジェクトを受け取り、"YYYY年M月" 形式の文字列を返す
+export function formatChargeMonthLabel(date: Date) {
+  return `${date.getFullYear()}年${date.getMonth() + 1}月`;
+}
+
+//Dateオブジェクトを受け取り、"YYYY年M月D日" 形式の文字列を返す
+export function formatChargeDateLabel(date: Date) {
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+}
+
+// Dateオブジェクトを受け取り、曜日を表す文字列を返す "月", "火", "水" など
+export function formatWeekdayLabel(date: Date) {
+  return weekdays[date.getDay()];
+}
+
+export function formatMonthInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+
+  return `${year}-${month}`;
+}

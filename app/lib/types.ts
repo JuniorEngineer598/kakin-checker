@@ -1,3 +1,4 @@
+//ゲーム型
 export type Game = {
   id: string;
   name: string;
@@ -5,6 +6,7 @@ export type Game = {
   createdAt: string;
 };
 
+//課金テンプレート型
 export type ChargeTemplate = {
   id: string;
   gameId: string;
@@ -18,6 +20,7 @@ export type ChargeTemplate = {
 
 export type ChargeCategory = 'ガチャ' | '月パス' | 'スキン' | 'アイテム' | 'その他';
 
+//課金記録型
 export type ChargeRecord = {
   id: string;
   gameId: string;
@@ -42,3 +45,18 @@ export type GameIcon =
       imageUrl: string;
     };
 
+// 課金履歴の型
+export type ChargeHistoryItem = {
+  id: string;
+  gameName: string;
+  gameIcon: GameIcon;
+  itemName: string;
+  amount: number;
+};
+
+//同じ日付の課金履歴をまとめるための型
+export type ChargeHistoryGroup = {
+  date: string;
+  weekday: string;
+  items: ChargeHistoryItem[];
+};
