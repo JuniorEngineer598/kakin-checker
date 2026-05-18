@@ -1,36 +1,67 @@
-'use client';
+"use client";
 
-import { ChevronDown, ChevronLeft, ChevronRight, MoreVertical } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { formatCurrency } from '../../lib/format';
-import { mockChargeHistoryByMonth, mockChargeHistoryMonths } from '../../lib/mockData';
+import { ChevronLeft, ChevronRight, MoreVertical } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
+import GameIconView from "../../components/GameIconView";
+import { buildChargeHistory } from "../../lib/chargeHistory";
+import {
+  formatChargeMonthLabel,
+  formatCurrency,
+  formatMonthInputValue,
+} from "../../lib/format";
+import type { ChargeRecord, Game } from "../../lib/types";
+import { loadCharges, loadGames, saveCharges } from "../../lib/storage";
 
 export default function ChargeHistoryPage() {
-  const [selectedMonthIndex, setSelectedMonthIndex] = useState(0);
-  const selectedMonth = mockChargeHistoryMonths[selectedMonthIndex];
-  const groups = mockChargeHistoryByMonth[selectedMonth] ?? [];
-  const totalCount = useMemo(() => groups.reduce((sum, group) => sum + group.items.length, 0), [groups]);
+  const [charges, setCharges] = useState<ChargeRecord[]>([]);
+  const [games, setGames] = useState<Game[]>([]);
+  const [selectedMonthDate, setSelectedMonthDate] = useState(() => new Date());
+  const [openChargeMenuId, setOpenChargeMenuId] = useState<string | null>(null);
 
+  useEffect(() => {
+    setCharges(loadCharges());
+    setGames(loadGames());
+  }, []);
+
+  //charges と games が更新されるたびに、buildChargeHistory関数を呼び出し
+  const { groupsByMonth } = useMemo(() => {
+    return buildChargeHistory(charges, games);
+  }, [charges, games]);
+
+  const selectedMonth = formatChargeMonthLabel(selectedMonthDate);
+  //選択された月のグループを取得。なければ空配列
+  const groups = groupsByMonth[selectedMonth] ?? [];
+  const totalCount = useMemo(
+    () => groups.reduce((sum, group) => sum + group.items.length, 0),
+    [groups],
+  );
+
+  //月移動の関数 direction: -1 で前の月、1 で次の月
   function moveMonth(direction: -1 | 1) {
-    setSelectedMonthIndex((current) => {
-      const nextIndex = current + direction;
-      if (nextIndex < 0 || nextIndex >= mockChargeHistoryMonths.length) {
-        return current;
-      }
-
-      return nextIndex;
+    setSelectedMonthDate((current) => {
+      return new Date(current.getFullYear(), current.getMonth() + direction, 1);
     });
   }
 
+  function handleDeleteCharge(chargeId: string) {
+    const ok = window.confirm("この課金記録を消去しますか？");
+    if (!ok) return;
+
+    const nextCharges = charges.filter((charge) => charge.id !== chargeId);
+    setCharges(nextCharges);
+    saveCharges(nextCharges);
+    setOpenChargeMenuId(null);
+  }
+  
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-8">
+        <div className="mb-4">
           <p className="text-sm font-semibold text-slate-500">Charge History</p>
-          <h1 className="mt-1 text-4xl font-bold text-slate-950">課金履歴</h1>
+          <h1 className="mt-1 text-2xl font-bold text-slate-950">課金履歴</h1>
         </div>
 
-        <div className="mb-6 flex flex-wrap items-center gap-3">
+        <div className="mb-3 flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={() => moveMonth(-1)}
@@ -40,13 +71,15 @@ export default function ChargeHistoryPage() {
             <ChevronLeft size={22} strokeWidth={2.2} aria-hidden="true" />
           </button>
 
-          <button
-            type="button"
-            className="flex h-12 min-w-[180px] items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-6 text-lg font-bold text-slate-950 shadow-sm"
-          >
-            {selectedMonth}
-            <ChevronDown size={18} strokeWidth={2.2} className="text-slate-500" aria-hidden="true" />
-          </button>
+          <input
+            type="month"
+            value={formatMonthInputValue(selectedMonthDate)}
+            onChange={(event) => {
+              const [year, month] = event.target.value.split("-").map(Number);
+              setSelectedMonthDate(new Date(year, month - 1, 1));
+            }}
+            className="flex h-12 min-w-[180px] items-center justify-center rounded-xl border border-slate-200 bg-white px-6 text-lg font-bold text-slate-950 shadow-sm"
+          />
 
           <button
             type="button"
@@ -72,34 +105,61 @@ export default function ChargeHistoryPage() {
                     </span>
                   </div>
 
-                  <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-                    {group.items.map((item) => {
-                      const Icon = item.icon;
+                  <div className="rounded-xl border border-slate-200 bg-white">
+                    {group.items.map((item) => (
+                      <article
+                        key={item.id}
+                        className="grid grid-cols-[minmax(160px,0.75fr)_minmax(220px,1fr)_120px_36px] items-center gap-4 border-b border-slate-200 px-3 py-3 last:border-b-0 sm:px-4"
+                      >
+                        <div className="flex min-w-0 items-center gap-4">
+                          <GameIconView
+                            icon={item.gameIcon}
+                            className="h-12 w-12 shrink-0"
+                          />
+                          <p className="truncate text-lg font-bold text-slate-950">
+                            {item.gameName}
+                          </p>
+                        </div>
 
-                      return (
-                        <article
-                          key={item.id}
-                          className="grid grid-cols-[minmax(160px,0.75fr)_minmax(220px,1fr)_120px_36px] items-center gap-4 border-b border-slate-200 px-3 py-3 last:border-b-0 sm:px-4"
-                        >
-                          <div className="flex min-w-0 items-center gap-4">
-                            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ring-1 ${item.iconClassName}`}>
-                              <Icon size={23} strokeWidth={2.2} aria-hidden="true" />
-                            </div>
-                            <p className="truncate text-lg font-bold text-slate-950">{item.gameName}</p>
-                          </div>
-
-                          <p className="min-w-0 truncate text-base font-semibold text-slate-800">{item.itemName}</p>
-                          <p className="text-right text-xl font-bold text-slate-950">{formatCurrency(item.amount)}</p>
+                        <p className="min-w-0 truncate text-base font-semibold text-slate-800">
+                          {item.itemName}
+                        </p>
+                        <p className="text-right text-xl font-bold text-slate-950">
+                          {formatCurrency(item.amount)}
+                        </p>
+                        <div className="relative justify-self-end" data-charge-menu>
                           <button
                             type="button"
                             className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
                             aria-label={`${item.itemName}のメニュー`}
+                            aria-expanded={openChargeMenuId === item.id}
+                            onClick={() =>
+                              setOpenChargeMenuId((current) =>
+                                current === item.id ? null : item.id,
+                              )
+                            }
                           >
-                            <MoreVertical size={19} strokeWidth={2.2} aria-hidden="true" />
+                            <MoreVertical
+                              size={19}
+                              strokeWidth={2.2}
+                              aria-hidden="true"
+                            />
                           </button>
-                        </article>
-                      );
-                    })}
+
+                          {openChargeMenuId === item.id ? (
+                            <div className="absolute right-0 top-10 z-20 w-28 rounded-xl border border-slate-200 bg-white p-1 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.5)]">
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteCharge(item.id)}
+                                className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-rose-600 transition hover:bg-rose-50"
+                              >
+                                消去
+                              </button>
+                            </div>
+                          ) : null}
+                        </div>
+                      </article>
+                    ))}
                   </div>
                 </section>
               ))}
@@ -110,7 +170,9 @@ export default function ChargeHistoryPage() {
             </div>
           )}
 
-          <p className="mt-6 text-center text-sm font-bold text-slate-600">合計 {totalCount} 件</p>
+          <p className="mt-6 text-center text-sm font-bold text-slate-600">
+            合計 {totalCount} 件
+          </p>
         </section>
       </div>
     </main>
