@@ -21,7 +21,7 @@ export default function NewChargeForm() {
   const [itemName, setItemName] = useState('');
   const [amount, setAmount] = useState('');
   const [chargedAt, setChargedAt] = useState(formatDateInputValue(new Date()));
-  const [category, setCategory] = useState<ChargeCategory>('ガチャ');
+  const [category, setCategory] = useState<ChargeCategory>('ガチャ石');
   const [shouldSaveAsTemplate, setShouldSaveAsTemplate] = useState(false);
 
   // ゲームデータの読み込み
@@ -73,7 +73,7 @@ export default function NewChargeForm() {
 
     setItemName('');
     setAmount('');
-    setCategory('ガチャ');
+    setCategory('ガチャ石');
     setShouldSaveAsTemplate(false);
   }
 
