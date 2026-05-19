@@ -1,3 +1,4 @@
+//金額を日本円表記にフォーマットする関数
 export function formatCurrency(value: number) {
   return `¥${value.toLocaleString()}`;
 }
