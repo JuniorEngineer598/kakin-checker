@@ -167,9 +167,16 @@ export default function DashboardPage() {
                         />
                       </div>
 
-                      <p className="w-full text-center text-xs font-semibold leading-tight text-slate-700 sm:text-sm">
-                        {item.gameName}
-                      </p>
+                      <div className="flex w-full min-w-0 flex-col items-center gap-2">
+                        <GameIconView
+                          icon={item.gameIcon}
+                          className="h-8 w-8 shrink-0"
+                          iconClassName="h-4 w-4"
+                        />
+                        <p className="w-full truncate text-center text-xs font-semibold leading-tight text-slate-700 sm:text-sm">
+                          {item.gameName}
+                        </p>
+                      </div>
                     </div>
                   );
                 })}
