@@ -5,6 +5,7 @@ import { useMemo, useState, useEffect } from "react";
 import GameIconView from "../../components/GameIconView";
 import { buildChargeHistory } from "../../lib/chargeHistory";
 import {
+  addMonths,
   formatChargeMonthLabel,
   formatCurrency,
   formatMonthInputValue,
@@ -38,9 +39,7 @@ export default function ChargeHistoryPage() {
 
   //月移動の関数 direction: -1 で前の月、1 で次の月
   function moveMonth(direction: -1 | 1) {
-    setSelectedMonthDate((current) => {
-      return new Date(current.getFullYear(), current.getMonth() + direction, 1);
-    });
+    setSelectedMonthDate((current) => addMonths(current, direction));
   }
 
   function handleDeleteCharge(chargeId: string) {

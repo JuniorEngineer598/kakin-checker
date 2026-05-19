@@ -39,3 +39,12 @@ export function formatMonthInputValue(date: Date) {
 
   return `${year}-${month}`;
 }
+
+//指定した月に移動する関数
+export function addMonths(date: Date, amount: number) {
+  const next = new Date(date);
+  next.setDate(1);
+  next.setMonth(date.getMonth() + amount);
+
+  return next;
+}
