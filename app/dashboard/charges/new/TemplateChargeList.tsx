@@ -26,7 +26,7 @@ export default function TemplateChargeList() {
   const [editTemplateId, setEditTemplateId] = useState<string | null>(null);
   const [editItemName, setEditItemName] = useState('');
   const [editAmount, setEditAmount] = useState('');
-  const [editCategory, setEditCategory] = useState<ChargeCategory>('ガチャ');
+  const [editCategory, setEditCategory] = useState<ChargeCategory>('ガチャ石');
 
   // ゲーム選択に応じてテンプレートをフィルタリング
   const filteredTemplates = selectedGameId
