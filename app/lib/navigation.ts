@@ -12,7 +12,7 @@ export const sidebarItems: SidebarItem[] = [
   { label: '課金追加', href: '/dashboard/charges/new', icon: PlusCircle },
   { label: '課金履歴', href: '/dashboard/charges-history', icon: FileText },
   { label: 'アプリ追加', href: '/dashboard/games', icon: AppWindow },
-  { label: '分析', href: '/dashboard/analytics', icon: BarChart3 },
+  { label: '分析', href: '/dashboard/analysis', icon: BarChart3 },
   { label: 'カレンダー', href: '/dashboard/calendar', icon: CalendarDays },
   { label: '設定', href: '/dashboard/settings', icon: Settings },
 ];
