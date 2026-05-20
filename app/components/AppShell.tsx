@@ -11,10 +11,25 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
 
+  function closeSidebarOnMobile() {
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      setIsSidebarOpen(false);
+    }
+  }
+
   return (
     <div className="flex min-h-screen bg-slate-100">
+      {isSidebarOpen ? (
+        <button
+          type="button"
+          className="fixed inset-0 z-30 bg-slate-950/35 backdrop-blur-[1px] md:hidden"
+          aria-label="サイドパネルを閉じる"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      ) : null}
+
       <aside
-        className={`sticky top-0 flex h-screen shrink-0 flex-col border-r border-slate-200 bg-white shadow-[14px_0_40px_-34px_rgba(15,23,42,0.5)] transition-[width,background-color] duration-200 ease-out ${
+        className={`fixed left-0 top-0 z-40 flex h-screen shrink-0 flex-col border-r border-slate-200 bg-white shadow-[14px_0_40px_-34px_rgba(15,23,42,0.5)] transition-[width,background-color] duration-200 ease-out md:sticky md:z-auto ${
           isSidebarOpen ? 'w-60' : 'w-16 cursor-pointer hover:bg-slate-50'
         }`}
         onClick={() => {
@@ -93,7 +108,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
                   event.stopPropagation();
                   if (!isSidebarOpen) {
                     setIsSidebarOpen(true);
+                    return;
                   }
+                  closeSidebarOnMobile();
                 }}
               >
                 <Icon
@@ -116,7 +133,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         </nav>
       </aside>
 
-      <div className="min-w-0 flex-1">{children}</div>
+      <div className="min-w-0 flex-1 pl-16 md:pl-0">{children}</div>
     </div>
   );
 }
