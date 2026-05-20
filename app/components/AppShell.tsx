@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { PanelLeft } from 'lucide-react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { sidebarItems } from '../lib/navigation';
@@ -24,8 +24,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
         }}
       >
         <div
-          className={`flex h-16 items-center border-b border-slate-200 px-3 ${
-            isSidebarOpen ? 'justify-between gap-3' : 'justify-center'
+          className={`flex h-16 items-center border-b border-slate-200 ${
+            isSidebarOpen ? 'justify-between gap-3 px-3' : 'justify-center px-1'
           }`}
         >
           <div
@@ -33,27 +33,39 @@ export default function AppShell({ children }: { children: ReactNode }) {
               isSidebarOpen ? 'w-full opacity-100' : 'pointer-events-none w-0 opacity-0'
             }`}
           >
-            <p className="truncate text-sm font-bold text-slate-950">課金チェッカー</p>
+            <div className="flex min-w-0 items-center gap-2">
+              <img
+                src="/kakin_checker_icon.svg"
+                alt=""
+                className="h-10 w-10 shrink-0"
+                aria-hidden="true"
+              />
+              <h1 className="truncate text-base font-bold text-slate-950">課金チェッカー</h1>
+            </div>
           </div>
 
           <button
             type="button"
-            className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-950 hover:shadow"
+            className={`flex shrink-0 cursor-pointer items-center justify-center text-slate-700 transition hover:text-slate-950 ${
+              isSidebarOpen ? 'h-10 w-10' : 'h-14 w-14'
+            }`}
             aria-label={isSidebarOpen ? 'サイドバーを閉じる' : 'サイドバーを開く'}
             aria-expanded={isSidebarOpen}
+            title={isSidebarOpen ? 'サイドパネルを閉じる' : 'サイドパネルを開く'}
             onClick={(event) => {
               event.stopPropagation();
               setIsSidebarOpen((current) => !current);
             }}
           >
             {isSidebarOpen ? (
-              <ArrowLeft size={20} strokeWidth={2.2} aria-hidden="true" />
+              <PanelLeft size={20} strokeWidth={2.2} aria-hidden="true" />
             ) : (
-              <span className="relative h-5 w-5" aria-hidden="true">
-                <span className="absolute left-0 top-[3px] h-0.5 w-5 bg-current" />
-                <span className="absolute left-0 top-[10px] h-0.5 w-5 bg-current" />
-                <span className="absolute left-0 top-[17px] h-0.5 w-5 bg-current" />
-              </span>
+              <img
+                src="/kakin_checker_icon.svg"
+                alt=""
+                className="h-12 w-12"
+                aria-hidden="true"
+              />
             )}
           </button>
         </div>
