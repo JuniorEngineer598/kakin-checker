@@ -35,7 +35,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           >
             <div className="flex min-w-0 items-center gap-2">
               <img
-                src="/kakin_checker_icon.svg"
+                src="/kakin_checker_logo_mark.svg"
                 alt=""
                 className="h-10 w-10 shrink-0"
                 aria-hidden="true"
@@ -61,7 +61,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
               <PanelLeft size={20} strokeWidth={2.2} aria-hidden="true" />
             ) : (
               <img
-                src="/kakin_checker_icon.svg"
+                src="/kakin_checker_logo_mark.svg"
                 alt=""
                 className="h-12 w-12"
                 aria-hidden="true"
