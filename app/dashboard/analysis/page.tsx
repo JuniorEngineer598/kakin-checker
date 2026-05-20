@@ -1,41 +1,37 @@
-'use client';
+"use client";
 
-import { CircleAlert, JapaneseYen, ReceiptText } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import type { ReactNode } from 'react';
-import { formatCurrency } from '../../lib/format';
-import { mockAnalyticsData, mockMonthLabels, mockSelectableYears } from '../../lib/mockData';
-import type { MockMonthAnalytics } from '../../lib/mockData';
+import { CircleAlert, JapaneseYen, ReceiptText } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
+import { buildAnalysisStats } from "../../lib/analysisStats";
+import type { ReactNode } from "react";
+import { formatCurrency } from "../../lib/format";
+import { loadCharges } from "../../lib/storage";
+import type { ChargeRecord } from "../../lib/types";
 
-function createEmptyYearData(): MockMonthAnalytics[] {
-  return mockMonthLabels.map((month) => ({ month, amount: 0, count: 0 }));
-}
-
-function getInitialMonthIndex(data: MockMonthAnalytics[]) {
-  for (let index = data.length - 1; index >= 0; index -= 1) {
-    if (data[index].amount > 0 || data[index].count > 0) {
-      return index;
-    }
-  }
-
-  return 4;
-}
-
+const selectableYears = Array.from({ length: 25 }, (_, index) => 2026 + index);
 export default function AnalyticsPage() {
-  const [selectedYear, setSelectedYear] = useState(2026);
-  const yearData = useMemo(() => mockAnalyticsData[selectedYear] ?? createEmptyYearData(), [selectedYear]);
-  const [selectedMonthIndex, setSelectedMonthIndex] = useState(() => getInitialMonthIndex(mockAnalyticsData[2026]));
+  const [selectedYear, setSelectedYear] = useState(() =>
+    new Date().getFullYear(),
+  );
+  const [charges, setCharges] = useState<ChargeRecord[]>([]);
 
-  const selectedMonth = yearData[selectedMonthIndex] ?? yearData[4];
-  const annualTotal = yearData.reduce((sum, item) => sum + item.amount, 0);
-  const maxAmount = Math.max(...yearData.map((item) => item.amount), 1);
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(0);
+
+  useEffect(() => {
+    setCharges(loadCharges());
+  }, []);
+
+  const analysisStats = useMemo(() => {
+    return buildAnalysisStats(charges, selectedYear);
+  }, [charges, selectedYear]);
+
+  const yearData = analysisStats.monthlyItems;
+  const selectedMonth = yearData[selectedMonthIndex] ?? yearData[0];
+  const maxAmount = Math.max(...yearData.map((item) => item.totalAmount), 1);
 
   function handleYearChange(value: string) {
-    const nextYear = Number(value);
-    const nextData = mockAnalyticsData[nextYear] ?? createEmptyYearData();
-
-    setSelectedYear(nextYear);
-    setSelectedMonthIndex(getInitialMonthIndex(nextData));
+    setSelectedYear(Number(value));
+    setSelectedMonthIndex(0);
   }
 
   return (
@@ -50,9 +46,23 @@ export default function AnalyticsPage() {
           <div className="p-5 sm:p-6 lg:p-7">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-slate-500">年間の月別課金額比較</p>
-                <p className="mt-2 text-4xl font-bold text-slate-950">{formatCurrency(annualTotal)}</p>
-                <p className="mt-1 text-sm font-semibold text-slate-400">{selectedYear}年の合計</p>
+                <p className="text-sm font-semibold text-slate-500">
+                  年間の月別課金額比較
+                </p>
+                <div className="mt-3 flex flex-wrap gap-5">
+                  <div className="min-w-[260px] rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                    <p className="text-xs font-bold text-slate-600">年間課金額</p>
+                    <p className="mt-1 text-4xl font-bold text-slate-950">
+                      {formatCurrency(analysisStats.yearlyTotalAmount)}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                    <p className="text-xs font-bold text-slate-600">年間課金件数</p>
+                    <p className="mt-1 text-4xl font-bold text-slate-950">
+                      {analysisStats.yearlyChargeCount}件
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <select
@@ -60,7 +70,7 @@ export default function AnalyticsPage() {
                 onChange={(event) => handleYearChange(event.target.value)}
                 className="h-11 rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-600 outline-none transition focus:border-slate-400 focus:bg-white"
               >
-                {mockSelectableYears.map((year) => (
+                {selectableYears.map((year) => (
                   <option key={year} value={year}>
                     {year}年
                   </option>
@@ -71,8 +81,10 @@ export default function AnalyticsPage() {
             <div className="mt-10 grid min-h-[300px] grid-cols-12 items-end gap-2 sm:gap-3">
               {yearData.map((item, index) => {
                 const isSelected = selectedMonthIndex === index;
-                const hasAmount = item.amount > 0;
-                const height = hasAmount ? Math.max(22, (item.amount / maxAmount) * 210) : 12;
+                const hasAmount = item.totalAmount > 0;
+                const height = hasAmount
+                  ? Math.max(22, (item.totalAmount / maxAmount) * 210)
+                  : 12;
 
                 return (
                   <button
@@ -85,23 +97,25 @@ export default function AnalyticsPage() {
                     <div className="relative flex h-[230px] w-full items-end justify-center">
                       {isSelected ? (
                         <div className="absolute bottom-[calc(100%+6px)] whitespace-nowrap rounded-xl bg-blue-500 px-3 py-1.5 text-xs font-bold text-white shadow-[0_12px_28px_-18px_rgba(15,23,42,0.9)]">
-                          {formatCurrency(item.amount)}
+                          {formatCurrency(item.totalAmount)}
                         </div>
                       ) : null}
 
                       <div
                         className={`w-full max-w-9 rounded-t-xl transition ${
                           isSelected
-                            ? 'bg-slate-950 ring-4 ring-slate-200'
+                            ? "bg-slate-950 ring-4 ring-slate-200"
                             : hasAmount
-                              ? 'bg-slate-800 group-hover:bg-slate-950'
-                              : 'bg-slate-200 group-hover:bg-slate-300'
+                              ? "bg-slate-800 group-hover:bg-slate-950"
+                              : "bg-slate-200 group-hover:bg-slate-300"
                         }`}
                         style={{ height: `${height}px` }}
                       />
                     </div>
-                    <span className={`text-xs font-bold ${isSelected ? 'text-slate-950' : 'text-slate-500'}`}>
-                      {item.month}
+                    <span
+                      className={`text-xs font-bold ${isSelected ? "text-slate-950" : "text-slate-500"}`}
+                    >
+                      {item.month}月
                     </span>
                   </button>
                 );
@@ -118,18 +132,24 @@ export default function AnalyticsPage() {
 
           <aside className="border-t border-slate-200 p-5 sm:p-6 lg:border-l lg:border-t-0 lg:p-7">
             <p className="text-sm font-semibold text-slate-500">選択中の月</p>
-            <h2 className="mt-2 text-4xl font-bold text-slate-950">{selectedMonth.month}</h2>
+            <h2 className="mt-2 text-4xl font-bold text-slate-950">
+              {selectedMonth.month}月
+            </h2>
 
             <div className="mt-7 grid gap-4">
               <DetailCard
-                icon={<ReceiptText size={22} strokeWidth={2.2} aria-hidden="true" />}
+                icon={
+                  <ReceiptText size={22} strokeWidth={2.2} aria-hidden="true" />
+                }
                 label="課金件数"
-                value={`${selectedMonth.count}件`}
+                value={`${selectedMonth.chargeCount}件`}
               />
               <DetailCard
-                icon={<JapaneseYen size={22} strokeWidth={2.2} aria-hidden="true" />}
+                icon={
+                  <JapaneseYen size={22} strokeWidth={2.2} aria-hidden="true" />
+                }
                 label="合計課金額"
-                value={formatCurrency(selectedMonth.amount)}
+                value={formatCurrency(selectedMonth.totalAmount)}
               />
             </div>
           </aside>
@@ -155,7 +175,9 @@ function DetailCard({
       </div>
       <div className="min-w-0">
         <p className="text-sm font-semibold text-slate-500">{label}</p>
-        <p className="mt-1 truncate text-2xl font-bold text-slate-950">{value}</p>
+        <p className="mt-1 truncate text-2xl font-bold text-slate-950">
+          {value}
+        </p>
       </div>
     </article>
   );

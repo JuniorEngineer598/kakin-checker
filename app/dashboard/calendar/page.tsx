@@ -212,7 +212,7 @@ export default function CalendarPage() {
 
                 <div className="mt-6 border-t border-slate-200 pt-5">
                   <p className="text-xs font-bold text-slate-500">課金内訳</p>
-                  <div className="mt-4 grid gap-3">
+                  <div className="mt-4 grid max-h-[calc(100vh-360px)] gap-3 overflow-y-auto pr-1">
                     {selectedDayData?.items.map((item) => (
                       <div
                         key={item.id}

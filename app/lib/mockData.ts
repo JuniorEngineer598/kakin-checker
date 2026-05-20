@@ -67,8 +67,8 @@ export const mockAnalyticsData: Record<number, MockMonthAnalytics[]> = {
     { month: '12月', amount: 0, count: 0 },
   ],
 };
-
 export const mockSelectableYears = Array.from({ length: 25 }, (_, index) => 2026 + index);
+
 export const mockMonthLabels = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
 
 export const mockCalendarDays = Array.from({ length: 35 }, (_, index) => index + 1);
