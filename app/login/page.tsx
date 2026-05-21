@@ -1,108 +1,115 @@
-import { ChartColumn, FileText, History } from 'lucide-react';
-import LoginForm from './LoginForm';
+"use client";
+
+import Image from "next/image";
+import { BarChart3, FileText, History } from "lucide-react";
+import LoginForm from "./LoginForm";
 
 const features = [
   {
-    title: '課金を可視化',
-    description: '月別・ゲーム別に支出を把握',
-    icon: ChartColumn,
+    title: "課金を可視化",
+    description: "月別・ゲーム別に支出を把握",
+    icon: BarChart3,
   },
   {
-    title: '履歴を記録',
-    description: 'いつ、何に、いくら使ったかを保存',
+    title: "履歴を記録",
+    description: "いつ、何に、いくら使ったかを保存",
     icon: History,
   },
   {
-    title: 'テンプレート保存',
-    description: 'よく使う課金内容をすばやく記録',
+    title: "テンプレート保存",
+    description: "よく使う課金内容をすばやく記録",
     icon: FileText,
   },
 ];
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen bg-slate-100 p-3 text-slate-950">
-      <section className="relative min-h-[calc(100vh-1.5rem)] overflow-hidden rounded-lg border border-blue-100 bg-gradient-to-br from-white via-slate-50 to-blue-50 shadow-[0_18px_60px_-42px_rgba(15,23,42,0.5)]">
-        <div className="absolute -left-24 -top-28 h-80 w-[34rem] rounded-b-[55%] bg-blue-100/40 blur-2xl" aria-hidden="true" />
-        <div className="absolute left-20 top-28 grid grid-cols-7 gap-4 opacity-45" aria-hidden="true">
-          {Array.from({ length: 35 }).map((_, index) => (
-            <span key={index} className="h-1.5 w-1.5 rounded-full bg-blue-300" />
+    <main className="min-h-screen overflow-x-hidden bg-slate-100">
+      <section className="relative mx-auto min-h-[calc(100vh-16px)] w-full max-w-full overflow-hidden  border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-slate-50 py-5 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:px-8 lg:px-14 lg:py-12">
+        <div className="pointer-events-none absolute -left-28 -top-32 h-80 w-80 rounded-full bg-blue-100/45 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-0 h-28 w-full bg-blue-100/55 [clip-path:ellipse(74%_70%_at_50%_100%)]" />
+        <div className="pointer-events-none absolute left-16 top-24 hidden grid-cols-6 gap-3 opacity-70 sm:grid">
+          {Array.from({ length: 36 }).map((_, index) => (
+            <span key={index} className="h-1.5 w-1.5 rounded-full bg-blue-200" />
           ))}
         </div>
 
-        <svg
-          className="absolute bottom-0 left-0 h-56 w-full text-blue-100/80"
-          viewBox="0 0 1440 260"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <path
-            fill="currentColor"
-            d="M0 120C130 155 190 195 340 185C520 173 570 125 790 145C980 163 1040 215 1235 194C1320 185 1382 162 1440 146V260H0V120Z"
-          />
-          <path
-            fill="currentColor"
-            fillOpacity="0.55"
-            d="M0 180C170 202 240 250 430 242C610 235 685 190 860 190C1030 190 1120 230 1288 225C1360 223 1410 210 1440 200V260H0V180Z"
-          />
-        </svg>
-
-        <div className="relative z-10 grid min-h-[calc(100vh-1.5rem)] grid-cols-1 items-center gap-10 px-6 py-10 lg:grid-cols-[1.15fr_0.85fr] lg:px-20 xl:px-24">
-          <div className="mx-auto flex w-full max-w-3xl flex-col">
-            <div className="flex flex-col gap-8">
-              <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
-                <img
-                  src="/kakin_checker_logo_mark_flat.svg"
-                  alt=""
-                  className="h-28 w-28 shrink-0 sm:h-36 sm:w-36 lg:h-40 lg:w-40"
-                  aria-hidden="true"
-                />
-                <div className="min-w-0">
-                  <h1 className="text-4xl font-black tracking-normal text-slate-950 sm:text-5xl lg:text-6xl xl:text-7xl">
-                    課金チェッカー
-                  </h1>
-                  <p className="mt-4 text-base font-semibold tracking-normal text-slate-900 sm:text-xl lg:text-2xl">
-                    データで見える、スマートに課金管理を。
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-4 h-1 w-16 rounded-full bg-blue-600" />
-
-              <div className="max-w-2xl">
-                <h2 className="text-2xl font-bold tracking-normal text-slate-950 sm:text-3xl">
-                  毎月の課金を見える化して、無理のない管理を。
-                </h2>
-                <p className="mt-4 text-base leading-8 text-slate-600 sm:text-lg">
-                  アプリごとの課金履歴を記録し、月別に支出の傾向を確認できます。
-                </p>
-              </div>
-
-              <div className="mt-6 grid gap-5 sm:grid-cols-3">
-                {features.map((feature) => {
-                  const Icon = feature.icon;
-
-                  return (
-                    <div key={feature.title} className="flex items-center gap-4">
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-white text-blue-600 shadow-[0_12px_30px_-20px_rgba(15,23,42,0.7)]">
-                        <Icon size={28} strokeWidth={2.2} aria-hidden="true" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-bold text-slate-950">{feature.title}</p>
-                        <p className="mt-1 text-sm leading-6 text-slate-600">{feature.description}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+        <div className="relative z-10 mx-auto grid w-full max-w-[330px] gap-4 sm:max-w-[440px] lg:min-h-[calc(100vh-112px)] lg:max-w-7xl lg:grid-cols-[minmax(0,1fr)_460px] lg:items-center lg:gap-14">
+          <div className="grid min-w-0 gap-8 lg:gap-12">
+            <BrandHero />
+            <div className="hidden lg:block">
+              <FeatureIntro />
             </div>
           </div>
 
-          <div className="mx-auto w-full max-w-md lg:max-w-[460px]">
+          <div className="mx-auto w-full lg:max-w-none">
             <LoginForm />
+          </div>
+
+          <div className="lg:hidden">
+            <FeatureIntro />
           </div>
         </div>
       </section>
     </main>
+  );
+}
+
+function BrandHero() {
+  return (
+    <section className="mx-auto flex max-w-[520px] min-w-0 flex-col items-center text-center lg:mx-0 lg:max-w-none lg:items-start lg:text-left">
+      <div className="flex min-w-0 items-center justify-center gap-2 sm:gap-6 lg:justify-start">
+        <Image
+          src="/kakin_checker_logo_mark_flat.svg"
+          alt="課金チェッカー"
+          width={156}
+          height={156}
+          priority
+          className="h-12 w-12 shrink-0 sm:h-32 sm:w-32 lg:h-36 lg:w-36"
+        />
+        <h1 className="min-w-0 text-2xl font-bold tracking-normal text-slate-950 sm:text-5xl lg:text-6xl">
+          課金チェッカー
+        </h1>
+      </div>
+      <p className="mt-3 text-sm font-bold leading-6 text-slate-950 sm:mt-5 sm:text-xl">
+        データで見える、スマートに課金管理を。
+      </p>
+    </section>
+  );
+}
+
+function FeatureIntro() {
+  return (
+    <section className="mx-auto max-w-[720px] lg:mx-0 mb-4">
+      <div className="h-1 w-16 rounded-full bg-blue-600" />
+      <h2 className="mt-8 break-words text-xl font-bold leading-tight text-slate-950 sm:text-3xl">
+        毎月の課金を見える化して、無理のない管理を。
+      </h2>
+      <p className="mt-4 text-base font-semibold leading-8 text-slate-600">
+        アプリごとの課金履歴を記録し、月別に支出の傾向を確認できます。
+      </p>
+
+      <div className="mt-10 grid gap-5 sm:grid-cols-3">
+        {features.map((feature) => {
+          const Icon = feature.icon;
+
+          return (
+            <article key={feature.title} className="flex items-center gap-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-white text-blue-600 shadow-[0_14px_35px_-24px_rgba(37,99,235,0.8)]">
+                <Icon size={27} strokeWidth={2.1} aria-hidden="true" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-sm font-bold text-slate-950">
+                  {feature.title}
+                </h3>
+                <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
+                  {feature.description}
+                </p>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
   );
 }
