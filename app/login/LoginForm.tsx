@@ -5,7 +5,7 @@ export default function LoginForm() {
   return (
     <div className="overflow-hidden rounded-lg border border-slate-100 bg-white/95 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.55)] backdrop-blur">
       <div className="px-5 pb-7 pt-6 sm:px-10 sm:pt-12">
-        <h2 className="text-center text-3xl font-black tracking-normal text-slate-950">ログイン</h2>
+        <h2 className="text-center text-3xl font-black tracking-normal text-slate-950">しね</h2>
 
         <div className="mt-4 space-y-6">
           <label className="block">
