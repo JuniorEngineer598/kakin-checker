@@ -52,7 +52,7 @@ export default function DashboardPage() {
           </article>
 
           <div className="grid gap-4">
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <article className="rounded-[24px] bg-white px-4 py-4 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)]">
                 <p className="text-sm font-semibold text-slate-500">
                   今月の課金件数
@@ -144,7 +144,7 @@ export default function DashboardPage() {
 
           <div className="rounded-[24px] bg-slate-50 px-3 py-5 sm:rounded-[28px] sm:px-5">
             {stats.monthlyAppTotals.length > 0 ? (
-              <div className="grid min-h-[280px] grid-cols-2 items-end gap-3 sm:grid-cols-5 sm:gap-5">
+              <div className="grid min-h-[280px] grid-flow-col auto-cols-fr items-end gap-3 sm:gap-5">
                 {stats.monthlyAppTotals.map((item) => {
                   const height = Math.max(
                     36,

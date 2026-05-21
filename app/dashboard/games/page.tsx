@@ -181,8 +181,18 @@ export default function GamesPage() {
           </button>
         </div>
 
-        <section className="overflow-hidden rounded-[28px] bg-white px-6 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)]">
-          <div className="grid grid-cols-[minmax(0,1.2fr)_160px_160px_120px] border-b border-slate-200 px-2 py-5 text-sm font-bold text-slate-500">
+        <section className="overflow-visible rounded-[28px] bg-white px-3 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:px-6 md:overflow-hidden">
+          <div className="grid grid-cols-[minmax(0,1fr)_72px_40px_36px] items-center gap-3 border-b border-slate-200 px-1 py-4 text-[11px] font-bold text-slate-500 sm:grid-cols-[minmax(0,1fr)_88px_48px_40px] sm:gap-4 sm:px-2 md:hidden">
+            <div className="flex items-center gap-2">
+              <AppWindow size={14} strokeWidth={2.2} aria-hidden="true" />
+              アプリ
+            </div>
+            <div className="justify-self-end">総課金額</div>
+            <div className="justify-self-center">登録</div>
+            <div className="justify-self-end">操作</div>
+          </div>
+
+          <div className="hidden grid-cols-[minmax(0,1.2fr)_160px_160px_120px] border-b border-slate-200 px-2 py-5 text-sm font-bold text-slate-500 md:grid">
             <div className="flex items-center gap-3">
               <AppWindow size={18} strokeWidth={2.2} aria-hidden="true" />
               アプリ名
@@ -197,21 +207,21 @@ export default function GamesPage() {
               return (
                 <article
                   key={game.id}
-                  className="grid grid-cols-[minmax(0,1.2fr)_160px_160px_120px] items-center border-b border-slate-200 px-2 py-5 last:border-b-0"
+                  className="grid grid-cols-[minmax(0,1fr)_72px_40px_36px] items-center gap-3 border-b border-slate-200 px-1 py-4 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_88px_48px_40px] sm:gap-4 sm:px-2 md:grid-cols-[minmax(0,1.2fr)_160px_160px_120px] md:gap-0 md:py-5"
                 >
-                  <div className="flex min-w-0 items-center gap-5">
-                    <GameIconView icon={game.icon} className="h-14 w-14 shrink-0" />
-                    <p className="min-w-0 truncate text-lg font-bold text-slate-950">
+                  <div className="flex min-w-0 items-center gap-3 md:gap-5">
+                    <GameIconView icon={game.icon} className="h-11 w-11 shrink-0 md:h-14 md:w-14" />
+                    <p className="min-w-0 truncate text-sm font-bold text-slate-950 sm:text-base md:text-lg">
                       {game.name}
                     </p>
                   </div>
 
-                  <p className="text-base font-bold text-slate-900">
+                  <p className="justify-self-end text-right text-sm font-bold text-slate-900 sm:text-base md:justify-self-auto md:text-left">
                     {formatCurrency(getGameTotalAmount(game.id))}
                   </p>
 
-                  <div>
-                    <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 ring-1 ring-emerald-100">
+                  <div className="flex justify-center justify-self-center md:block md:justify-self-auto">
+                    <span className="hidden items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 ring-1 ring-emerald-100 md:inline-flex">
                       <CheckCircle2
                         size={15}
                         strokeWidth={2.4}
@@ -220,9 +230,15 @@ export default function GamesPage() {
                       />
                       登録済み
                     </span>
+                    <CheckCircle2
+                      size={20}
+                      strokeWidth={2.4}
+                      className="text-emerald-500 md:hidden"
+                      aria-label="登録済み"
+                    />
                   </div>
 
-                  <div className="relative w-fit">
+                  <div className="relative w-fit justify-self-end md:justify-self-auto">
                     <button
                       type="button"
                       title="メニュー"

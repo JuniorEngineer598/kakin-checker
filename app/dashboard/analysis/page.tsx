@@ -68,7 +68,7 @@ export default function AnalyticsPage() {
               <select
                 value={selectedYear}
                 onChange={(event) => handleYearChange(event.target.value)}
-                className="h-11 rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-600 outline-none transition focus:border-slate-400 focus:bg-white"
+                className="h-11 w-fit self-start rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-600 outline-none transition focus:border-slate-400 focus:bg-white"
               >
                 {selectableYears.map((year) => (
                   <option key={year} value={year}>
