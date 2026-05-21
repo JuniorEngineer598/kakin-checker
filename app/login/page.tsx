@@ -42,7 +42,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="mx-auto w-full max-w-full sm:max-w-[440px] lg:max-w-none">
+          <div className="mx-auto w-full max-w-[360px] sm:max-w-[440px] lg:max-w-none">
             <LoginForm />
           </div>
 
