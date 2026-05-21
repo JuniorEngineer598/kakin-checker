@@ -25,7 +25,7 @@ const features = [
 export default function LoginPage() {
   return (
     <main className="min-h-screen bg-slate-100 p-2">
-      <section className="relative min-h-[calc(100vh-16px)] overflow-hidden rounded-[28px] border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-slate-50 px-5 py-5 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:px-8 lg:px-14 lg:py-12">
+      <section className="relative min-h-[calc(100vh-16px)] overflow-hidden rounded-[28px] border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-slate-50 px-3 py-5 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:px-8 lg:px-14 lg:py-12">
         <div className="pointer-events-none absolute -left-28 -top-32 h-80 w-80 rounded-full bg-blue-100/45 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-0 h-28 w-full bg-blue-100/55 [clip-path:ellipse(74%_70%_at_50%_100%)]" />
         <div className="pointer-events-none absolute left-16 top-24 hidden grid-cols-6 gap-3 opacity-70 sm:grid">
@@ -35,7 +35,7 @@ export default function LoginPage() {
         </div>
 
         <div className="relative z-10 mx-auto grid w-full max-w-7xl gap-4 lg:min-h-[calc(100vh-112px)] lg:grid-cols-[minmax(0,1fr)_460px] lg:items-center lg:gap-14">
-          <div className="grid gap-8 lg:gap-12">
+          <div className="grid min-w-0 gap-8 lg:gap-12">
             <BrandHero />
             <div className="hidden lg:block">
               <FeatureIntro />
@@ -57,17 +57,17 @@ export default function LoginPage() {
 
 function BrandHero() {
   return (
-    <section className="mx-auto flex max-w-[520px] flex-col items-center text-center lg:mx-0 lg:max-w-none lg:items-start lg:text-left">
-      <div className="flex items-center justify-center gap-3 sm:gap-6 lg:justify-start">
+    <section className="mx-auto flex max-w-[520px] min-w-0 flex-col items-center text-center lg:mx-0 lg:max-w-none lg:items-start lg:text-left">
+      <div className="flex min-w-0 items-center justify-center gap-2 sm:gap-6 lg:justify-start">
         <Image
           src="/kakin_checker_logo_mark_flat.svg"
           alt="課金チェッカー"
           width={156}
           height={156}
           priority
-          className="h-14 w-14 shrink-0 sm:h-32 sm:w-32 lg:h-36 lg:w-36"
+          className="h-12 w-12 shrink-0 sm:h-32 sm:w-32 lg:h-36 lg:w-36"
         />
-        <h1 className="text-3xl font-bold tracking-normal text-slate-950 sm:text-5xl lg:text-6xl">
+        <h1 className="min-w-0 text-2xl font-bold tracking-normal text-slate-950 sm:text-5xl lg:text-6xl">
           課金チェッカー
         </h1>
       </div>
