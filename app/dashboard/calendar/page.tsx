@@ -165,7 +165,7 @@ export default function CalendarPage() {
                     >
                       <span>{cell.day}</span>
                       {dayData ? (
-                        <div className="mt-auto text-right">
+                        <div className="mt-auto hidden text-right md:block">
                           <p className="text-lg font-bold leading-none text-white">
                             {formatCurrency(dayData.totalAmount)}
                           </p>

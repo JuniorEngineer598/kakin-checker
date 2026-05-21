@@ -90,13 +90,13 @@ export default function ChargeHistoryPage() {
           </button>
         </div>
 
-        <section className="max-h-[680px] overflow-y-auto rounded-[28px] bg-white p-5 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:p-6">
+        <section className="max-h-[680px] overflow-y-auto rounded-[28px] bg-white p-3 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:p-6">
           {groups.length > 0 ? (
             <div className="grid gap-6">
               {groups.map((group) => (
                 <section key={group.date}>
-                  <div className="mb-3 flex items-center gap-3">
-                    <h2 className="text-xl font-bold text-slate-950">
+                  <div className="mb-3 flex items-center gap-3 px-1 sm:px-0">
+                    <h2 className="text-lg font-bold text-slate-950 sm:text-xl">
                       {group.date}（{group.weekday}）
                     </h2>
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700">
@@ -108,22 +108,22 @@ export default function ChargeHistoryPage() {
                     {group.items.map((item) => (
                       <article
                         key={item.id}
-                        className="grid grid-cols-[minmax(160px,0.75fr)_minmax(220px,1fr)_120px_36px] items-center gap-4 border-b border-slate-200 px-3 py-3 last:border-b-0 sm:px-4"
+                        className="grid grid-cols-[minmax(0,1fr)_82px_36px] items-center gap-3 border-b border-slate-200 px-3 py-3 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_96px_36px] sm:px-4 md:grid-cols-[minmax(160px,0.75fr)_minmax(220px,1fr)_120px_36px] md:gap-4"
                       >
                         <div className="flex min-w-0 items-center gap-4">
                           <GameIconView
                             icon={item.gameIcon}
-                            className="h-12 w-12 shrink-0"
+                            className="h-11 w-11 shrink-0 md:h-12 md:w-12"
                           />
-                          <p className="truncate text-lg font-bold text-slate-950">
+                          <p className="min-w-0 truncate text-base font-bold text-slate-950 md:text-lg">
                             {item.gameName}
                           </p>
                         </div>
 
-                        <p className="min-w-0 truncate text-base font-semibold text-slate-800">
+                        <p className="hidden min-w-0 truncate text-base font-semibold text-slate-800 md:block">
                           {item.itemName}
                         </p>
-                        <p className="text-right text-xl font-bold text-slate-950">
+                        <p className="justify-self-end text-right text-base font-bold text-slate-950 sm:text-lg md:text-xl">
                           {formatCurrency(item.amount)}
                         </p>
                         <div className="relative justify-self-end" data-charge-menu>
