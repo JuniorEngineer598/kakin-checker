@@ -25,7 +25,7 @@ const features = [
 export default function LoginPage() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-100">
-      <section className="relative mx-auto min-h-[calc(100vh-16px)] w-full max-w-full overflow-hidden  border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-slate-50 px-2 py-5 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:px-8 lg:px-14 lg:py-12">
+      <section className="relative mx-auto min-h-[calc(100vh-16px)] w-full max-w-full overflow-hidden  border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-slate-50 py-5 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:px-8 lg:px-14 lg:py-12">
         <div className="pointer-events-none absolute -left-28 -top-32 h-80 w-80 rounded-full bg-blue-100/45 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-0 h-28 w-full bg-blue-100/55 [clip-path:ellipse(74%_70%_at_50%_100%)]" />
         <div className="pointer-events-none absolute left-16 top-24 hidden grid-cols-6 gap-3 opacity-70 sm:grid">
