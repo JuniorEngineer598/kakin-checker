@@ -28,7 +28,7 @@ export default function MobileDrawer({ isOpen, pathname, onClose }: MobileDrawer
         <div className="flex h-16 items-center justify-between gap-3 border-b border-slate-200 px-4">
           <div className="flex min-w-0 items-center gap-2">
             <img
-              src="/kakin_checker_logo_mark.svg"
+              src="/kakin_checker_logo_mark_flat.svg"
               alt=""
               className="h-10 w-10 shrink-0"
               aria-hidden="true"

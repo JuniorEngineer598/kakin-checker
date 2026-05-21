@@ -52,7 +52,7 @@ export default function LoginPage() {
             <div className="flex flex-col gap-8">
               <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
                 <img
-                  src="/kakin_checker_logo_mark.svg"
+                  src="/kakin_checker_logo_mark_flat.svg"
                   alt=""
                   className="h-28 w-28 shrink-0 sm:h-36 sm:w-36 lg:h-40 lg:w-40"
                   aria-hidden="true"
