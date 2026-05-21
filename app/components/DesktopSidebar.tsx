@@ -34,7 +34,7 @@ export default function DesktopSidebar({ isOpen, pathname, onOpenChange }: Deskt
         >
           <div className="flex min-w-0 items-center gap-2">
             <img
-              src="/kakin_checker_logo_mark.svg"
+              src="/kakin_checker_logo_mark_flat.svg"
               alt=""
               className="h-10 w-10 shrink-0"
               aria-hidden="true"
@@ -60,7 +60,7 @@ export default function DesktopSidebar({ isOpen, pathname, onOpenChange }: Deskt
             <PanelLeft size={20} strokeWidth={2.2} aria-hidden="true" />
           ) : (
             <img
-              src="/kakin_checker_logo_mark.svg"
+              src="/kakin_checker_logo_mark_flat.svg"
               alt=""
               className="h-12 w-12"
               aria-hidden="true"
