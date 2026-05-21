@@ -34,7 +34,7 @@ export default function LoginPage() {
           ))}
         </div>
 
-        <div className="relative z-10 mx-auto grid w-full max-w-7xl gap-4 lg:min-h-[calc(100vh-112px)] lg:grid-cols-[minmax(0,1fr)_460px] lg:items-center lg:gap-14">
+        <div className="relative z-10 mx-auto grid w-full max-w-[calc(100%-24px)] gap-4 lg:min-h-[calc(100vh-112px)] lg:max-w-7xl lg:grid-cols-[minmax(0,1fr)_460px] lg:items-center lg:gap-14">
           <div className="grid min-w-0 gap-8 lg:gap-12">
             <BrandHero />
             <div className="hidden lg:block">
@@ -42,7 +42,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="mx-auto w-[calc(100%-24px)] max-w-[360px] sm:w-full sm:max-w-[440px] lg:max-w-none">
+          <div className="mx-auto w-full max-w-[340px] sm:max-w-[440px] lg:max-w-none">
             <LoginForm />
           </div>
 
