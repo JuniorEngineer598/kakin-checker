@@ -34,7 +34,7 @@ export default function LoginPage() {
           ))}
         </div>
 
-        <div className="relative z-10 mx-auto grid w-full max-w-[310px] gap-4 sm:max-w-[440px] lg:min-h-[calc(100vh-112px)] lg:max-w-7xl lg:grid-cols-[minmax(0,1fr)_460px] lg:items-center lg:gap-14">
+        <div className="relative z-10 mx-auto grid w-full max-w-[280px] gap-4 sm:max-w-[440px] lg:min-h-[calc(100vh-112px)] lg:max-w-7xl lg:grid-cols-[minmax(0,1fr)_460px] lg:items-center lg:gap-14">
           <div className="grid min-w-0 gap-8 lg:gap-12">
             <BrandHero />
             <div className="hidden lg:block">
