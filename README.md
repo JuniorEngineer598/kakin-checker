@@ -42,6 +42,7 @@
 - React
 - TypeScript
 - Tailwind CSS
+- Recharts
 - localStorage
 
 ## データ保存について
