@@ -287,13 +287,13 @@ export default function GamesPage() {
         </section>
 
         {isModalOpen ? (
-          <div className="fixed inset-0 z-30 flex items-center justify-center bg-slate-950/35 px-4 backdrop-blur-[2px]">
+          <div className="fixed inset-0 z-30 flex items-start justify-center overflow-y-auto bg-slate-950/35 px-4 pb-4 pt-20 backdrop-blur-[2px] sm:items-center sm:py-6">
             <form
               onSubmit={handleSubmit}
-              className="w-full max-w-xl rounded-[28px] bg-white p-7 shadow-[0_28px_90px_-35px_rgba(15,23,42,0.7)]"
+              className="max-h-[calc(100dvh-96px)] w-full max-w-xl overflow-y-auto rounded-[24px] bg-white p-4 shadow-[0_28px_90px_-35px_rgba(15,23,42,0.7)] sm:max-h-[calc(100dvh-48px)] sm:rounded-[28px] sm:p-7"
             >
               <div className="flex items-center justify-between gap-4">
-                <h2 className="text-2xl font-bold text-slate-950">
+                <h2 className="text-xl font-bold text-slate-950 sm:text-2xl">
                   アプリを追加
                 </h2>
                 <button
@@ -306,7 +306,7 @@ export default function GamesPage() {
                 </button>
               </div>
 
-              <label className="mt-8 block">
+              <label className="mt-6 block sm:mt-8">
                 <span className="text-sm font-bold text-slate-700">
                   アプリ名
                 </span>
@@ -328,32 +328,32 @@ export default function GamesPage() {
                 )}
               </label>
 
-              <div className="mt-7">
+              <div className="mt-6 sm:mt-7">
                 <p className="text-sm font-bold text-slate-700">アイコン画像</p>
-                <div className="mt-3 grid gap-4 sm:grid-cols-[minmax(0,1fr)_112px]">
+                <div className="mt-3 grid grid-cols-[minmax(0,7fr)_minmax(88px,3fr)] gap-3 sm:grid-cols-[minmax(0,1fr)_112px] sm:gap-4">
                   <button
                     type="button"
-                    className="flex min-h-[170px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white px-5 text-center transition hover:border-slate-400 hover:bg-slate-50"
+                    className="flex min-h-[112px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 text-center transition hover:border-slate-400 hover:bg-slate-50 sm:min-h-[170px] sm:rounded-2xl sm:px-5"
                   >
                     <UploadCloud
-                      size={34}
+                      size={28}
                       strokeWidth={2}
-                      className="text-slate-600"
+                      className="text-slate-600 sm:h-[34px] sm:w-[34px]"
                       aria-hidden="true"
                     />
-                    <span className="mt-4 text-sm font-bold text-slate-800">
+                    <span className="mt-2 text-xs font-bold text-slate-800 sm:mt-4 sm:text-sm">
                       画像をアップロード
                     </span>
-                    <span className="mt-3 text-xs font-semibold text-slate-500">
+                    <span className="mt-3 hidden text-xs font-semibold text-slate-500 sm:block">
                       ドラッグ & ドロップまたはクリックして選択
                     </span>
-                    <span className="mt-2 text-xs font-semibold text-slate-400">
-                      推奨サイズ: 512x512px / JPG, PNG
+                    <span className="mt-1 text-[10px] font-semibold text-slate-400 sm:mt-2 sm:text-xs">
+                      JPG, PNG
                     </span>
                   </button>
 
                   <div className="flex flex-col items-center gap-3">
-                    <div className="h-28 w-28 rounded-2xl border border-slate-200 bg-white" />
+                    <div className="aspect-square w-full rounded-xl border border-slate-200 bg-white sm:h-28 sm:w-28 sm:rounded-2xl" />
                     <p className="text-xs font-semibold text-slate-500">
                       プレビュー
                     </p>
@@ -361,7 +361,7 @@ export default function GamesPage() {
                 </div>
               </div>
 
-              <div className="mt-8 flex justify-end gap-3">
+              <div className="mt-6 flex justify-end gap-3 sm:mt-8">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
@@ -380,13 +380,13 @@ export default function GamesPage() {
           </div>
         ) : null}
         {editGameId ? (
-          <div className="fixed inset-0 z-30 flex items-center justify-center bg-slate-950/35 px-4 backdrop-blur-[2px]">
+          <div className="fixed inset-0 z-30 flex items-start justify-center overflow-y-auto bg-slate-950/35 px-4 pb-4 pt-20 backdrop-blur-[2px] sm:items-center sm:py-6">
             <form
               onSubmit={handleEditSubmit}
-              className="w-full max-w-xl rounded-[28px] bg-white p-7 shadow-[0_28px_90px_-35px_rgba(15,23,42,0.7)]"
+              className="max-h-[calc(100dvh-96px)] w-full max-w-xl overflow-y-auto rounded-[24px] bg-white p-4 shadow-[0_28px_90px_-35px_rgba(15,23,42,0.7)] sm:max-h-[calc(100dvh-48px)] sm:rounded-[28px] sm:p-7"
             >
               <div className="flex items-center justify-between gap-4">
-                <h2 className="text-2xl font-bold text-slate-950">
+                <h2 className="text-xl font-bold text-slate-950 sm:text-2xl">
                   アプリ名を編集
                 </h2>
                 <button
@@ -399,7 +399,7 @@ export default function GamesPage() {
                 </button>
               </div>
 
-              <label className="mt-8 block">
+              <label className="mt-6 block sm:mt-8">
                 <span className="text-sm font-bold text-slate-700">
                   アプリ名
                 </span>
@@ -419,7 +419,7 @@ export default function GamesPage() {
                 ) : null}
               </label>
 
-              <div className="mt-8 flex justify-end gap-3">
+              <div className="mt-6 flex justify-end gap-3 sm:mt-8">
                 <button
                   type="button"
                   onClick={closeEditModal}
