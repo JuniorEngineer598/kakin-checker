@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Crown } from "lucide-react";
+import { Crown, House } from "lucide-react";
 import GameIconView from "../components/GameIconView";
+import PageBackground from "../components/PageBackground";
 import { buildDashboardStats } from "../lib/dashboardStats";
 import { formatChargeMonthLabel, formatCurrency } from "../lib/format";
 import { loadGames, loadCharges } from "../lib/storage";
@@ -28,11 +29,13 @@ export default function DashboardPage() {
   const currentMonthLabel = formatChargeMonthLabel(new Date());
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-5">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">Dashboard</p>
-          <h1 className="mt-1 text-2xl font-bold text-slate-950">ホーム</h1>
+    <PageBackground className="px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
+      <div className="mx-auto flex max-w-6xl flex-col gap-3">
+        <div className="inline-flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-50 text-blue-600 shadow-[0_14px_35px_-24px_rgba(37,99,235,0.8)]">
+            <House size={22} strokeWidth={2.2} aria-hidden="true" />
+          </span>
+          <h1 className="text-2xl font-bold text-slate-950">ホーム</h1>
         </div>
 
         <section className="grid gap-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(260px,0.75fr)]">
@@ -162,7 +165,7 @@ export default function DashboardPage() {
 
                       <div className="flex h-[200px] w-full items-end justify-center">
                         <div
-                          className="w-10 rounded-t-xl bg-slate-900 shadow-[0_12px_30px_-18px_rgba(15,23,42,0.8)] sm:w-14"
+                          className="w-10 rounded-t-xl bg-gradient-to-b from-blue-300 to-blue-500 shadow-[0_12px_30px_-18px_rgba(37,99,235,0.8)] sm:w-14"
                           style={{ height: `${height}px` }}
                         />
                       </div>
@@ -191,6 +194,6 @@ export default function DashboardPage() {
           </div>
         </section>
       </div>
-    </main>
+    </PageBackground>
   );
 }

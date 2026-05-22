@@ -1,6 +1,8 @@
 'use client';
 
+import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
+import PageBackground from "../../../components/PageBackground";
 import type { ActiveTab } from '../../../lib/types';
 import NewChargeForm from './NewChargeForm';
 import TemplateChargeList from './TemplateChargeList';
@@ -14,14 +16,13 @@ export default function NewChargePage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-5 sm:px-6 sm:py-7">
+    <PageBackground className="px-4 py-5 sm:px-6 sm:py-7">
       <div className="mx-auto max-w-5xl">
-        <div className="mb-5 flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold text-slate-500">Charges</p>
-            <h1 className="mt-1 text-2xl font-bold text-slate-950">課金追加</h1>
-          </div>
-
+        <div className="mb-5 inline-flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-50 text-blue-600 shadow-[0_14px_35px_-24px_rgba(37,99,235,0.8)]">
+            <PlusCircle size={22} strokeWidth={2.2} aria-hidden="true" />
+          </span>
+          <h1 className="text-2xl font-bold text-slate-950">課金追加</h1>
         </div>
 
         <div className="mb-4 grid grid-cols-2 rounded-2xl bg-white p-1 shadow-[0_18px_60px_-42px_rgba(15,23,42,0.45)]">
@@ -47,6 +48,6 @@ export default function NewChargePage() {
 
         {activeTab === 'template' ? <TemplateChargeList /> : <NewChargeForm />}
       </div>
-    </main>
+    </PageBackground>
   );
 }

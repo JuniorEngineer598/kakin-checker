@@ -1,3 +1,6 @@
+import { Settings } from "lucide-react";
+import PageBackground from "../../components/PageBackground";
+
 const settings = [
   { title: 'データリセット', body: '登録データを初期状態に戻すための操作を配置予定です。' },
   { title: 'テーマ設定', body: 'ライトテーマとダークテーマの切り替えを追加予定です。' },
@@ -7,11 +10,13 @@ const settings = [
 
 export default function SettingsPage() {
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 sm:py-8">
+    <PageBackground className="px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-4xl">
-        <div className="mb-6">
-          <p className="text-sm font-semibold text-slate-500">Settings</p>
-          <h1 className="mt-1 text-2xl font-bold text-slate-950">設定</h1>
+        <div className="mb-6 inline-flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-50 text-blue-600 shadow-[0_14px_35px_-24px_rgba(37,99,235,0.8)]">
+            <Settings size={22} strokeWidth={2.2} aria-hidden="true" />
+          </span>
+          <h1 className="text-2xl font-bold text-slate-950">設定</h1>
         </div>
 
         <section className="grid gap-4">
@@ -33,6 +38,6 @@ export default function SettingsPage() {
           ))}
         </section>
       </div>
-    </main>
+    </PageBackground>
   );
 }

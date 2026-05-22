@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, MoreVertical } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText, MoreVertical } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import GameIconView from "../../components/GameIconView";
 import { buildChargeHistory } from "../../lib/chargeHistory";
@@ -12,6 +12,7 @@ import {
 } from "../../lib/format";
 import type { ChargeRecord, Game } from "../../lib/types";
 import { loadCharges, loadGames, saveCharges } from "../../lib/storage";
+import PageBackground from "../../components/PageBackground";
 
 export default function ChargeHistoryPage() {
   const [charges, setCharges] = useState<ChargeRecord[]>([]);
@@ -53,11 +54,13 @@ export default function ChargeHistoryPage() {
   }
   
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 sm:py-8">
+    <PageBackground className="px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-4">
-          <p className="text-sm font-semibold text-slate-500">Charge History</p>
-          <h1 className="mt-1 text-2xl font-bold text-slate-950">課金履歴</h1>
+        <div className="mb-4 inline-flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-50 text-blue-600 shadow-[0_14px_35px_-24px_rgba(37,99,235,0.8)]">
+            <FileText size={22} strokeWidth={2.2} aria-hidden="true" />
+          </span>
+          <h1 className="text-2xl font-bold text-slate-950">課金履歴</h1>
         </div>
 
         <div className="mb-3 flex flex-wrap items-center gap-3">
@@ -174,6 +177,6 @@ export default function ChargeHistoryPage() {
           </p>
         </section>
       </div>
-    </main>
+    </PageBackground>
   );
 }
