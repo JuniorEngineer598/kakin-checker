@@ -132,7 +132,7 @@ export default function AnalyticsPage() {
             <div className="mt-5 flex items-center">
               <p className="flex items-center gap-2 text-sm font-semibold text-slate-400">
                 <CircleAlert size={16} strokeWidth={2.2} aria-hidden="true" />
-                グラフのバーをクリックすると、その月の詳細が表示されます。
+                グラフは横にスクロールできます。バーをタップすると、その月の詳細が表示されます。
               </p>
             </div>
           </div>
