@@ -28,12 +28,6 @@ export default function LoginPage() {
       <section className="relative mx-auto min-h-[calc(100vh-16px)] w-full max-w-full overflow-hidden  border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-slate-50 py-5 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:px-8 lg:px-14 lg:py-12">
         <div className="pointer-events-none absolute -left-28 -top-32 h-80 w-80 rounded-full bg-blue-100/45 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-0 h-28 w-full bg-blue-100/55 [clip-path:ellipse(74%_70%_at_50%_100%)]" />
-        <div className="pointer-events-none absolute left-16 top-24 hidden grid-cols-6 gap-3 opacity-70 sm:grid">
-          {Array.from({ length: 36 }).map((_, index) => (
-            <span key={index} className="h-1.5 w-1.5 rounded-full bg-blue-200" />
-          ))}
-        </div>
-
         <div className="relative z-10 mx-auto grid w-full max-w-[330px] gap-4 sm:max-w-[440px] lg:min-h-[calc(100vh-112px)] lg:max-w-7xl lg:grid-cols-[minmax(0,1fr)_460px] lg:items-center lg:gap-14">
           <div className="grid min-w-0 gap-8 lg:gap-12">
             <BrandHero />

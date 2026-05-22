@@ -1,12 +1,13 @@
 "use client";
 
-import { CircleAlert, JapaneseYen, ReceiptText } from "lucide-react";
+import { BarChart3, CircleAlert, JapaneseYen, ReceiptText } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import { buildAnalysisStats } from "../../lib/analysisStats";
 import type { ReactNode } from "react";
 import { formatCurrency } from "../../lib/format";
 import { loadCharges } from "../../lib/storage";
 import type { ChargeRecord } from "../../lib/types";
+import PageBackground from "../../components/PageBackground";
 
 const selectableYears = Array.from({ length: 25 }, (_, index) => 2026 + index);
 export default function AnalyticsPage() {
@@ -35,15 +36,17 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 sm:py-8">
+    <PageBackground className="px-2 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-6">
-          <p className="text-sm font-semibold text-slate-500">Analytics</p>
-          <h1 className="mt-1 text-2xl font-bold text-slate-950">分析</h1>
+        <div className="mb-6 inline-flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-50 text-blue-600 shadow-[0_14px_35px_-24px_rgba(37,99,235,0.8)]">
+            <BarChart3 size={22} strokeWidth={2.2} aria-hidden="true" />
+          </span>
+          <h1 className="text-2xl font-bold text-slate-950">分析</h1>
         </div>
 
-        <section className="grid overflow-hidden rounded-[28px] bg-white shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="p-5 sm:p-6 lg:p-7">
+        <section className="grid min-w-0 overflow-hidden rounded-[28px] bg-white shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="min-w-0 p-3 sm:p-6 lg:p-7">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-slate-500">
@@ -68,7 +71,7 @@ export default function AnalyticsPage() {
               <select
                 value={selectedYear}
                 onChange={(event) => handleYearChange(event.target.value)}
-                className="h-11 w-fit self-start rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-600 outline-none transition focus:border-slate-400 focus:bg-white"
+                className="h-11 w-fit self-start rounded-2xl border border-slate-200 bg-white px-4 text-lg font-semibold text-slate-900 shadow-[0_12px_10px_-16px_rgba(15,23,42,0.55),0_0_0_1px_rgba(148,163,184,0.16)] outline-none transition focus:border-slate-400 focus:bg-white"
               >
                 {selectableYears.map((year) => (
                   <option key={year} value={year}>
@@ -78,54 +81,58 @@ export default function AnalyticsPage() {
               </select>
             </div>
 
-            <div className="mt-10 grid min-h-[300px] grid-cols-12 items-end gap-2 sm:gap-3">
-              {yearData.map((item, index) => {
-                const isSelected = selectedMonthIndex === index;
-                const hasAmount = item.totalAmount > 0;
-                const height = hasAmount
-                  ? Math.max(22, (item.totalAmount / maxAmount) * 210)
-                  : 12;
+            <div className="mt-10 w-full max-w-full min-w-0 overflow-x-auto pb-3 [-webkit-overflow-scrolling:touch]">
+              <div className="w-max min-w-full px-2">
+                <div className="grid min-h-[300px] min-w-[520px] grid-cols-12 items-end gap-2 sm:min-w-full sm:gap-3">
+                  {yearData.map((item, index) => {
+                    const isSelected = selectedMonthIndex === index;
+                    const hasAmount = item.totalAmount > 0;
+                    const height = hasAmount
+                      ? Math.max(22, (item.totalAmount / maxAmount) * 210)
+                      : 12;
 
-                return (
-                  <button
-                    key={item.month}
-                    type="button"
-                    onClick={() => setSelectedMonthIndex(index)}
-                    className="group flex min-w-0 flex-col items-center gap-2"
-                    aria-pressed={isSelected}
-                  >
-                    <div className="relative flex h-[230px] w-full items-end justify-center">
-                      {isSelected ? (
-                        <div className="absolute bottom-[calc(100%+6px)] whitespace-nowrap rounded-xl bg-blue-500 px-3 py-1.5 text-xs font-bold text-white shadow-[0_12px_28px_-18px_rgba(15,23,42,0.9)]">
-                          {formatCurrency(item.totalAmount)}
+                    return (
+                      <button
+                        key={item.month}
+                        type="button"
+                        onClick={() => setSelectedMonthIndex(index)}
+                        className="group flex min-w-0 flex-col items-center gap-2"
+                        aria-pressed={isSelected}
+                      >
+                        <div className="relative flex h-[230px] w-full items-end justify-center">
+                          {isSelected ? (
+                            <div className="absolute bottom-[calc(100%+6px)] whitespace-nowrap rounded-xl bg-blue-500 px-3 py-1.5 text-xs font-bold text-white shadow-[0_12px_28px_-18px_rgba(15,23,42,0.9)]">
+                              {formatCurrency(item.totalAmount)}
+                            </div>
+                          ) : null}
+
+                          <div
+                            className={`w-full max-w-9 rounded-t-xl transition ${
+                              isSelected
+                                ? "bg-gradient-to-b from-blue-300 to-blue-600 ring-4 ring-blue-100"
+                                : hasAmount
+                                  ? "bg-gradient-to-b from-blue-300 to-blue-500 group-hover:from-blue-400 group-hover:to-blue-600"
+                                  : "bg-slate-200 group-hover:bg-slate-300"
+                            }`}
+                            style={{ height: `${height}px` }}
+                          />
                         </div>
-                      ) : null}
-
-                      <div
-                        className={`w-full max-w-9 rounded-t-xl transition ${
-                          isSelected
-                            ? "bg-slate-950 ring-4 ring-slate-200"
-                            : hasAmount
-                              ? "bg-slate-800 group-hover:bg-slate-950"
-                              : "bg-slate-200 group-hover:bg-slate-300"
-                        }`}
-                        style={{ height: `${height}px` }}
-                      />
-                    </div>
-                    <span
-                      className={`text-xs font-bold ${isSelected ? "text-slate-950" : "text-slate-500"}`}
-                    >
-                      {item.month}月
-                    </span>
-                  </button>
-                );
-              })}
+                        <span
+                          className={`whitespace-nowrap text-xs font-bold ${isSelected ? "text-slate-950" : "text-slate-500"}`}
+                        >
+                          {item.month}月
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             <div className="mt-5 flex items-center">
               <p className="flex items-center gap-2 text-sm font-semibold text-slate-400">
                 <CircleAlert size={16} strokeWidth={2.2} aria-hidden="true" />
-                グラフのバーをクリックすると、その月の詳細が表示されます。
+                グラフは横にスクロールできます。バーをタップすると、その月の詳細が表示されます。
               </p>
             </div>
           </div>
@@ -155,7 +162,7 @@ export default function AnalyticsPage() {
           </aside>
         </section>
       </div>
-    </main>
+    </PageBackground>
   );
 }
 
