@@ -45,8 +45,8 @@ export default function AnalyticsPage() {
           <h1 className="text-2xl font-bold text-slate-950">分析</h1>
         </div>
 
-        <section className="grid overflow-hidden rounded-[28px] bg-white shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="p-3 sm:p-6 lg:p-7">
+        <section className="grid min-w-0 overflow-hidden rounded-[28px] bg-white shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="min-w-0 p-3 sm:p-6 lg:p-7">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-slate-500">
@@ -81,8 +81,8 @@ export default function AnalyticsPage() {
               </select>
             </div>
 
-            <div className="mt-10 w-full max-w-full overflow-x-auto pb-3 [-webkit-overflow-scrolling:touch]">
-              <div className="grid min-h-[300px] w-[520px] max-w-none grid-cols-12 items-end gap-2 sm:w-full sm:gap-3">
+            <div className="mt-10 w-full max-w-full min-w-0 overflow-x-auto pb-3 [-webkit-overflow-scrolling:touch]">
+              <div className="grid min-h-[300px] w-full min-w-[520px] grid-cols-12 items-end gap-2 sm:gap-3">
                 {yearData.map((item, index) => {
                   const isSelected = selectedMonthIndex === index;
                   const hasAmount = item.totalAmount > 0;
