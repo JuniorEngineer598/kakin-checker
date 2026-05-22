@@ -2,12 +2,17 @@
 
 import { BarChart3, CircleAlert, JapaneseYen, ReceiptText } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
-import { buildAnalysisStats } from "../../lib/analysisStats";
+import {
+  buildAnalysisStats,
+  buildAppChargeShares,
+} from "../../lib/analysisStats";
 import type { ReactNode } from "react";
 import { formatCurrency } from "../../lib/format";
-import { loadCharges } from "../../lib/storage";
-import type { ChargeRecord } from "../../lib/types";
+import { loadCharges, loadGames } from "../../lib/storage";
+import type { ChargeRecord, Game } from "../../lib/types";
 import PageBackground from "../../components/PageBackground";
+import AppChargeShareDonutChart from "../../components/AppChargeShareDonutChart";
+import AppChargeShareDonutModal from "../../components/AppChargeShareDonutModal";
 
 const selectableYears = Array.from({ length: 25 }, (_, index) => 2026 + index);
 export default function AnalyticsPage() {
@@ -15,11 +20,15 @@ export default function AnalyticsPage() {
     new Date().getFullYear(),
   );
   const [charges, setCharges] = useState<ChargeRecord[]>([]);
+  const [games, setGames] = useState<Game[]>([]);
 
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(0);
+  const [isYearShareModalOpen, setIsYearShareModalOpen] = useState(false);
+  const [isMonthShareModalOpen, setIsMonthShareModalOpen] = useState(false);
 
   useEffect(() => {
     setCharges(loadCharges());
+    setGames(loadGames());
   }, []);
 
   const analysisStats = useMemo(() => {
@@ -29,6 +38,17 @@ export default function AnalyticsPage() {
   const yearData = analysisStats.monthlyItems;
   const selectedMonth = yearData[selectedMonthIndex] ?? yearData[0];
   const maxAmount = Math.max(...yearData.map((item) => item.totalAmount), 1);
+  const yearlyAppShares = useMemo(() => {
+    return buildAppChargeShares(charges, games, {
+      year: selectedYear,
+    });
+  }, [charges, games, selectedYear]);
+  const monthlyAppShares = useMemo(() => {
+    return buildAppChargeShares(charges, games, {
+      year: selectedYear,
+      month: selectedMonth.month,
+    });
+  }, [charges, games, selectedMonth.month, selectedYear]);
 
   function handleYearChange(value: string) {
     setSelectedYear(Number(value));
@@ -36,23 +56,23 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <PageBackground className="px-2 py-6 sm:px-6 sm:py-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-6 inline-flex items-center gap-3">
+    <PageBackground className="px-2 py-4 sm:px-6 sm:py-4">
+      <div className="mx-auto max-w-7xl 2xl:max-w-[1700px]">
+        <div className="mb-3 inline-flex items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-50 text-blue-600 shadow-[0_14px_35px_-24px_rgba(37,99,235,0.8)]">
             <BarChart3 size={22} strokeWidth={2.2} aria-hidden="true" />
           </span>
           <h1 className="text-2xl font-bold text-slate-950">分析</h1>
         </div>
 
-        <section className="grid min-w-0 overflow-hidden rounded-[28px] bg-white shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] lg:grid-cols-[minmax(0,1fr)_320px]">
+        <section className="grid min-w-0 overflow-hidden rounded-[28px] bg-white shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] lg:grid-cols-[minmax(0,1fr)_320px] 2xl:grid-cols-[minmax(0,1fr)_460px]">
           <div className="min-w-0 p-3 sm:p-6 lg:p-7">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-slate-500">
                   年間の月別課金額比較
                 </p>
-                <div className="mt-3 flex flex-wrap gap-5">
+                <div className="mt-3 flex flex-wrap items-start gap-5">
                   <div className="min-w-[260px] rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                     <p className="text-xs font-bold text-slate-600">年間課金額</p>
                     <p className="mt-1 text-4xl font-bold text-slate-950">
@@ -65,6 +85,26 @@ export default function AnalyticsPage() {
                       {analysisStats.yearlyChargeCount}件
                     </p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsYearShareModalOpen(true)}
+                    className="hidden rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50 md:block 2xl:hidden"
+                  >
+                    <p className="text-xs font-bold text-slate-600">
+                      年間アプリ別割合
+                    </p>
+                    <p className="mt-2 text-sm font-bold text-blue-600">
+                      割合を見る
+                    </p>
+                  </button>
+                  <article className="hidden w-[460px] rounded-2xl border border-slate-200 bg-white p-4 2xl:block">
+                    <p className="text-xs font-bold text-slate-600">
+                      年間アプリ課金割合
+                    </p>
+                    <div className="mt-3">
+                      <AppChargeShareDonutChart items={yearlyAppShares} />
+                    </div>
+                  </article>
                 </div>
               </div>
 
@@ -135,6 +175,15 @@ export default function AnalyticsPage() {
                 グラフは横にスクロールできます。バーをタップすると、その月の詳細が表示されます。
               </p>
             </div>
+            <div className="mt-4 md:hidden">
+              <button
+                type="button"
+                onClick={() => setIsYearShareModalOpen(true)}
+                className="h-11 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-blue-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+              >
+                年間アプリ別割合を見る
+              </button>
+            </div>
           </div>
 
           <aside className="border-t border-slate-200 p-5 sm:p-6 lg:border-l lg:border-t-0 lg:p-7">
@@ -159,8 +208,37 @@ export default function AnalyticsPage() {
                 value={formatCurrency(selectedMonth.totalAmount)}
               />
             </div>
+            <button
+              type="button"
+              onClick={() => setIsMonthShareModalOpen(true)}
+              className="mt-5 h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-blue-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 2xl:hidden"
+            >
+              この月のアプリ別割合を見る
+            </button>
+            <article className="mt-5 hidden rounded-2xl border border-slate-200 bg-white p-4 2xl:block">
+              <p className="text-sm font-bold text-slate-600">
+                月間アプリ課金割合
+              </p>
+              <div className="mt-3">
+                <AppChargeShareDonutChart items={monthlyAppShares} />
+              </div>
+            </article>
           </aside>
         </section>
+        <AppChargeShareDonutModal
+          isOpen={isYearShareModalOpen}
+          title="年間アプリ別割合"
+          description={`${selectedYear}年のアプリ別課金割合`}
+          items={yearlyAppShares}
+          onClose={() => setIsYearShareModalOpen(false)}
+        />
+        <AppChargeShareDonutModal
+          isOpen={isMonthShareModalOpen}
+          title="月間アプリ別割合"
+          description={`${selectedYear}年${selectedMonth.month}月のアプリ別課金割合`}
+          items={monthlyAppShares}
+          onClose={() => setIsMonthShareModalOpen(false)}
+        />
       </div>
     </PageBackground>
   );
