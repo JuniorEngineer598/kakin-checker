@@ -82,48 +82,50 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="mt-10 w-full max-w-full min-w-0 overflow-x-auto pb-3 [-webkit-overflow-scrolling:touch]">
-              <div className="grid min-h-[300px] w-full min-w-[520px] grid-cols-12 items-end gap-2 sm:gap-3">
-                {yearData.map((item, index) => {
-                  const isSelected = selectedMonthIndex === index;
-                  const hasAmount = item.totalAmount > 0;
-                  const height = hasAmount
-                    ? Math.max(22, (item.totalAmount / maxAmount) * 210)
-                    : 12;
+              <div className="w-max min-w-full px-2">
+                <div className="grid min-h-[300px] min-w-[520px] grid-cols-12 items-end gap-2 sm:min-w-full sm:gap-3">
+                  {yearData.map((item, index) => {
+                    const isSelected = selectedMonthIndex === index;
+                    const hasAmount = item.totalAmount > 0;
+                    const height = hasAmount
+                      ? Math.max(22, (item.totalAmount / maxAmount) * 210)
+                      : 12;
 
-                  return (
-                    <button
-                      key={item.month}
-                      type="button"
-                      onClick={() => setSelectedMonthIndex(index)}
-                      className="group flex min-w-0 flex-col items-center gap-2"
-                      aria-pressed={isSelected}
-                    >
-                      <div className="relative flex h-[230px] w-full items-end justify-center">
-                        {isSelected ? (
-                          <div className="absolute bottom-[calc(100%+6px)] whitespace-nowrap rounded-xl bg-blue-500 px-3 py-1.5 text-xs font-bold text-white shadow-[0_12px_28px_-18px_rgba(15,23,42,0.9)]">
-                            {formatCurrency(item.totalAmount)}
-                          </div>
-                        ) : null}
-
-                        <div
-                          className={`w-full max-w-9 rounded-t-xl transition ${
-                            isSelected
-                              ? "bg-gradient-to-b from-blue-300 to-blue-600 ring-4 ring-blue-100"
-                              : hasAmount
-                                ? "bg-gradient-to-b from-blue-300 to-blue-500 group-hover:from-blue-400 group-hover:to-blue-600"
-                                : "bg-slate-200 group-hover:bg-slate-300"
-                          }`}
-                          style={{ height: `${height}px` }}
-                        />
-                      </div>
-                      <span
-                        className={`whitespace-nowrap text-xs font-bold ${isSelected ? "text-slate-950" : "text-slate-500"}`}
+                    return (
+                      <button
+                        key={item.month}
+                        type="button"
+                        onClick={() => setSelectedMonthIndex(index)}
+                        className="group flex min-w-0 flex-col items-center gap-2"
+                        aria-pressed={isSelected}
                       >
-                        {item.month}月
-                      </span>
-                    </button>
-                  );
-                })}
+                        <div className="relative flex h-[230px] w-full items-end justify-center">
+                          {isSelected ? (
+                            <div className="absolute bottom-[calc(100%+6px)] whitespace-nowrap rounded-xl bg-blue-500 px-3 py-1.5 text-xs font-bold text-white shadow-[0_12px_28px_-18px_rgba(15,23,42,0.9)]">
+                              {formatCurrency(item.totalAmount)}
+                            </div>
+                          ) : null}
+
+                          <div
+                            className={`w-full max-w-9 rounded-t-xl transition ${
+                              isSelected
+                                ? "bg-gradient-to-b from-blue-300 to-blue-600 ring-4 ring-blue-100"
+                                : hasAmount
+                                  ? "bg-gradient-to-b from-blue-300 to-blue-500 group-hover:from-blue-400 group-hover:to-blue-600"
+                                  : "bg-slate-200 group-hover:bg-slate-300"
+                            }`}
+                            style={{ height: `${height}px` }}
+                          />
+                        </div>
+                        <span
+                          className={`whitespace-nowrap text-xs font-bold ${isSelected ? "text-slate-950" : "text-slate-500"}`}
+                        >
+                          {item.month}月
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
