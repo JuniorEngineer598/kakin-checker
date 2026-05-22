@@ -1,10 +1,15 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import type { FormEvent } from 'react';
-import { chargeCategories } from '../../../lib/chargeCategories';
-import type { ChargeCategory, ChargeRecord, ChargeTemplate, Game } from '../../../lib/types';
-import { formatDateInputValue } from '../../../lib/format';
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
+import { chargeCategories } from "../../../lib/chargeCategories";
+import type {
+  ChargeCategory,
+  ChargeRecord,
+  ChargeTemplate,
+  Game,
+} from "../../../lib/types";
+import { formatDateInputValue } from "../../../lib/format";
 import {
   createId,
   loadCharges,
@@ -12,23 +17,28 @@ import {
   loadGames,
   saveCharges,
   saveChargeTemplates,
-} from '../../../lib/storage';
-
+} from "../../../lib/storage";
 
 export default function NewChargeForm() {
   const [games, setGames] = useState<Game[]>([]);
-  const [gameId, setGameId] = useState('');
-  const [itemName, setItemName] = useState('');
-  const [amount, setAmount] = useState('');
+  const [gameId, setGameId] = useState("");
+  const [itemName, setItemName] = useState("");
+  const [amount, setAmount] = useState("");
   const [chargedAt, setChargedAt] = useState(formatDateInputValue(new Date()));
-  const [category, setCategory] = useState<ChargeCategory>('ガチャ石');
+  const [category, setCategory] = useState<ChargeCategory>("ガチャ石");
   const [shouldSaveAsTemplate, setShouldSaveAsTemplate] = useState(false);
+  const [errors, setErrors] = useState({
+    gameId: "",
+    itemName: "",
+    amount: "",
+  });
+  const hasGames = games.length > 0;
 
   // ゲームデータの読み込み
   useEffect(() => {
     const loadedGames = loadGames();
     setGames(loadedGames);
-    setGameId((current) => current || loadedGames[0]?.id || '');
+    setGameId((current) => current || loadedGames[0]?.id || "");
   }, []);
 
   // フォーム送信
@@ -38,15 +48,34 @@ export default function NewChargeForm() {
     const trimmedItemName = itemName.trim();
     const numericAmount = Number(amount);
     // バリデーション
-    if (!gameId || !trimmedItemName || !Number.isFinite(numericAmount) || numericAmount <= 0 || !chargedAt) {
-      return;
+    const nextErrors = {
+      gameId: "",
+      itemName: "",
+      amount: "",
+    };
+
+    if (!gameId) {
+      nextErrors.gameId = "アプリを追加してください。";
     }
 
+    if (!trimmedItemName) {
+      nextErrors.itemName = "アイテム名を入力してください";
+    }
+
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+      nextErrors.amount = "金額は1円以上で入力してください";
+    }
+
+    setErrors(nextErrors);
+
+    if (nextErrors.gameId || nextErrors.itemName || nextErrors.amount) {
+      return;
+    }
     const createdAt = new Date().toISOString(); // 作成日時
 
     // 登録する課金データの作成
     const newCharge: ChargeRecord = {
-      id: createId('charge'),
+      id: createId("charge"),
       gameId,
       itemName: trimmedItemName,
       amount: numericAmount,
@@ -60,7 +89,7 @@ export default function NewChargeForm() {
     // テンプレートとして保存する場合の処理
     if (shouldSaveAsTemplate) {
       const newTemplate: ChargeTemplate = {
-        id: createId('template'),
+        id: createId("template"),
         gameId,
         itemName: trimmedItemName,
         amount: numericAmount,
@@ -71,10 +100,15 @@ export default function NewChargeForm() {
       saveChargeTemplates([...loadChargeTemplates(), newTemplate]);
     }
 
-    setItemName('');
-    setAmount('');
-    setCategory('ガチャ石');
+    setItemName("");
+    setAmount("");
+    setCategory("ガチャ石");
     setShouldSaveAsTemplate(false);
+    setErrors({
+      gameId: "",
+      itemName: "",
+      amount: "",
+    });
   }
 
   return (
@@ -86,40 +120,73 @@ export default function NewChargeForm() {
 
       <div className="mt-4 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-1">
         <label className="block">
-          <span className="text-sm font-semibold text-slate-700">ゲーム</span>
+          <span className="text-sm font-semibold text-slate-700">アプリ</span>
           <select
             value={gameId}
-            onChange={(event) => setGameId(event.target.value)}
-            className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:bg-white"
+            onChange={(event) => {
+              setGameId(event.target.value);
+              setErrors((current) => ({ ...current, gameId: "" }));
+            }}
+            disabled={!hasGames}
+            className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:bg-white disabled:cursor-not-allowed disabled:text-slate-400"
           >
-            {games.map((game) => (
-              <option key={game.id} value={game.id}>
-                {game.name}
-              </option>
-            ))}
+            {hasGames ? (
+              games.map((game) => (
+                <option key={game.id} value={game.id}>
+                  {game.name}
+                </option>
+              ))
+            ) : (
+              <option value="">アプリがありません</option>
+            )}
           </select>
+          {errors.gameId ? (
+            <p className="mt-2 text-xs font-bold text-rose-600">
+              {errors.gameId}
+            </p>
+          ) : null}
         </label>
 
         <label className="block">
-          <span className="text-sm font-semibold text-slate-700">アイテム名</span>
+          <span className="text-sm font-semibold text-slate-700">
+            アイテム名
+          </span>
           <input
             type="text"
             value={itemName}
-            onChange={(event) => setItemName(event.target.value)}
+            onChange={(event) => {
+              setItemName(event.target.value);
+              setErrors((current) => ({ ...current, itemName: "" }));
+            }}
             placeholder="例: 祝福パック"
             className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
           />
+          {errors.itemName ? (
+            <p className="mt-2 text-xs font-bold text-rose-600">
+              {errors.itemName}
+            </p>
+          ) : null}
         </label>
 
         <label className="block">
           <span className="text-sm font-semibold text-slate-700">金額</span>
           <input
             type="number"
+            min="1"
+            step="1"
             value={amount}
-            onChange={(event) => setAmount(event.target.value)}
+            onChange={(event) => {
+              setAmount(event.target.value);
+              setErrors((current) => ({ ...current, amount: "" }));
+            }}
             placeholder="例: 980"
             className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
           />
+          {errors.amount ? (
+            <p className="mt-2 text-xs font-bold text-rose-600">
+              {errors.amount}
+            </p>
+          ) : null}
         </label>
 
         <label className="block">
@@ -136,7 +203,9 @@ export default function NewChargeForm() {
           <span className="text-sm font-semibold text-slate-700">カテゴリ</span>
           <select
             value={category}
-            onChange={(event) => setCategory(event.target.value as ChargeCategory)}
+            onChange={(event) =>
+              setCategory(event.target.value as ChargeCategory)
+            }
             className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:bg-white"
           >
             {chargeCategories.map((cat) => (
@@ -150,12 +219,13 @@ export default function NewChargeForm() {
 
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <label className="flex items-center gap-3 text-sm font-semibold text-slate-700">
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             checked={shouldSaveAsTemplate}
             onChange={(event) => setShouldSaveAsTemplate(event.target.checked)}
-            className="h-4 w-4 accent-slate-900" />
-            この内容をテンプレートとして保存する
+            className="h-4 w-4 accent-slate-900"
+          />
+          この内容をテンプレートとして保存する
         </label>
 
         <button
