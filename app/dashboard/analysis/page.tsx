@@ -81,8 +81,8 @@ export default function AnalyticsPage() {
               </select>
             </div>
 
-            <div className="mt-10 overflow-x-auto pb-2">
-              <div className="grid min-h-[300px] min-w-[520px] grid-cols-12 items-end gap-2 sm:min-w-0 sm:gap-3">
+            <div className="mt-10 w-full max-w-full overflow-x-auto pb-3 [-webkit-overflow-scrolling:touch]">
+              <div className="grid min-h-[300px] w-[520px] max-w-none grid-cols-12 items-end gap-2 sm:w-full sm:gap-3">
                 {yearData.map((item, index) => {
                   const isSelected = selectedMonthIndex === index;
                   const hasAmount = item.totalAmount > 0;
