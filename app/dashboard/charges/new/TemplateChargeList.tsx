@@ -19,6 +19,7 @@ import type {
   ChargeTemplate,
   Game,
 } from "../../../lib/types";
+import ToastMessage from "../../../components/ToastMessage";
 
 export default function TemplateChargeList() {
   const [openTemplateMenuId, setOpenTemplateMenuId] = useState<string | null>(
@@ -35,6 +36,10 @@ export default function TemplateChargeList() {
   const [editItemName, setEditItemName] = useState("");
   const [editAmount, setEditAmount] = useState("");
   const [editCategory, setEditCategory] = useState<ChargeCategory>("ガチャ石");
+  const [toast, setToast] = useState({
+    message: "",
+    id: 0,
+  });
 
   // ゲーム選択に応じてテンプレートをフィルタリング
   const filteredTemplates = selectedGameId
@@ -52,6 +57,19 @@ export default function TemplateChargeList() {
     setTemplates(loadedTemplates);
     setSelectedGameId(loadedGames[0]?.id ?? ""); // 最初のゲームを選択状態にする
   }, []);
+
+  useEffect(() => {
+    if (!toast.message) return;
+
+    const timerId = window.setTimeout(() => {
+      setToast((current) => ({
+        ...current,
+        message: "",
+      }));
+    }, 2500);
+
+    return () => window.clearTimeout(timerId);
+  }, [toast]);
 
   // テンプレートから課金データを追加  第２引数がある場合はその日付で追加、ない場合は当日で追加
   function handleAddTemplate(
@@ -79,6 +97,10 @@ export default function TemplateChargeList() {
     saveCharges([...loadCharges(), newCharge]);
     setOpenTemplateMenuId(null);
     setDateTemplateId(null);
+    setToast((current) => ({
+      message: "課金記録を追加しました",
+      id: current.id + 1,
+    }));
   }
 
   // テンプレートの消去
@@ -205,73 +227,73 @@ export default function TemplateChargeList() {
               </div>
             ) : (
               filteredTemplates.map((template) => (
-              <article
-                key={template.id}
-                className="rounded-2xl border border-slate-200 bg-slate-50 p-3.5 transition hover:border-slate-300 hover:bg-white"
-              >
-                <div className="flex items-start gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleAddTemplate(template);
-                    }}
-                    className="min-w-0 flex-1 text-left"
-                  >
-                    <p className="truncate text-base font-bold text-slate-950">
-                      {template.itemName}
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-slate-500">
-                      {template.category} {formatCurrency(template.amount)}
-                    </p>
-                  </button>
-
-                  <div className="relative shrink-0">
+                <article
+                  key={template.id}
+                  className="rounded-2xl border border-slate-200 bg-slate-50 p-3.5 transition hover:border-slate-300 hover:bg-white"
+                >
+                  <div className="flex items-start gap-3">
                     <button
                       type="button"
-                      title="メニュー"
-                      aria-label={`${template.itemName}のメニュー`}
-                      aria-expanded={openTemplateMenuId === template.id}
                       onClick={() => {
-                        setOpenTemplateMenuId((current) =>
-                          current === template.id ? null : template.id,
-                        );
+                        handleAddTemplate(template);
                       }}
-                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
+                      className="min-w-0 flex-1 text-left"
                     >
-                      <EllipsisVertical
-                        className="h-5 w-5"
-                        aria-hidden="true"
-                      />
+                      <p className="truncate text-base font-bold text-slate-950">
+                        {template.itemName}
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-slate-500">
+                        {template.category} {formatCurrency(template.amount)}
+                      </p>
                     </button>
 
-                    {openTemplateMenuId === template.id ? (
-                      <div className="absolute right-0 top-11 z-10 w-32 rounded-xl border border-slate-200 bg-white p-1 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.5)]">
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteTemplate(template.id)}
-                          className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-rose-600 transition hover:bg-rose-50"
-                        >
-                          消去
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(template)}
-                          className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-slate-700 transition hover:bg-slate-50"
-                        >
-                          編集
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => openDateModal(template.id)}
-                          className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-slate-700 transition hover:bg-slate-50"
-                        >
-                          日付指定
-                        </button>
-                      </div>
-                    ) : null}
+                    <div className="relative shrink-0">
+                      <button
+                        type="button"
+                        title="メニュー"
+                        aria-label={`${template.itemName}のメニュー`}
+                        aria-expanded={openTemplateMenuId === template.id}
+                        onClick={() => {
+                          setOpenTemplateMenuId((current) =>
+                            current === template.id ? null : template.id,
+                          );
+                        }}
+                        className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
+                      >
+                        <EllipsisVertical
+                          className="h-5 w-5"
+                          aria-hidden="true"
+                        />
+                      </button>
+
+                      {openTemplateMenuId === template.id ? (
+                        <div className="absolute right-0 top-11 z-10 w-32 rounded-xl border border-slate-200 bg-white p-1 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.5)]">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteTemplate(template.id)}
+                            className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-rose-600 transition hover:bg-rose-50"
+                          >
+                            消去
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openEditModal(template)}
+                            className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                          >
+                            編集
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openDateModal(template.id)}
+                            className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                          >
+                            日付指定
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-              </article>
+                </article>
               ))
             )}
           </div>
@@ -422,6 +444,7 @@ export default function TemplateChargeList() {
           </form>
         </div>
       ) : null}
+      <ToastMessage key={toast.id} message={toast.message} />
     </div>
   );
 }

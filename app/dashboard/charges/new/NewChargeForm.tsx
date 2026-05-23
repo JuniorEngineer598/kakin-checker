@@ -18,6 +18,7 @@ import {
   saveCharges,
   saveChargeTemplates,
 } from "../../../lib/storage";
+import ToastMessage from "../../../components/ToastMessage";
 
 export default function NewChargeForm() {
   const [games, setGames] = useState<Game[]>([]);
@@ -32,6 +33,11 @@ export default function NewChargeForm() {
     itemName: "",
     amount: "",
   });
+  const [toast, setToast] = useState({
+    message: "",
+    id: 0,
+  });//stateを更新するためにidも持たせる
+
   const hasGames = games.length > 0;
 
   // ゲームデータの読み込み
@@ -40,6 +46,19 @@ export default function NewChargeForm() {
     setGames(loadedGames);
     setGameId((current) => current || loadedGames[0]?.id || "");
   }, []);
+
+  useEffect(() => {
+    if (!toast.message) return;
+
+    const timerId = window.setTimeout(() => {
+      setToast((current) => ({
+        ...current,
+        message: "",
+      }));
+    }, 2500);
+
+    return () => window.clearTimeout(timerId);
+  }, [toast]);
 
   // フォーム送信
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -109,9 +128,14 @@ export default function NewChargeForm() {
       itemName: "",
       amount: "",
     });
+    setToast((current) => ({
+      message: "課金記録を追加しました",
+      id: current.id + 1,
+    }));
   }
 
   return (
+    <>
     <form
       onSubmit={handleSubmit}
       className="rounded-[28px] bg-white p-4 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:p-5"
@@ -236,5 +260,7 @@ export default function NewChargeForm() {
         </button>
       </div>
     </form>
+    <ToastMessage key={toast.id} message={toast.message} />
+    </>
   );
 }
