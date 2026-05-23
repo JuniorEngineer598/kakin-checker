@@ -10,7 +10,7 @@
 
 ## デモ
 
-[課金チェッカーを開く](https://kakin-checker.vercel.app)
+[課金チェッカーを開く](https://kakin-checker-raxi.vercel.app)
 
 ## 作成した理由
 
