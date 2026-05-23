@@ -5,6 +5,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: '課金チェッカー',
   description: 'ソシャゲ課金管理アプリのMVP',
+  icons: {
+    icon: '/kakin_checker_icon.png',
+  },
 };
 
 export const viewport: Viewport = {
