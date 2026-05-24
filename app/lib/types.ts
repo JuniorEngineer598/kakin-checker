@@ -18,7 +18,13 @@ export type ChargeTemplate = {
   updatedAt?: string;
 };
 
-export type ChargeCategory = 'ガチャ石' | '月パス' | 'スキン' | 'アイテム' | 'その他';
+export type ChargeCategory =
+  | 'ガチャ石'
+  | '月パス'
+  | 'サブスク'
+  | 'スキン'
+  | 'アイテム'
+  | 'その他';
 
 //課金記録型
 export type ChargeRecord = {
