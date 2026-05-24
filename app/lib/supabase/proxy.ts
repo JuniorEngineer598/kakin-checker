@@ -48,4 +48,5 @@ export async function updateSession(request: NextRequest) {
 
   // Cookie の同期状態を保つため、更新済みのレスポンスをそのまま返す
   return supabaseResponse
-}
+};
+
