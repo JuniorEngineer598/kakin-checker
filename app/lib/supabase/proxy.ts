@@ -32,16 +32,15 @@ export async function updateSession(request: NextRequest) {
   )
 
   // セッションを更新し、認証状態を検証する
-  const { data } = await supabase.auth.getClaims()
-
-  const user = data?.claims
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   const publicAuthPaths = [
     '/login',
     '/signup',
     '/check-email',
     '/reset-password',
-    '/update-password',
     '/auth',
   ]
 
