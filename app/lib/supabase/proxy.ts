@@ -36,10 +36,18 @@ export async function updateSession(request: NextRequest) {
 
   const user = data?.claims
 
+  const publicAuthPaths = [
+    '/login',
+    '/signup',
+    '/check-email',
+    '/reset-password',
+    '/update-password',
+    '/auth',
+  ]
+
   if (
     !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
+    !publicAuthPaths.some((path) => request.nextUrl.pathname.startsWith(path))
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
@@ -48,5 +56,5 @@ export async function updateSession(request: NextRequest) {
 
   // Cookie の同期状態を保つため、更新済みのレスポンスをそのまま返す
   return supabaseResponse
-};
+}
 

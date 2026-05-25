@@ -9,7 +9,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import { formatCurrency } from "../../lib/format";
 import {
   createId,
@@ -42,7 +42,7 @@ export default function GamesPage() {
   }, []);
 
   // 新しいアプリを追加する処理
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const trimmedName = gameName.trim();
@@ -115,7 +115,7 @@ export default function GamesPage() {
   }
 
   // アプリ名を編集して保存する処理
-  const handleEditSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleEditSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedName = editGameName.trim();

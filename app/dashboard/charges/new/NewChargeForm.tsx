@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import { chargeCategories } from "../../../lib/chargeCategories";
 import type {
   ChargeCategory,
@@ -61,7 +61,7 @@ export default function NewChargeForm() {
   }, [toast]);
 
   // フォーム送信
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const trimmedItemName = itemName.trim();

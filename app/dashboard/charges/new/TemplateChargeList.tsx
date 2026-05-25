@@ -2,7 +2,7 @@
 
 import { EllipsisVertical, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import { formatCurrency, formatDateInputValue } from "../../../lib/format";
 import { chargeCategories } from "../../../lib/chargeCategories";
 import {
@@ -139,7 +139,7 @@ export default function TemplateChargeList() {
   }
 
   // 編集内容を保存
-  function handleEditSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleEditSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedItemName = editItemName.trim();
     const numericAmount = Number(editAmount);
