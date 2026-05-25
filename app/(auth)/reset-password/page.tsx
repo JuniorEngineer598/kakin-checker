@@ -1,5 +1,8 @@
+import { redirectIfAuthenticated } from "../../lib/auth-redirects";
 import ResetPasswordForm from "./ResetPasswordForm";
 
-export default function ResetPasswordPage() {
+export default async function ResetPasswordPage() {
+  await redirectIfAuthenticated();
+  
   return <ResetPasswordForm />;
 }

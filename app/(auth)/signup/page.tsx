@@ -1,5 +1,8 @@
+import { redirectIfAuthenticated } from "../../lib/auth-redirects";
 import SignupForm from "./SignupForm";
 
-export default function SignupPage() {
+export default async function SignupPage() {
+  await redirectIfAuthenticated();
+  
   return <SignupForm />;
 }
