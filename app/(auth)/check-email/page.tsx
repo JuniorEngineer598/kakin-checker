@@ -3,5 +3,6 @@ import CheckEmailCard from "./CheckEmailCard";
 
 export default async function CheckEmailPage() {
   await redirectIfAuthenticated();
+
   return <CheckEmailCard />;
 }
