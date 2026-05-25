@@ -1,8 +1,6 @@
-"use client";
-
+import type { ReactNode } from "react";
 import Image from "next/image";
 import { BarChart3, FileText, History } from "lucide-react";
-import LoginForm from "./LoginForm";
 
 const features = [
   {
@@ -22,7 +20,11 @@ const features = [
   },
 ];
 
-export default function LoginPage() {
+type AuthLayoutProps = {
+  children: ReactNode;
+};
+
+export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-100">
       <section className="relative mx-auto min-h-[calc(100vh-16px)] w-full max-w-full overflow-hidden  border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-slate-50 py-5 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:px-8 lg:px-14 lg:py-12">
@@ -36,9 +38,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="mx-auto w-full lg:max-w-none">
-            <LoginForm />
-          </div>
+          <div className="mx-auto w-full lg:max-w-none">{children}</div>
 
           <div className="lg:hidden">
             <FeatureIntro />
@@ -74,7 +74,7 @@ function BrandHero() {
 
 function FeatureIntro() {
   return (
-    <section className="mx-auto max-w-[720px] lg:mx-0 mb-4">
+    <section className="mx-auto mb-4 max-w-[720px] lg:mx-0">
       <div className="h-1 w-16 rounded-full bg-blue-600" />
       <h2 className="mt-8 break-words text-xl font-bold leading-tight text-slate-950 sm:text-3xl">
         毎月の課金を見える化して、無理のない管理を。
