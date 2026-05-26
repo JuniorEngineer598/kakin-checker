@@ -13,7 +13,8 @@ import {
   parseChargeDate,
   formatMonthInputValue,
 } from "../../lib/format";
-import { loadCharges, loadGames } from "../../lib/storage";
+import { fetchApps } from "../../lib/apps";
+import { fetchCharges } from "../../lib/charges";
 import type { ChargeRecord, Game } from "../../lib/types";
 import PageBackground from "../../components/PageBackground";
 
@@ -29,8 +30,19 @@ export default function CalendarPage() {
     : "";
 
   useEffect(() => {
-    setGames(loadGames());
-    setCharges(loadCharges());
+    async function loadInitialData() {
+      try {
+        const loadedApps = await fetchApps();
+        const loadedCharges = await fetchCharges();
+        setGames(loadedApps);
+        setCharges(loadedCharges);
+      } catch {
+        setGames([]);
+        setCharges([]);
+      }
+    }
+
+    loadInitialData();
   }, []);
 
   //課金データを日付ごとにまとめる処理

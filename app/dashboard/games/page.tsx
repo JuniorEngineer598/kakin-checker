@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import type { SubmitEvent } from "react";
 import { formatCurrency } from "../../lib/format";
 import { createApp, deleteApp, fetchApps, updateAppName } from "../../lib/apps";
-import { loadCharges } from "../../lib/storage";
+import { fetchCharges } from "../../lib/charges";
 import type { App, ChargeRecord } from "../../lib/types";
 import { getNextDefaultGameIconKey } from "../../lib/gameIcons";
 import GameIconView from "../../components/GameIconView";
@@ -33,8 +33,9 @@ export default function AppsPage() {
     async function loadInitialData() {
       try {
         const apps = await fetchApps();
+        const charges = await fetchCharges();
         setApps(apps);
-        setCharges(loadCharges());
+        setCharges(charges);
       } catch {
         // 後でエラー表示を足す
       }

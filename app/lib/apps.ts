@@ -1,5 +1,6 @@
 import { createClient } from "./supabase/client";
 import type { App, DefaultGameIconKey } from "./types";
+import { getCurrentUserId } from "./auth-user";
 
 type AppRow = {
   id: string;
@@ -29,21 +30,6 @@ function toApp(row: AppRow): App {
           },
     createdAt: row.created_at,
   };
-}
-
-//現在ログインしてるユーザーIDを取得
-async function getCurrentUserId() {
-  const supabase = createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    throw new Error("ログインが必要です");
-  }
-
-  return user.id;
 }
 
 export async function fetchApps() {
