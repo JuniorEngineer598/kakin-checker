@@ -1,10 +1,12 @@
-//ゲーム型
-export type Game = {
+// アプリ型
+export type App = {
   id: string;
   name: string;
   icon: GameIcon;
   createdAt: string;
 };
+
+export type Game = App;
 
 //課金テンプレート型
 export type ChargeTemplate = {
