@@ -8,7 +8,8 @@ import {
 } from "../../lib/analysisStats";
 import type { ReactNode } from "react";
 import { formatCurrency } from "../../lib/format";
-import { loadCharges, loadGames } from "../../lib/storage";
+import { fetchApps } from "../../lib/apps";
+import { fetchCharges } from "../../lib/charges";
 import type { ChargeRecord, Game } from "../../lib/types";
 import PageBackground from "../../components/PageBackground";
 import AppChargeShareDonutChart from "../../components/AppChargeShareDonutChart";
@@ -27,8 +28,19 @@ export default function AnalyticsPage() {
   const [isMonthShareModalOpen, setIsMonthShareModalOpen] = useState(false);
 
   useEffect(() => {
-    setCharges(loadCharges());
-    setGames(loadGames());
+    async function loadInitialData() {
+      try {
+        const loadedApps = await fetchApps();
+        const loadedCharges = await fetchCharges();
+        setGames(loadedApps);
+        setCharges(loadedCharges);
+      } catch {
+        setGames([]);
+        setCharges([]);
+      }
+    }
+
+    loadInitialData();
   }, []);
 
   const analysisStats = useMemo(() => {

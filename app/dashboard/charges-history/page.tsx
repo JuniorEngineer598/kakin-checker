@@ -17,7 +17,8 @@ import {
   formatMonthInputValue,
 } from "../../lib/format";
 import type { ChargeRecord, Game } from "../../lib/types";
-import { loadCharges, loadGames, saveCharges } from "../../lib/storage";
+import { fetchApps } from "../../lib/apps";
+import { deleteCharge, deleteCharges, fetchCharges } from "../../lib/charges";
 import PageBackground from "../../components/PageBackground";
 
 export default function ChargeHistoryPage() {
@@ -29,8 +30,19 @@ export default function ChargeHistoryPage() {
   const [selectedChargeIds, setSelectedChargeIds] = useState<string[]>([]);
 
   useEffect(() => {
-    setCharges(loadCharges());
-    setGames(loadGames());
+    async function loadInitialData() {
+      try {
+        const loadedApps = await fetchApps();
+        const loadedCharges = await fetchCharges();
+        setGames(loadedApps);
+        setCharges(loadedCharges);
+      } catch {
+        setGames([]);
+        setCharges([]);
+      }
+    }
+
+    loadInitialData();
   }, []);
 
   //charges と games が更新されるたびに、buildChargeHistory関数を呼び出し
@@ -60,14 +72,20 @@ export default function ChargeHistoryPage() {
     resetSelectionState();
   }
 
-  function handleDeleteCharge(chargeId: string) {
+  async function handleDeleteCharge(chargeId: string) {
     const ok = window.confirm("この課金記録を消去しますか？");
     if (!ok) return;
 
-    const nextCharges = charges.filter((charge) => charge.id !== chargeId);
-    setCharges(nextCharges);
-    saveCharges(nextCharges);
-    setOpenChargeMenuId(null);
+    try {
+      await deleteCharge(chargeId);
+
+      setCharges((current) =>
+        current.filter((charge) => charge.id !== chargeId),
+      );
+      setOpenChargeMenuId(null);
+    } catch {
+      window.alert("課金記録の消去に失敗しました");
+    }
   }
 
   function handleToggleSelectMode() {
@@ -90,7 +108,7 @@ export default function ChargeHistoryPage() {
     });
   }
 
-  function handleDeleteSelectedCharges() {
+  async function handleDeleteSelectedCharges() {
     if (selectedChargeIds.length === 0) return;
 
     const ok = window.confirm(
@@ -99,16 +117,20 @@ export default function ChargeHistoryPage() {
 
     if (!ok) return;
 
-    const selectedIdSet = new Set(selectedChargeIds);
-    const nextCharges = charges.filter(
-      (charge) => !selectedIdSet.has(charge.id),
-    );
+    try {
+      await deleteCharges(selectedChargeIds);
 
-    setCharges(nextCharges);
-    saveCharges(nextCharges);
-    setSelectedChargeIds([]);
-    setIsSelectMode(false);
-    setOpenChargeMenuId(null);
+      const selectedIdSet = new Set(selectedChargeIds);
+
+      setCharges((current) =>
+        current.filter((charge) => !selectedIdSet.has(charge.id)),
+      );
+      setSelectedChargeIds([]);
+      setIsSelectMode(false);
+      setOpenChargeMenuId(null);
+    } catch {
+      window.alert("課金記録の一括消去に失敗しました");
+    }
   }
 
   return (

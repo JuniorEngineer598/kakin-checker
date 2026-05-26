@@ -6,15 +6,27 @@ import GameIconView from "../components/GameIconView";
 import PageBackground from "../components/PageBackground";
 import { buildDashboardStats } from "../lib/dashboardStats";
 import { formatChargeMonthLabel, formatCurrency } from "../lib/format";
-import { loadGames, loadCharges } from "../lib/storage";
+import { fetchApps } from "../lib/apps";
+import { fetchCharges } from "../lib/charges";
 import type { Game, ChargeRecord } from "../lib/types";
 
 export default function DashboardPage() {
   const [games, setGames] = useState<Game[]>([]);
   const [charges, setCharges] = useState<ChargeRecord[]>([]);
   useEffect(() => {
-    setGames(loadGames());
-    setCharges(loadCharges());
+    async function loadInitialData() {
+      try {
+        const loadedApps = await fetchApps();
+        const loadedCharges = await fetchCharges();
+        setGames(loadedApps);
+        setCharges(loadedCharges);
+      } catch {
+        setGames([]);
+        setCharges([]);
+      }
+    }
+
+    loadInitialData();
   }, []);
 
   const stats = useMemo(() => {
