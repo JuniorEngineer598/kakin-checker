@@ -11,150 +11,150 @@ import {
 import { useEffect, useState } from "react";
 import type { SubmitEvent } from "react";
 import { formatCurrency } from "../../lib/format";
-import {
-  createId,
-  loadGames,
-  saveGames,
-  loadCharges,
-  saveCharges,
-  loadChargeTemplates,
-  saveChargeTemplates,
-} from "../../lib/storage";
-import type { ChargeRecord, Game } from "../../lib/types";
+import { createApp, deleteApp, fetchApps, updateAppName } from "../../lib/apps";
+import { loadCharges } from "../../lib/storage";
+import type { App, ChargeRecord } from "../../lib/types";
 import { getNextDefaultGameIconKey } from "../../lib/gameIcons";
 import GameIconView from "../../components/GameIconView";
 import PageBackground from "../../components/PageBackground";
 
-export default function GamesPage() {
-  const [games, setGames] = useState<Game[]>([]);
+export default function AppsPage() {
+  const [apps, setApps] = useState<App[]>([]);
   const [charges, setCharges] = useState<ChargeRecord[]>([]);
-  const [gameName, setGameName] = useState("");
+  const [appName, setAppName] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [openGameMenuId, setOpenGameMenuId] = useState<string | null>(null);
-  const [gameNameError, setGameNameError] = useState("");
-  const [editGameId, setEditGameId] = useState<string | null>(null);
-  const [editGameName, setEditGameName] = useState("");
-  const [editGameNameError, setEditGameNameError] = useState("");
+  const [openAppMenuId, setOpenAppMenuId] = useState<string | null>(null);
+  const [appNameError, setAppNameError] = useState("");
+  const [editAppId, setEditAppId] = useState<string | null>(null);
+  const [editAppName, setEditAppName] = useState("");
+  const [editAppNameError, setEditAppNameError] = useState("");
 
   useEffect(() => {
-    setGames(loadGames());
-    setCharges(loadCharges());
+    async function loadInitialData() {
+      try {
+        const apps = await fetchApps();
+        setApps(apps);
+        setCharges(loadCharges());
+      } catch {
+        // 後でエラー表示を足す
+      }
+    }
+
+    loadInitialData();
   }, []);
 
   // 新しいアプリを追加する処理
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const trimmedName = gameName.trim();
+    const trimmedName = appName.trim();
+
     if (!trimmedName) {
-      setGameNameError("※アプリ名を入力してください");
-      return;
-    }
-    // 同じ名前のアプリが既に存在するかチェック
-    const existsGame = games.find((game) => game.name === trimmedName);
-    if (existsGame) {
-      setGameNameError("※同じ名前のアプリが既に存在しています");
+      setAppNameError("※アプリ名を入力してください");
       return;
     }
 
-    const newGame: Game = {
-      id: createId("game"),
-      name: trimmedName,
-      icon: {
-        type: "default",
-        key: getNextDefaultGameIconKey(games.length),
-      },
-      createdAt: new Date().toISOString(),
-    };
+    const existsApp = apps.find((app) => app.name === trimmedName);
 
-    const nextGames = [...games, newGame];
+    if (existsApp) {
+      setAppNameError("※同じ名前のアプリが既に存在しています");
+      return;
+    }
 
-    setGames(nextGames);
-    saveGames(nextGames);
-    setGameName("");
-    setIsModalOpen(false);
-    setOpenGameMenuId(null);
+    try {
+      const newApp = await createApp(
+        trimmedName,
+        getNextDefaultGameIconKey(apps.length),
+      );
+
+      setApps((current) => [...current, newApp]);
+      setAppName("");
+      setIsModalOpen(false);
+      setOpenAppMenuId(null);
+    } catch {
+      setAppNameError("※アプリの追加に失敗しました");
+    }
   }
 
   // アプリを削除する処理
-  const handleDeleteGame = (gameId: string) => {
-    // アプリを削除する前に確認ダイアログを表示
+  async function handleDeleteApp(appId: string) {
     const ok = window.confirm(
       "このアプリを本当に削除しますか？\n※このアプリの課金履歴とテンプレートも削除されます",
     );
+
     if (!ok) return;
 
-    // アプリを削除した後、そのアプリに関連する課金記録と課金テンプレートも削除
-    const nextGames = games.filter((game) => game.id !== gameId);
-    const nextCharges = loadCharges().filter(
-      (charge) => charge.gameId !== gameId,
-    );
-    const nextChargeTemplates = loadChargeTemplates().filter(
-      (template) => template.gameId !== gameId,
-    );
-    setGames(nextGames);
-    saveGames(nextGames);
-    setCharges(nextCharges);
-    saveCharges(nextCharges);
-    saveChargeTemplates(nextChargeTemplates);
-    setOpenGameMenuId(null);
-  };
+    try {
+      await deleteApp(appId);
+
+      setApps((current) => current.filter((app) => app.id !== appId));
+      setOpenAppMenuId(null);
+    } catch {
+      window.alert("アプリの削除に失敗しました");
+    }
+  }
 
   // アプリ編集モーダルを開く処理
-  const openEditModal = (game: Game) => {
-    setEditGameId(game.id);
-    setEditGameName(game.name);
-    setEditGameNameError("");
-    setOpenGameMenuId(null);
-  };
+  function openEditModal(app: App) {
+    setEditAppId(app.id);
+    setEditAppName(app.name);
+    setEditAppNameError("");
+    setOpenAppMenuId(null);
+  }
 
   function closeEditModal() {
-    setEditGameId(null);
-    setEditGameName("");
-    setEditGameNameError("");
+    setEditAppId(null);
+    setEditAppName("");
+    setEditAppNameError("");
   }
 
   // アプリ名を編集して保存する処理
-  const handleEditSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+  async function handleEditSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const trimmedName = editGameName.trim();
-    // アプリ名が空の場合はエラーを表示して保存処理を中断
+    const trimmedName = editAppName.trim();
+
     if (!trimmedName) {
-      setEditGameNameError("※アプリ名を入力してください");
+      setEditAppNameError("※アプリ名を入力してください");
       return;
     }
 
-    // 同じ名前のアプリが既に存在するかチェック
-    const existsGame = games.find(
-      (game) => game.id !== editGameId && game.name === trimmedName,
+    const existsApp = apps.find(
+      (app) => app.id !== editAppId && app.name === trimmedName,
     );
-    if (existsGame) {
-      setEditGameNameError("※同じ名前のアプリが既に存在しています");
+
+    if (existsApp) {
+      setEditAppNameError("※同じ名前のアプリが既に存在しています");
       return;
     }
 
-    // アプリ名を更新した新しいアプリの配列を作成
-    const nextGames = games.map((game) => {
-      if (game.id === editGameId) {
-        return {
-          ...game,
-          name: trimmedName,
-        };
-      }
+    if (!editAppId) {
+      return;
+    }
 
-      return game;
-    });
+    try {
+      const updatedApp = await updateAppName(editAppId, trimmedName);
 
-    setGames(nextGames);
-    saveGames(nextGames);
-    closeEditModal();
-  };
+      setApps((current) =>
+        current.map((app) => {
+          if (app.id === editAppId) {
+            return updatedApp;
+          }
+
+          return app;
+        }),
+      );
+
+      closeEditModal();
+    } catch {
+      setEditAppNameError("※アプリ名の更新に失敗しました");
+    }
+  }
 
   // アプリごとの総課金額を計算
-  function getGameTotalAmount(gameId: string) {
+  function getAppTotalAmount(appId: string) {
     return charges
-      .filter((charge) => charge.gameId === gameId)
+      .filter((charge) => charge.gameId === appId)
       .reduce((total, charge) => total + charge.amount, 0);
   }
 
@@ -202,21 +202,24 @@ export default function GamesPage() {
           </div>
 
           <div>
-            {games.map((game) => {
+            {apps.map((app) => {
               return (
                 <article
-                  key={game.id}
+                  key={app.id}
                   className="grid grid-cols-[minmax(0,1fr)_72px_40px_36px] items-center gap-3 border-b border-slate-200 px-1 py-4 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_88px_48px_40px] sm:gap-4 sm:px-2 md:grid-cols-[minmax(0,1.2fr)_160px_160px_120px] md:gap-0 md:py-5"
                 >
                   <div className="flex min-w-0 items-center gap-3 md:gap-5">
-                    <GameIconView icon={game.icon} className="h-11 w-11 shrink-0 md:h-14 md:w-14" />
+                    <GameIconView
+                      icon={app.icon}
+                      className="h-11 w-11 shrink-0 md:h-14 md:w-14"
+                    />
                     <p className="min-w-0 truncate text-sm font-bold text-slate-950 sm:text-base md:text-lg">
-                      {game.name}
+                      {app.name}
                     </p>
                   </div>
 
                   <p className="justify-self-end text-right text-sm font-bold text-slate-900 sm:text-base md:justify-self-auto md:text-left">
-                    {formatCurrency(getGameTotalAmount(game.id))}
+                    {formatCurrency(getAppTotalAmount(app.id))}
                   </p>
 
                   <div className="flex justify-center justify-self-center md:block md:justify-self-auto">
@@ -241,11 +244,11 @@ export default function GamesPage() {
                     <button
                       type="button"
                       title="メニュー"
-                      aria-label={`${game.name}のメニュー`}
-                      aria-expanded={openGameMenuId === game.id}
+                      aria-label={`${app.name}のメニュー`}
+                      aria-expanded={openAppMenuId === app.id}
                       onClick={() => {
-                        setOpenGameMenuId((current) =>
-                          current === game.id ? null : game.id,
+                        setOpenAppMenuId((current) =>
+                          current === app.id ? null : app.id,
                         );
                       }}
                       className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
@@ -257,18 +260,18 @@ export default function GamesPage() {
                       />
                     </button>
 
-                    {openGameMenuId === game.id ? (
+                    {openAppMenuId === app.id ? (
                       <div className="absolute right-0 top-11 z-10 w-32 rounded-xl border border-slate-200 bg-white p-1 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.5)]">
                         <button
                           type="button"
-                          onClick={() => openEditModal(game)}
+                          onClick={() => openEditModal(app)}
                           className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-slate-700 transition hover:bg-slate-50"
                         >
                           編集
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDeleteGame(game.id)}
+                          onClick={() => handleDeleteApp(app.id)}
                           className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-rose-600 transition hover:bg-rose-50"
                         >
                           消去
@@ -282,7 +285,7 @@ export default function GamesPage() {
           </div>
 
           <div className="px-2 py-5 text-center text-sm font-bold text-slate-600">
-            合計 {games.length} 件
+            合計 {apps.length} 件
           </div>
         </section>
 
@@ -312,18 +315,18 @@ export default function GamesPage() {
                 </span>
                 <input
                   type="text"
-                  name="gameName"
-                  value={gameName}
+                  name="appName"
+                  value={appName}
                   onChange={(event) => {
-                    setGameName(event.target.value);
-                    setGameNameError("");
+                    setAppName(event.target.value);
+                    setAppNameError("");
                   }}
                   placeholder="例: スターレイル"
                   className="mt-3 h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
                 />
-                {gameNameError && (
+                {appNameError && (
                   <p className="mt-2 text-sm font-bold text-rose-600">
-                    {gameNameError}
+                    {appNameError}
                   </p>
                 )}
               </label>
@@ -379,7 +382,7 @@ export default function GamesPage() {
             </form>
           </div>
         ) : null}
-        {editGameId ? (
+        {editAppId ? (
           <div className="fixed inset-0 z-30 flex items-start justify-center overflow-y-auto bg-slate-950/35 px-4 pb-4 pt-20 backdrop-blur-[2px] sm:items-center sm:py-6">
             <form
               onSubmit={handleEditSubmit}
@@ -405,16 +408,16 @@ export default function GamesPage() {
                 </span>
                 <input
                   type="text"
-                  value={editGameName}
+                  value={editAppName}
                   onChange={(event) => {
-                    setEditGameName(event.target.value);
-                    setEditGameNameError("");
+                    setEditAppName(event.target.value);
+                    setEditAppNameError("");
                   }}
                   className="mt-3 h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
                 />
-                {editGameNameError ? (
+                {editAppNameError ? (
                   <p className="mt-2 text-sm font-bold text-rose-600">
-                    {editGameNameError}
+                    {editAppNameError}
                   </p>
                 ) : null}
               </label>
