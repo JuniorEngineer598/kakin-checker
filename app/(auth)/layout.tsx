@@ -5,7 +5,7 @@ import { BarChart3, FileText, History } from "lucide-react";
 const features = [
   {
     title: "課金を可視化",
-    description: "月別・ゲーム別に支出を把握",
+    description: "月別・アプリ別に支出を把握",
     icon: BarChart3,
   },
   {

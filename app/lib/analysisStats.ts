@@ -1,5 +1,5 @@
 import { parseChargeDate } from './format';
-import type { ChargeRecord, Game } from './types';
+import type { ChargeRecord, App } from './types';
 
 export type MonthlyAnalysisItem = {
   month: number;
@@ -14,8 +14,8 @@ export type AnalysisStats = {
 };
 
 export type AppChargeShareItem = {
-  gameId: string;
-  gameName: string;
+  appId: string;
+  appName: string;
   appTotalAmount: number;
   percentage: number;
 };
@@ -67,17 +67,17 @@ export function buildAnalysisStats(charges: ChargeRecord[], year: number): Analy
 
 export function buildAppChargeShares(
   charges: ChargeRecord[],
-  games: Game[],
+  apps: App[],
   options: BuildAppChargeShareOptions,
 ): AppChargeShareItem[] {
   
-  const gameNameById = new Map(
-    games.map((game) => {
-      return [game.id, game.name];
+  const appNameById = new Map(
+    apps.map((app) => {
+      return [app.id, app.name];
     }),
   );
   //アプリIDとそのアプリの課金額の合計のマップを作成
-  const amountByGameId = new Map<string, number>();
+  const amountByAppId = new Map<string, number>();
 
   for (const charge of charges) {
     const chargeDate = parseChargeDate(charge.chargedAt);
@@ -90,14 +90,14 @@ export function buildAppChargeShares(
       continue;
     }
 
-    const currentAmount = amountByGameId.get(charge.gameId) ?? 0;
+    const currentAmount = amountByAppId.get(charge.appId) ?? 0;
 
     //アプリごとの課金額の合計を更新
-    amountByGameId.set(charge.gameId, currentAmount + charge.amount);
+    amountByAppId.set(charge.appId, currentAmount + charge.amount);
   }
 
   //全アプリの課金額の合計を計算
-  const totalAmount = Array.from(amountByGameId.values()).reduce((total, appTotalAmount) => {
+  const totalAmount = Array.from(amountByAppId.values()).reduce((total, appTotalAmount) => {
     return total + appTotalAmount;
   }, 0);
 
@@ -106,11 +106,11 @@ export function buildAppChargeShares(
   }
 
   //mapを配列に変換し、アプリごとの課金額の合計と全体に対する割合を計算して返す
-  return Array.from(amountByGameId.entries())
-    .map(([gameId, appTotalAmount]) => {
+  return Array.from(amountByAppId.entries())
+    .map(([appId, appTotalAmount]) => {
       return {
-        gameId,
-        gameName: gameNameById.get(gameId) ?? '削除済みアプリ',
+        appId,
+        appName: appNameById.get(appId) ?? '削除済みアプリ',
         appTotalAmount,
         percentage: Math.round((appTotalAmount / totalAmount) * 100),//totalAmountでパーセンテージを計算
       };
@@ -119,5 +119,5 @@ export function buildAppChargeShares(
 }
 
 /*[
-  ["game-1", 3000]
+  ["App-1", 3000]
 ]*/

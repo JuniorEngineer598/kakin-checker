@@ -5,20 +5,14 @@ import { useEffect, useState } from "react";
 import type { SubmitEvent } from "react";
 import { formatCurrency, formatDateInputValue } from "../../../lib/format";
 import { chargeCategories } from "../../../lib/chargeCategories";
+import { createCharge } from "../../../lib/charges";
+import { fetchApps } from "../../../lib/apps";
 import {
-  createId,
-  loadCharges,
-  loadChargeTemplates,
-  loadGames,
-  saveCharges,
-  saveChargeTemplates,
-} from "../../../lib/storage";
-import type {
-  ChargeCategory,
-  ChargeRecord,
-  ChargeTemplate,
-  Game,
-} from "../../../lib/types";
+  deleteChargeTemplate,
+  fetchChargeTemplates,
+  updateChargeTemplate,
+} from "../../../lib/chargeTemplates";
+import type { ChargeCategory, ChargeTemplate, App } from "../../../lib/types";
 import ToastMessage from "../../../components/ToastMessage";
 
 export default function TemplateChargeList() {
@@ -26,8 +20,8 @@ export default function TemplateChargeList() {
     null,
   );
   const [templates, setTemplates] = useState<ChargeTemplate[]>([]);
-  const [games, setGames] = useState<Game[]>([]);
-  const [selectedGameId, setSelectedGameId] = useState<string>("");
+  const [apps, setApps] = useState<App[]>([]);
+  const [selectedAppId, setSelectedAppId] = useState<string>("");
   const [dateTemplateId, setDateTemplateId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(() =>
     formatDateInputValue(new Date()),
@@ -41,23 +35,31 @@ export default function TemplateChargeList() {
     id: 0,
   });
 
-  // ゲーム選択に応じてテンプレートをフィルタリング
-  const filteredTemplates = selectedGameId
-    ? templates.filter((template) => template.gameId === selectedGameId)
+  // アプリ選択に応じてテンプレートをフィルタリング
+  const filteredTemplates = selectedAppId
+    ? templates.filter((template) => template.appId === selectedAppId)
     : templates;
-  const hasGames = games.length > 0;
+  const hasApps = apps.length > 0;
   const hasTemplates = filteredTemplates.length > 0;
 
-  // ゲームデータとテンプレートの読み込み
+  // アプリデータとテンプレートの読み込み
   useEffect(() => {
-    const loadedGames = loadGames();
-    const loadedTemplates = loadChargeTemplates();
+    async function loadInitialData() {
+      try {
+        const loadedApps = await fetchApps();
+        const loadedTemplates = await fetchChargeTemplates();
 
-    setGames(loadedGames);
-    setTemplates(loadedTemplates);
-    setSelectedGameId(loadedGames[0]?.id ?? ""); // 最初のゲームを選択状態にする
+        setApps(loadedApps);
+        setTemplates(loadedTemplates);
+        setSelectedAppId(loadedApps[0]?.id ?? "");
+      } catch {
+        setApps([]);
+        setTemplates([]);
+      }
+    }
+
+    loadInitialData();
   }, []);
-
   useEffect(() => {
     if (!toast.message) return;
 
@@ -72,47 +74,47 @@ export default function TemplateChargeList() {
   }, [toast]);
 
   // テンプレートから課金データを追加  第２引数がある場合はその日付で追加、ない場合は当日で追加
-  function handleAddTemplate(
+  async function handleAddTemplate(
     template: ChargeTemplate,
     chargedAt = formatDateInputValue(new Date()),
   ) {
-    // バリデーション
     if (!chargedAt) {
       return;
     }
 
-    const now = new Date();
-    const createdAt = now.toISOString(); //作成日時
+    try {
+      await createCharge({
+        appId: template.appId,
+        itemName: template.itemName,
+        amount: template.amount,
+        category: template.category,
+        chargedAt,
+      });
 
-    const newCharge: ChargeRecord = {
-      id: createId("charge"), // 例: "charge-1625239072345-abc123"
-      gameId: template.gameId,
-      itemName: template.itemName,
-      amount: template.amount,
-      category: template.category,
-      chargedAt,
-      createdAt,
-    };
-
-    saveCharges([...loadCharges(), newCharge]);
-    setOpenTemplateMenuId(null);
-    setDateTemplateId(null);
-    setToast((current) => ({
-      message: "課金記録を追加しました",
-      id: current.id + 1,
-    }));
+      setOpenTemplateMenuId(null);
+      setDateTemplateId(null);
+      setToast((current) => ({
+        message: "課金記録を追加しました",
+        id: current.id + 1,
+      }));
+    } catch {
+      window.alert("課金記録の追加に失敗しました");
+    }
   }
 
   // テンプレートの消去
-  function handleDeleteTemplate(templateId: string) {
-    const nextTemplates = templates.filter(
-      (template) => template.id !== templateId,
-    );
-    saveChargeTemplates(nextTemplates);
-    setTemplates(nextTemplates);
-    setOpenTemplateMenuId(null);
-  }
+  async function handleDeleteTemplate(templateId: string) {
+    try {
+      await deleteChargeTemplate(templateId);
 
+      setTemplates((current) =>
+        current.filter((template) => template.id !== templateId),
+      );
+      setOpenTemplateMenuId(null);
+    } catch {
+      window.alert("テンプレートの消去に失敗しました");
+    }
+  }
   // 日付指定モーダルの開閉
   function openDateModal(templateId: string) {
     setSelectedDate(formatDateInputValue(new Date()));
@@ -139,11 +141,16 @@ export default function TemplateChargeList() {
   }
 
   // 編集内容を保存
-  function handleEditSubmit(event: SubmitEvent<HTMLFormElement>) {
+  async function handleEditSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!editTemplateId) {
+      return;
+    }
+
     const trimmedItemName = editItemName.trim();
     const numericAmount = Number(editAmount);
-    // バリデーション
+
     if (
       !trimmedItemName ||
       !Number.isFinite(numericAmount) ||
@@ -151,22 +158,28 @@ export default function TemplateChargeList() {
     ) {
       return;
     }
-    const updatedTemplates = templates.map((template) => {
-      if (template.id === editTemplateId) {
-        return {
-          ...template,
-          itemName: trimmedItemName,
-          amount: numericAmount,
-          category: editCategory,
-          updatedAt: new Date().toISOString(),
-        };
-      }
-      return template; // 変更のないテンプレートはそのまま返す mapは必須
-    });
-    //updatedTemplatesは更新後と既存のテンプレートどちらも返す。
-    saveChargeTemplates(updatedTemplates);
-    setTemplates(updatedTemplates);
-    closeEditModal();
+
+    try {
+      const updatedTemplate = await updateChargeTemplate(editTemplateId, {
+        itemName: trimmedItemName,
+        amount: numericAmount,
+        category: editCategory,
+      });
+
+      setTemplates((current) =>
+        current.map((template) => {
+          if (template.id === editTemplateId) {
+            return updatedTemplate;
+          }
+
+          return template;
+        }),
+      );
+
+      closeEditModal();
+    } catch {
+      window.alert("テンプレートの更新に失敗しました");
+    }
   }
 
   // 日付指定モーダルに表示するテンプレートデータ
@@ -185,15 +198,15 @@ export default function TemplateChargeList() {
 
         <label className="block">
           <select
-            value={selectedGameId}
-            onChange={(event) => setSelectedGameId(event.target.value)}
-            disabled={!hasGames}
+            value={selectedAppId}
+            onChange={(event) => setSelectedAppId(event.target.value)}
+            disabled={!hasApps}
             className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:bg-white disabled:cursor-not-allowed disabled:text-slate-400"
           >
-            {hasGames ? (
-              games.map((game) => (
-                <option key={game.id} value={game.id}>
-                  {game.name}
+            {hasApps ? (
+              apps.map((app) => (
+                <option key={app.id} value={app.id}>
+                  {app.name}
                 </option>
               ))
             ) : (
@@ -208,12 +221,12 @@ export default function TemplateChargeList() {
               テンプレート一覧
             </h2>
             <p className="text-sm font-semibold text-slate-500">
-              {games.find((game) => game.id === selectedGameId)?.name}
+              {apps.find((app) => app.id === selectedAppId)?.name}
             </p>
           </div>
 
           <div className="grid min-h-0 flex-1 content-start gap-3 overflow-y-auto pr-1">
-            {!hasGames ? (
+            {!hasApps ? (
               <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-center">
                 <p className="text-sm font-bold text-slate-600">
                   アプリを追加すると「新規で追加」からテンプレートを作成できます

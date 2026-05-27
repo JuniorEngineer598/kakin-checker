@@ -15,12 +15,12 @@ import {
 } from "../../lib/format";
 import { fetchApps } from "../../lib/apps";
 import { fetchCharges } from "../../lib/charges";
-import type { ChargeRecord, Game } from "../../lib/types";
+import type { ChargeRecord, App } from "../../lib/types";
 import PageBackground from "../../components/PageBackground";
 
 const calendarWeekdays = ["日", "月", "火", "水", "木", "金", "土"];
 export default function CalendarPage() {
-  const [games, setGames] = useState<Game[]>([]);
+  const [apps, setApps] = useState<App[]>([]);
   const [charges, setCharges] = useState<ChargeRecord[]>([]);
   const [selectedMonthDate, setSelectedMonthDate] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -34,10 +34,10 @@ export default function CalendarPage() {
       try {
         const loadedApps = await fetchApps();
         const loadedCharges = await fetchCharges();
-        setGames(loadedApps);
+        setApps(loadedApps);
         setCharges(loadedCharges);
       } catch {
-        setGames([]);
+        setApps([]);
         setCharges([]);
       }
     }
@@ -47,8 +47,8 @@ export default function CalendarPage() {
 
   //課金データを日付ごとにまとめる処理
   const dayDataByDate = useMemo(() => {
-    return buildCalendarDayData(charges, games);
-  }, [charges, games]);
+    return buildCalendarDayData(charges, apps);
+  }, [charges, apps]);
 
   //カレンダーマスのデータを作る処理
   const calendarCells = useMemo(() => {
@@ -235,7 +235,7 @@ export default function CalendarPage() {
                       >
                         <div className="min-w-0">
                           <p className="truncate text-sm font-bold text-slate-700">
-                            {item.gameName}
+                            {item.appName}
                           </p>
                           <p className="mt-1 truncate text-xs font-semibold text-slate-400">
                             {item.itemName} / {item.category}

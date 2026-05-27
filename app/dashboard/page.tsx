@@ -2,26 +2,26 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Crown, House } from "lucide-react";
-import GameIconView from "../components/GameIconView";
+import AppIconView from "../components/AppIconView";
 import PageBackground from "../components/PageBackground";
 import { buildDashboardStats } from "../lib/dashboardStats";
 import { formatChargeMonthLabel, formatCurrency } from "../lib/format";
 import { fetchApps } from "../lib/apps";
 import { fetchCharges } from "../lib/charges";
-import type { Game, ChargeRecord } from "../lib/types";
+import type { App, ChargeRecord } from "../lib/types";
 
 export default function DashboardPage() {
-  const [games, setGames] = useState<Game[]>([]);
+  const [apps, setApps] = useState<App[]>([]);
   const [charges, setCharges] = useState<ChargeRecord[]>([]);
   useEffect(() => {
     async function loadInitialData() {
       try {
         const loadedApps = await fetchApps();
         const loadedCharges = await fetchCharges();
-        setGames(loadedApps);
+        setApps(loadedApps);
         setCharges(loadedCharges);
       } catch {
-        setGames([]);
+        setApps([]);
         setCharges([]);
       }
     }
@@ -30,8 +30,8 @@ export default function DashboardPage() {
   }, []);
 
   const stats = useMemo(() => {
-    return buildDashboardStats(charges, games);
-  }, [charges, games]);
+    return buildDashboardStats(charges, apps);
+  }, [charges, apps]);
 
   const maxMonthlyAppTotal = Math.max(
     ...stats.monthlyAppTotals.map((item) => item.totalAmount),
@@ -102,14 +102,14 @@ export default function DashboardPage() {
                   <p className="text-xs font-bold text-amber-600">今月1位</p>
                   {stats.monthlyTopApp ? (
                     <div className="mt-3 flex min-w-0 items-center gap-3">
-                      <GameIconView
-                        icon={stats.monthlyTopApp.gameIcon}
+                      <AppIconView
+                        icon={stats.monthlyTopApp.appIcon}
                         className="h-10 w-10 shrink-0"
                         iconClassName="h-5 w-5"
                       />
                       <div className="min-w-0">
                         <p className="truncate text-base font-bold text-slate-950">
-                          {stats.monthlyTopApp.gameName}
+                          {stats.monthlyTopApp.appName}
                         </p>
                       </div>
                     </div>
@@ -123,14 +123,14 @@ export default function DashboardPage() {
                   <p className="text-xs font-bold text-indigo-600">年間1位</p>
                   {stats.yearlyTopApp ? (
                     <div className="mt-3 flex min-w-0 items-center gap-3">
-                      <GameIconView
-                        icon={stats.yearlyTopApp.gameIcon}
+                      <AppIconView
+                        icon={stats.yearlyTopApp.appIcon}
                         className="h-10 w-10 shrink-0"
                         iconClassName="h-5 w-5"
                       />
                       <div className="min-w-0">
                         <p className="truncate text-base font-bold text-slate-950">
-                          {stats.yearlyTopApp.gameName}
+                          {stats.yearlyTopApp.appName}
                         </p>
                       </div>
                     </div>
@@ -168,7 +168,7 @@ export default function DashboardPage() {
 
                   return (
                     <div
-                      key={item.gameId}
+                      key={item.appId}
                       className="flex min-w-0 flex-col items-center gap-3"
                     >
                       <p className="w-full text-center text-[11px] font-bold text-slate-700 sm:text-xs">
@@ -183,13 +183,13 @@ export default function DashboardPage() {
                       </div>
 
                       <div className="flex w-full min-w-0 flex-col items-center gap-2">
-                        <GameIconView
-                          icon={item.gameIcon}
+                        <AppIconView
+                          icon={item.appIcon}
                           className="h-8 w-8 shrink-0"
                           iconClassName="h-4 w-4"
                         />
                         <p className="w-full truncate text-center text-xs font-semibold leading-tight text-slate-700 sm:text-sm">
-                          {item.gameName}
+                          {item.appName}
                         </p>
                       </div>
                     </div>

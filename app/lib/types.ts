@@ -2,16 +2,14 @@
 export type App = {
   id: string;
   name: string;
-  icon: GameIcon;
+  icon: AppIcon;
   createdAt: string;
 };
-
-export type Game = App;
 
 //課金テンプレート型
 export type ChargeTemplate = {
   id: string;
-  gameId: string;
+  appId: string;
   itemName: string;
   amount: number;
   category: ChargeCategory;
@@ -31,7 +29,7 @@ export type ChargeCategory =
 //課金記録型
 export type ChargeRecord = {
   id: string;
-  gameId: string;
+  appId: string;
   itemName: string;
   amount: number;
   category: ChargeCategory;
@@ -41,12 +39,12 @@ export type ChargeRecord = {
 
 export type ActiveTab = 'template' | 'new';
 
-export type DefaultGameIconKey = 'gamepad' | 'sparkles' | 'sword' | 'gem' | 'crown';
+export type DefaultAppIconKey = 'gamepad' | 'sparkles' | 'sword' | 'gem' | 'crown';
 
-export type GameIcon =
+export type AppIcon =
   | {
       type: 'default';
-      key: DefaultGameIconKey;
+      key: DefaultAppIconKey;
     }
   | {
       type: 'upload';
@@ -56,8 +54,8 @@ export type GameIcon =
 // 課金履歴の型
 export type ChargeHistoryItem = {
   id: string;
-  gameName: string;
-  gameIcon: GameIcon;
+  appName: string;
+  appIcon: AppIcon;
   itemName: string;
   amount: number;
 };

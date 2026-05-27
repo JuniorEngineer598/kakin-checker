@@ -1,9 +1,9 @@
 
-import type { ChargeRecord, ChargeTemplate, Game } from './types';
+import type { ChargeRecord, ChargeTemplate, App } from './types';
 
 // ローカルストレージのキーを定義
 const STORAGE_KEYS = {
-  games: 'kakin-checker:games',
+  apps: 'kakin-checker:apps',
   chargeTemplates: 'kakin-checker:chargeTemplates',
   charges: 'kakin-checker:charges',
 } as const;
@@ -39,14 +39,14 @@ function writeJson<T>(key: string, value: T) {
 
   window.localStorage.setItem(key, JSON.stringify(value));
 }
-// ゲームデータをローカルストレージから読み込み
-export function loadGames() {
-  return readJson<Game[]>(STORAGE_KEYS.games, []);
+// アプリデータをローカルストレージから読み込み
+export function loadApps() {
+  return readJson<App[]>(STORAGE_KEYS.apps, []);
 }
 
-// ゲームデータをローカルストレージに保存
-export function saveGames(games: Game[]) {
-  writeJson(STORAGE_KEYS.games, games);
+// アプリデータをローカルストレージに保存
+export function saveApps(apps: App[]) {
+  writeJson(STORAGE_KEYS.apps, apps);
 }
 
 // 課金テンプレートをローカルストレージから読み込み
