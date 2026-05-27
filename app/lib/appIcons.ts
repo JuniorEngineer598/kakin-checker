@@ -1,8 +1,8 @@
 import { Crown, Gamepad2, Gem, Sparkles, Sword } from 'lucide-react';
-import type { DefaultGameIconKey } from './types';
+import type { DefaultAppIconKey } from './types';
 
-// デフォルトのゲームアイコンの順番を定義
-export const defaultGameIconKeys: DefaultGameIconKey[] = [
+// デフォルトのアプリアイコンの順番を定義
+export const defaultAppIconKeys: DefaultAppIconKey[] = [
   'gamepad',
   'sparkles',
   'sword',
@@ -11,7 +11,7 @@ export const defaultGameIconKeys: DefaultGameIconKey[] = [
 ];
 
 // 表示するアイコンとスタイルの対応を定義
-export const defaultGameIconViewByKey = {
+export const defaultAppIconViewByKey = {
   gamepad: {
     icon: Gamepad2,
     className: 'bg-slate-100 text-slate-700 ring-slate-200',
@@ -33,18 +33,18 @@ export const defaultGameIconViewByKey = {
     className: 'bg-rose-50 text-rose-500 ring-rose-100',
   },
 } satisfies Record<
-  DefaultGameIconKey,
+  DefaultAppIconKey,
   {
     icon: typeof Gamepad2;
     className: string;
   }
 >;
 
-// defaultGameIconKeysの定義に基づいて新規ゲームにアイコンを自動割り当てします。
-export function getNextDefaultGameIconKey(index: number) {
-  return defaultGameIconKeys[index % defaultGameIconKeys.length];
+// defaultAppIconKeysの定義に基づいて新規アプリにアイコンを自動割り当てします。
+export function getNextDefaultAppIconKey(index: number) {
+  return defaultAppIconKeys[index % defaultAppIconKeys.length];
 }
 //キーからデフォルトアイコンの表示情報を取得
-export function getDefaultGameIconView(key: DefaultGameIconKey) {
-  return defaultGameIconViewByKey[key];
+export function getDefaultAppIconView(key: DefaultAppIconKey) {
+  return defaultAppIconViewByKey[key];
 }

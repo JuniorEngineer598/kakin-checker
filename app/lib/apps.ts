@@ -1,5 +1,5 @@
 import { createClient } from "./supabase/client";
-import type { App, DefaultGameIconKey } from "./types";
+import type { App, DefaultAppIconKey } from "./types";
 import { getCurrentUserId } from "./auth-user";
 
 type AppRow = {
@@ -26,7 +26,7 @@ function toApp(row: AppRow): App {
           }
         : {
             type: "default",
-            key: (row.icon_key ?? "gamepad") as DefaultGameIconKey,
+            key: (row.icon_key ?? "gamepad") as DefaultAppIconKey,
           },
     createdAt: row.created_at,
   };
@@ -47,7 +47,7 @@ export async function fetchApps() {
   return (data ?? []).map((row) => toApp(row as AppRow));
 }
 
-export async function createApp(name: string, iconKey: DefaultGameIconKey) {
+export async function createApp(name: string, iconKey: DefaultAppIconKey) {
   const supabase = createClient();
   const userId = await getCurrentUserId();
 

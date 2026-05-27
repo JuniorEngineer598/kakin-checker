@@ -3,27 +3,23 @@
 import { useEffect, useState } from "react";
 import type { SubmitEvent } from "react";
 import { chargeCategories } from "../../../lib/chargeCategories";
-import type { ChargeCategory, ChargeTemplate, Game } from "../../../lib/types";
+import type { ChargeCategory, App } from "../../../lib/types";
 import { formatDateInputValue } from "../../../lib/format";
 import { createCharge } from "../../../lib/charges";
 import { fetchApps } from "../../../lib/apps";
-import {
-  createId,
-  loadChargeTemplates,
-  saveChargeTemplates,
-} from "../../../lib/storage";
+import { createChargeTemplate } from "../../../lib/chargeTemplates";
 import ToastMessage from "../../../components/ToastMessage";
 
 export default function NewChargeForm() {
-  const [games, setGames] = useState<Game[]>([]);
-  const [gameId, setGameId] = useState("");
+  const [apps, setApps] = useState<App[]>([]);
+  const [appId, setAppId] = useState("");
   const [itemName, setItemName] = useState("");
   const [amount, setAmount] = useState("");
   const [chargedAt, setChargedAt] = useState(formatDateInputValue(new Date()));
   const [category, setCategory] = useState<ChargeCategory>("ガチャ石");
   const [shouldSaveAsTemplate, setShouldSaveAsTemplate] = useState(false);
   const [errors, setErrors] = useState({
-    gameId: "",
+    appId: "",
     itemName: "",
     amount: "",
   });
@@ -32,20 +28,20 @@ export default function NewChargeForm() {
     id: 0,
   }); //stateを更新するためにidも持たせる
 
-  const hasGames = games.length > 0;
+  const hasApps = apps.length > 0;
 
-  // ゲームデータの読み込み
+  // アプリデータの読み込み
   useEffect(() => {
     async function loadApps() {
       try {
         const loadedApps = await fetchApps();
 
-        setGames(loadedApps);
-        setGameId((current) => current || loadedApps[0]?.id || "");
+        setApps(loadedApps);
+        setAppId((current) => current || loadedApps[0]?.id || "");
       } catch {
         setErrors((current) => ({
           ...current,
-          gameId: "アプリ一覧の取得に失敗しました",
+          appId: "アプリ一覧の取得に失敗しました",
         }));
       }
     }
@@ -74,13 +70,13 @@ export default function NewChargeForm() {
     const numericAmount = Number(amount);
     // バリデーション
     const nextErrors = {
-      gameId: "",
+      appId: "",
       itemName: "",
       amount: "",
     };
 
-    if (!gameId) {
-      nextErrors.gameId = "アプリを追加してください。";
+    if (!appId) {
+      nextErrors.appId = "アプリを追加してください。";
     }
 
     if (!trimmedItemName) {
@@ -93,12 +89,12 @@ export default function NewChargeForm() {
 
     setErrors(nextErrors);
 
-    if (nextErrors.gameId || nextErrors.itemName || nextErrors.amount) {
+    if (nextErrors.appId || nextErrors.itemName || nextErrors.amount) {
       return;
     }
     try {
       await createCharge({
-        appId: gameId,
+        appId: appId,
         itemName: trimmedItemName,
         amount: numericAmount,
         category,
@@ -112,20 +108,18 @@ export default function NewChargeForm() {
       return;
     }
 
-    const createdAt = new Date().toISOString(); // 作成日時
-
     // テンプレートとして保存する場合の処理
     if (shouldSaveAsTemplate) {
-      const newTemplate: ChargeTemplate = {
-        id: createId("template"),
-        gameId,
-        itemName: trimmedItemName,
-        amount: numericAmount,
-        category,
-        createdAt,
-      };
-
-      saveChargeTemplates([...loadChargeTemplates(), newTemplate]);
+      try {
+        await createChargeTemplate({
+          appId: appId,
+          itemName: trimmedItemName,
+          amount: numericAmount,
+          category,
+        });
+      } catch {
+        window.alert("テンプレートの保存に失敗しました");
+      }
     }
 
     setItemName("");
@@ -133,7 +127,7 @@ export default function NewChargeForm() {
     setCategory("ガチャ石");
     setShouldSaveAsTemplate(false);
     setErrors({
-      gameId: "",
+      appId: "",
       itemName: "",
       amount: "",
     });
@@ -155,27 +149,27 @@ export default function NewChargeForm() {
           <label className="block">
             <span className="text-sm font-semibold text-slate-700">アプリ</span>
             <select
-              value={gameId}
+              value={appId}
               onChange={(event) => {
-                setGameId(event.target.value);
-                setErrors((current) => ({ ...current, gameId: "" }));
+                setAppId(event.target.value);
+                setErrors((current) => ({ ...current, appId: "" }));
               }}
-              disabled={!hasGames}
+              disabled={!hasApps}
               className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:bg-white disabled:cursor-not-allowed disabled:text-slate-400"
             >
-              {hasGames ? (
-                games.map((game) => (
-                  <option key={game.id} value={game.id}>
-                    {game.name}
+              {hasApps ? (
+                apps.map((app) => (
+                  <option key={app.id} value={app.id}>
+                    {app.name}
                   </option>
                 ))
               ) : (
                 <option value="">アプリがありません</option>
               )}
             </select>
-            {errors.gameId ? (
+            {errors.appId ? (
               <p className="mt-2 text-xs font-bold text-rose-600">
-                {errors.gameId}
+                {errors.appId}
               </p>
             ) : null}
           </label>

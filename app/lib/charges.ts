@@ -17,7 +17,7 @@ type ChargeRow = {
 function toChargeRecord(row: ChargeRow): ChargeRecord {
   return {
     id: row.id,
-    gameId: row.app_id,
+    appId: row.app_id,
     itemName: row.item_name,
     amount: row.amount,
     category: row.category,

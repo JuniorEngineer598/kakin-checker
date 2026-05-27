@@ -14,8 +14,8 @@ import { formatCurrency } from "../../lib/format";
 import { createApp, deleteApp, fetchApps, updateAppName } from "../../lib/apps";
 import { fetchCharges } from "../../lib/charges";
 import type { App, ChargeRecord } from "../../lib/types";
-import { getNextDefaultGameIconKey } from "../../lib/gameIcons";
-import GameIconView from "../../components/GameIconView";
+import { getNextDefaultAppIconKey } from "../../lib/appIcons";
+import AppIconView from "../../components/AppIconView";
 import PageBackground from "../../components/PageBackground";
 
 export default function AppsPage() {
@@ -65,7 +65,7 @@ export default function AppsPage() {
     try {
       const newApp = await createApp(
         trimmedName,
-        getNextDefaultGameIconKey(apps.length),
+        getNextDefaultAppIconKey(apps.length),
       );
 
       setApps((current) => [...current, newApp]);
@@ -155,7 +155,7 @@ export default function AppsPage() {
   // アプリごとの総課金額を計算
   function getAppTotalAmount(appId: string) {
     return charges
-      .filter((charge) => charge.gameId === appId)
+      .filter((charge) => charge.appId === appId)
       .reduce((total, charge) => total + charge.amount, 0);
   }
 
@@ -210,7 +210,7 @@ export default function AppsPage() {
                   className="grid grid-cols-[minmax(0,1fr)_72px_40px_36px] items-center gap-3 border-b border-slate-200 px-1 py-4 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_88px_48px_40px] sm:gap-4 sm:px-2 md:grid-cols-[minmax(0,1.2fr)_160px_160px_120px] md:gap-0 md:py-5"
                 >
                   <div className="flex min-w-0 items-center gap-3 md:gap-5">
-                    <GameIconView
+                    <AppIconView
                       icon={app.icon}
                       className="h-11 w-11 shrink-0 md:h-14 md:w-14"
                     />

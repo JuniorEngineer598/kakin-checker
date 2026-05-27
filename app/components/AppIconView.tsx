@@ -1,14 +1,14 @@
-import { getDefaultGameIconView } from '../lib/gameIcons';
-import type { GameIcon } from '../lib/types';
+import { getDefaultAppIconView } from '../lib/appIcons';
+import type { AppIcon } from '../lib/types';
 
-type GameIconViewProps = {
-  icon: GameIcon;
+type AppIconViewProps = {
+  icon: AppIcon;
   className?: string;
   iconClassName?: string;
 };
 
-// ゲームアイコンの表示コンポーネント
-export default function GameIconView({ icon, className = '', iconClassName = '' }: GameIconViewProps) {
+// アプリアイコンの表示コンポーネント
+export default function AppIconView({ icon, className = '', iconClassName = '' }: AppIconViewProps) {
   // アップロードされたアイコンの場合は画像を表示
   if (icon.type === 'upload') {
     return (
@@ -19,7 +19,7 @@ export default function GameIconView({ icon, className = '', iconClassName = '' 
   }
 
   //キーに対応するデフォルトアイコンの表示情報を取得
-  const iconView = getDefaultGameIconView(icon.key);
+  const iconView = getDefaultAppIconView(icon.key);
   const Icon = iconView.icon;
 
   return (
@@ -30,5 +30,5 @@ export default function GameIconView({ icon, className = '', iconClassName = '' 
   );
 }
 
-//({ icon, className = '', iconClassName = '' }: GameIconViewProps)外側の箱を大きくする → className、アイコン自体を大きくする → iconClassName
+//({ icon, className = '', iconClassName = '' }: AppIconViewProps)外側の箱を大きくする → className、アイコン自体を大きくする → iconClassName
 // 画面ごとにデザインを変えるために、外側の箱とアイコン自体の両方にクラス名を渡せるようにしています。

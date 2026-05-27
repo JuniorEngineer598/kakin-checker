@@ -10,7 +10,7 @@ import type { ReactNode } from "react";
 import { formatCurrency } from "../../lib/format";
 import { fetchApps } from "../../lib/apps";
 import { fetchCharges } from "../../lib/charges";
-import type { ChargeRecord, Game } from "../../lib/types";
+import type { ChargeRecord, App } from "../../lib/types";
 import PageBackground from "../../components/PageBackground";
 import AppChargeShareDonutChart from "../../components/AppChargeShareDonutChart";
 import AppChargeShareDonutModal from "../../components/AppChargeShareDonutModal";
@@ -21,7 +21,7 @@ export default function AnalyticsPage() {
     new Date().getFullYear(),
   );
   const [charges, setCharges] = useState<ChargeRecord[]>([]);
-  const [games, setGames] = useState<Game[]>([]);
+  const [apps, setApps] = useState<App[]>([]);
 
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(0);
   const [isYearShareModalOpen, setIsYearShareModalOpen] = useState(false);
@@ -32,10 +32,10 @@ export default function AnalyticsPage() {
       try {
         const loadedApps = await fetchApps();
         const loadedCharges = await fetchCharges();
-        setGames(loadedApps);
+        setApps(loadedApps);
         setCharges(loadedCharges);
       } catch {
-        setGames([]);
+        setApps([]);
         setCharges([]);
       }
     }
@@ -51,16 +51,16 @@ export default function AnalyticsPage() {
   const selectedMonth = yearData[selectedMonthIndex] ?? yearData[0];
   const maxAmount = Math.max(...yearData.map((item) => item.totalAmount), 1);
   const yearlyAppShares = useMemo(() => {
-    return buildAppChargeShares(charges, games, {
+    return buildAppChargeShares(charges, apps, {
       year: selectedYear,
     });
-  }, [charges, games, selectedYear]);
+  }, [charges, apps, selectedYear]);
   const monthlyAppShares = useMemo(() => {
-    return buildAppChargeShares(charges, games, {
+    return buildAppChargeShares(charges, apps, {
       year: selectedYear,
       month: selectedMonth.month,
     });
-  }, [charges, games, selectedMonth.month, selectedYear]);
+  }, [charges, apps, selectedMonth.month, selectedYear]);
 
   function handleYearChange(value: string) {
     setSelectedYear(Number(value));

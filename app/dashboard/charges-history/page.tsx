@@ -8,7 +8,7 @@ import {
   MoreVertical,
 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
-import GameIconView from "../../components/GameIconView";
+import AppIconView from "../../components/AppIconView";
 import { buildChargeHistory } from "../../lib/chargeHistory";
 import {
   addMonths,
@@ -16,14 +16,14 @@ import {
   formatCurrency,
   formatMonthInputValue,
 } from "../../lib/format";
-import type { ChargeRecord, Game } from "../../lib/types";
+import type { ChargeRecord, App } from "../../lib/types";
 import { fetchApps } from "../../lib/apps";
 import { deleteCharge, deleteCharges, fetchCharges } from "../../lib/charges";
 import PageBackground from "../../components/PageBackground";
 
 export default function ChargeHistoryPage() {
   const [charges, setCharges] = useState<ChargeRecord[]>([]);
-  const [games, setGames] = useState<Game[]>([]);
+  const [apps, setApps] = useState<App[]>([]);
   const [selectedMonthDate, setSelectedMonthDate] = useState(() => new Date());
   const [openChargeMenuId, setOpenChargeMenuId] = useState<string | null>(null);
   const [isSelectMode, setIsSelectMode] = useState(false);
@@ -34,10 +34,10 @@ export default function ChargeHistoryPage() {
       try {
         const loadedApps = await fetchApps();
         const loadedCharges = await fetchCharges();
-        setGames(loadedApps);
+        setApps(loadedApps);
         setCharges(loadedCharges);
       } catch {
-        setGames([]);
+        setApps([]);
         setCharges([]);
       }
     }
@@ -45,10 +45,10 @@ export default function ChargeHistoryPage() {
     loadInitialData();
   }, []);
 
-  //charges と games が更新されるたびに、buildChargeHistory関数を呼び出し
+  //charges と apps が更新されるたびに、buildChargeHistory関数を呼び出し
   const { groupsByMonth } = useMemo(() => {
-    return buildChargeHistory(charges, games);
-  }, [charges, games]);
+    return buildChargeHistory(charges, apps);
+  }, [charges, apps]);
 
   const selectedMonth = formatChargeMonthLabel(selectedMonthDate);
   //選択された月のグループを取得。なければ空配列
@@ -243,12 +243,12 @@ export default function ChargeHistoryPage() {
                         ) : null}
 
                         <div className="flex min-w-0 items-center gap-4">
-                          <GameIconView
-                            icon={item.gameIcon}
+                          <AppIconView
+                            icon={item.appIcon}
                             className="h-11 w-11 shrink-0 md:h-12 md:w-12"
                           />
                           <p className="min-w-0 truncate text-base font-bold text-slate-950 md:text-lg">
-                            {item.gameName}
+                            {item.appName}
                           </p>
                         </div>
 

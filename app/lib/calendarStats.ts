@@ -1,9 +1,9 @@
-import type { ChargeRecord, Game, GameIcon } from './types';
+import type { ChargeRecord, App, AppIcon } from './types';
 
 export type CalendarChargeItem = {
   id: string;
-  gameName: string;
-  gameIcon: GameIcon;
+  appName: string;
+  appIcon: AppIcon;
   itemName: string;
   category: ChargeRecord['category'];
   amount: number;
@@ -23,16 +23,16 @@ export type CalendarDateCell = {
 };
 
 // 課金データを日付ごとにまとめる
-export function buildCalendarDayData(charges: ChargeRecord[], games: Game[]): Record<string, CalendarDayData> {
-  const gameById = new Map(games.map((game) => [game.id, game]));
+export function buildCalendarDayData(charges: ChargeRecord[], apps: App[]): Record<string, CalendarDayData> {
+  const appById = new Map(apps.map((app) => [app.id, app]));
   // 日付ごとのデータを入れるオブジェクト。Recordで「日付キー → 1日分のデータ」の形にする
   const dayDataByDate: Record<string, CalendarDayData> = {};
 
   //課金データを1件ずつ見て、日付ごとの合計・件数・内訳にまとめる
   for (const charge of charges) {
-    const game = gameById.get(charge.gameId);
+    const app = appById.get(charge.appId);
 
-    if (!game) {
+    if (!app) {
       continue;
     }
 
@@ -51,8 +51,8 @@ export function buildCalendarDayData(charges: ChargeRecord[], games: Game[]): Re
 
     dayData.items.push({
       id: charge.id,
-      gameName: game.name,
-      gameIcon: game.icon,
+      appName: app.name,
+      appIcon: app.icon,
       itemName: charge.itemName,
       category: charge.category,
       amount: charge.amount,

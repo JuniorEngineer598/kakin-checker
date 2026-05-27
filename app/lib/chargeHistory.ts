@@ -4,16 +4,16 @@ import {
   formatWeekdayLabel,
   parseChargeDate,
 } from './format';
-import type { ChargeHistoryGroup, ChargeRecord, Game } from './types';
+import type { ChargeHistoryGroup, ChargeRecord, App } from './types';
 
 export type ChargeHistoryData = {
   groupsByMonth: Record<string, ChargeHistoryGroup[]>;
 };
 
-// 課金記録とゲームデータを受け取り、課金履歴表示用のデータ構造に変換する関数
-export function buildChargeHistory(charges: ChargeRecord[], games: Game[]): ChargeHistoryData {
-  //ゲームをIDで検索しやすい形に変換 例:gameById.get(charge.gameId)
-  const gameById = new Map(games.map((game) => [game.id, game]));
+// 課金記録とアプリデータを受け取り、課金履歴表示用のデータ構造に変換する関数
+export function buildChargeHistory(charges: ChargeRecord[], apps: App[]): ChargeHistoryData {
+  //アプリをIDで検索しやすい形に変換 例:appById.get(charge.appId)
+  const appById = new Map(apps.map((app) => [app.id, app]));
 
   //月ごとの課金履歴グループを入れるオブジェクト
   const groupsByMonth: Record<string, ChargeHistoryGroup[]> = {};
@@ -29,9 +29,9 @@ export function buildChargeHistory(charges: ChargeRecord[], games: Game[]): Char
 
     const monthLabel = formatChargeMonthLabel(date);//"2026年5月"
     const dateLabel = formatChargeDateLabel(date);//"2026年5月18日"
-    const game = gameById.get(charge.gameId);
+    const app = appById.get(charge.appId);
 
-    if (!game) {
+    if (!app) {
       continue;
     }
 
@@ -53,8 +53,8 @@ export function buildChargeHistory(charges: ChargeRecord[], games: Game[]): Char
     
     dateGroup.items.push({
       id: charge.id,
-      gameName: game.name,
-      gameIcon: game.icon,
+      appName: app.name,
+      appIcon: app.icon,
       itemName: charge.itemName,
       amount: charge.amount,
     });

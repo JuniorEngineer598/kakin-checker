@@ -10,11 +10,11 @@ export function getRecentCharges(records: ChargeRecord[], limit: number) {
     .slice(0, limit);
 }
 
-export function getChargesByGame(records: ChargeRecord[]) {
+export function getChargesByApp(records: ChargeRecord[]) {
   return records.reduce<Record<string, ChargeRecord[]>>((groups, record) => {
-    const gameRecords = groups[record.gameId] ?? [];
-    gameRecords.push(record);
-    groups[record.gameId] = gameRecords;
+    const appRecords = groups[record.appId] ?? [];
+    appRecords.push(record);
+    groups[record.appId] = appRecords;
     return groups;
   }, {});
 }
