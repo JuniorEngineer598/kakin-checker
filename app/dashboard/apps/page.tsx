@@ -15,7 +15,7 @@ import { createApp, deleteApp, fetchApps, updateAppName } from "../../lib/apps";
 import { fetchCharges } from "../../lib/charges";
 import type { App, ChargeRecord } from "../../lib/types";
 import { getNextDefaultAppIconKey } from "../../lib/appIcons";
-import { uploadAppIcon } from "../../lib/appIconsStorage";
+import { uploadAppIcon, deleteAppIcon } from "../../lib/appIconsStorage";
 import AppIconView from "../../components/AppIconView";
 import PageBackground from "../../components/PageBackground";
 
@@ -135,6 +135,12 @@ export default function AppsPage() {
 
   // アプリを削除する処理
   async function handleDeleteApp(appId: string) {
+    const deleteTargetApp = apps.find((app) => app.id === appId);
+
+    if (!deleteTargetApp) {
+      return;
+    }
+
     const ok = window.confirm(
       "このアプリを本当に削除しますか？\n※このアプリの課金履歴とテンプレートも削除されます",
     );
@@ -148,6 +154,15 @@ export default function AppsPage() {
       setOpenAppMenuId(null);
     } catch {
       window.alert("アプリの削除に失敗しました");
+      return;
+    }
+
+    if (deleteTargetApp.icon.type === "upload") {
+      try {
+        await deleteAppIcon(deleteTargetApp.icon.imageUrl);
+      } catch (error) {
+        console.error("アイコン画像の削除に失敗しました", error);
+      }
     }
   }
 

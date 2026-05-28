@@ -36,3 +36,23 @@ export async function uploadAppIcon(file: File) {
 
   return publicUrl;
 }
+
+// Storageから画像を削除する
+export async function deleteAppIcon(iconUrl: string) {
+  const supabase = createClient();
+
+  const marker = `/storage/v1/object/public/${APP_ICONS_BUCKET}/`;
+  const filePath = iconUrl.split(marker)[1];//markerでURLを分割して、後半部分がStorage内のファイルパスになる想定
+
+  if (!filePath) {
+    return;
+  }
+
+  const { error } = await supabase.storage
+    .from(APP_ICONS_BUCKET)
+    .remove([filePath]);
+
+  if (error) {
+    throw error;
+  }
+}
