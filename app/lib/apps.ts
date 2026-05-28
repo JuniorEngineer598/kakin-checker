@@ -32,6 +32,16 @@ function toApp(row: AppRow): App {
   };
 }
 
+type CreateAppIconInput =
+  | {
+      type: "default";
+      key: DefaultAppIconKey;
+    }
+  | {
+      type: "upload";
+      imageUrl: string;
+    };
+
 export async function fetchApps() {
   const supabase = createClient();
 
@@ -47,18 +57,30 @@ export async function fetchApps() {
   return (data ?? []).map((row) => toApp(row as AppRow));
 }
 
-export async function createApp(name: string, iconKey: DefaultAppIconKey) {
+//appsテーブルにアプリ情報を保存する
+export async function createApp(name: string, icon: CreateAppIconInput) {
   const supabase = createClient();
   const userId = await getCurrentUserId();
+
+  const iconValues =
+    icon.type === "upload"
+      ? {
+          icon_type: "upload",
+          icon_key: null,
+          icon_url: icon.imageUrl,
+        }
+      : {
+          icon_type: "default",
+          icon_key: icon.key,
+          icon_url: null,
+        };
 
   const { data, error } = await supabase
     .from("apps")
     .insert({
       user_id: userId,
       name,
-      icon_type: "default",
-      icon_key: iconKey,
-      icon_url: null,
+      ...iconValues,
     })
     .select("*")
     .single();
