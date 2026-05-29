@@ -1,4 +1,5 @@
 import LogoutButton from "./LogoutButton";
+import ResetDataButton from "./ResetDataButton";
 import {
   AlertTriangle,
   Code2,
@@ -9,7 +10,6 @@ import {
   RotateCcw,
   Settings,
   Sun,
-  Trash2,
   Upload,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -51,13 +51,7 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-rose-300 bg-white px-6 text-sm font-bold text-rose-600 transition hover:bg-rose-50 sm:w-auto"
-              >
-                <Trash2 size={18} strokeWidth={2.2} aria-hidden="true" />
-                リセットする
-              </button>
+              <ResetDataButton />
             </div>
           </article>
 
