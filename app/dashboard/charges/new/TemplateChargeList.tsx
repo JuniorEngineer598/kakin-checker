@@ -1,6 +1,6 @@
 "use client";
 
-import { EllipsisVertical, X } from "lucide-react";
+import { CircleAlert, EllipsisVertical, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { SubmitEvent } from "react";
 import { formatCurrency, formatDateInputValue } from "../../../lib/format";
@@ -220,8 +220,9 @@ export default function TemplateChargeList() {
             <h2 className="text-base font-bold text-slate-950">
               テンプレート一覧
             </h2>
-            <p className="text-sm font-semibold text-slate-500">
-              {apps.find((app) => app.id === selectedAppId)?.name}
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-bold text-slate-500">
+              <CircleAlert size={14} strokeWidth={2.2} aria-hidden="true" />
+              ワンクリックで課金記録を追加できます
             </p>
           </div>
 
@@ -242,9 +243,9 @@ export default function TemplateChargeList() {
               filteredTemplates.map((template) => (
                 <article
                   key={template.id}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 p-3.5 transition hover:border-slate-300 hover:bg-white"
+                  className="rounded-2xl border border-l-2 border-slate-200 border-l-blue-500 bg-slate-50 p-3.5 transition hover:bg-white"
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:grid-cols-[minmax(0,1fr)_8rem_minmax(3rem,1fr)_auto]">
                     <button
                       type="button"
                       onClick={() => {
@@ -255,10 +256,20 @@ export default function TemplateChargeList() {
                       <p className="truncate text-base font-bold text-slate-950">
                         {template.itemName}
                       </p>
-                      <p className="mt-1 text-sm font-semibold text-slate-500">
-                        {template.category} {formatCurrency(template.amount)}
+                      <p className="mt-1 inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-slate-600">
+                        {template.category}
+                        <span className="sm:hidden">
+                          {" "}
+                          {formatCurrency(template.amount)}
+                        </span>
                       </p>
                     </button>
+
+                    <p className="hidden self-center text-center text-xl font-extrabold text-slate-950 sm:block">
+                      {formatCurrency(template.amount)}
+                    </p>
+
+                    <div className="hidden sm:block" aria-hidden="true" />
 
                     <div className="relative shrink-0">
                       <button
@@ -271,7 +282,7 @@ export default function TemplateChargeList() {
                             current === template.id ? null : template.id,
                           );
                         }}
-                        className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
                       >
                         <EllipsisVertical
                           className="h-5 w-5"
