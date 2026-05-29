@@ -142,3 +142,14 @@ export async function deleteApp(appId: string) {
     throw error;
   }
 }
+
+export async function deleteAllApps() {
+  const supabase = createClient();
+  const userId = await getCurrentUserId();
+
+  const { error } = await supabase.from("apps").delete().eq("user_id", userId);
+
+  if (error) {
+    throw error;
+  }
+}
