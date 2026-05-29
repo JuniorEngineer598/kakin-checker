@@ -52,7 +52,10 @@ export default function ChargeHistoryPage() {
 
   const selectedMonth = formatChargeMonthLabel(selectedMonthDate);
   //選択された月のグループを取得。なければ空配列
-  const groups = groupsByMonth[selectedMonth] ?? [];
+  const groups = useMemo(() => {
+    return groupsByMonth[selectedMonth] ?? [];
+  }, [groupsByMonth, selectedMonth]);
+
   const totalCount = useMemo(
     () => groups.reduce((sum, group) => sum + group.items.length, 0),
     [groups],

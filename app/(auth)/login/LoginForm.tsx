@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { SubmitEvent } from "react";
@@ -133,9 +134,11 @@ export default function LoginForm() {
             onClick={handleGoogleLogin}
             className="flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-[#F2F2F2] px-4 text-base font-bold text-slate-800 transition hover:bg-[#E8E8E8]"
           >
-            <img
+            <Image
               src="/web_neutral_rd_na.svg"
               alt=""
+              width={36}
+              height={36}
               className="h-9 w-9"
               aria-hidden="true"
             />

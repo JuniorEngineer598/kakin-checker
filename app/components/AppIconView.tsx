@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { getDefaultAppIconView } from '../lib/appIcons';
 import type { AppIcon } from '../lib/types';
 
@@ -12,8 +13,15 @@ export default function AppIconView({ icon, className = '', iconClassName = '' }
   // アップロードされたアイコンの場合は画像を表示
   if (icon.type === 'upload') {
     return (
-      <div className={`flex items-center justify-center overflow-hidden rounded-xl ring-1 ring-slate-200 ${className}`}>
-        <img src={icon.imageUrl} alt="" className={`h-full w-full object-cover ${iconClassName}`} aria-hidden="true" />
+      <div className={`relative flex items-center justify-center overflow-hidden rounded-xl ring-1 ring-slate-200 ${className}`}>
+        <Image
+          src={icon.imageUrl}
+          alt=""
+          fill
+          sizes="64px"
+          className={`object-cover ${iconClassName}`}
+          aria-hidden="true"
+        />
       </div>
     );
   }

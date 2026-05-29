@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { PanelLeft } from 'lucide-react';
+import Image from 'next/image';
 import { sidebarItems } from '../lib/navigation';
 
 type DesktopSidebarProps = {
@@ -33,9 +34,11 @@ export default function DesktopSidebar({ isOpen, pathname, onOpenChange }: Deskt
           }`}
         >
           <div className="flex min-w-0 items-center gap-2">
-            <img
+            <Image
               src="/kakin_checker_logo_mark_flat.svg"
               alt=""
+              width={40}
+              height={40}
               className="h-10 w-10 shrink-0"
               aria-hidden="true"
             />
@@ -59,9 +62,11 @@ export default function DesktopSidebar({ isOpen, pathname, onOpenChange }: Deskt
           {isOpen ? (
             <PanelLeft size={20} strokeWidth={2.2} aria-hidden="true" />
           ) : (
-            <img
+            <Image
               src="/kakin_checker_logo_mark_flat.svg"
               alt=""
+              width={48}
+              height={48}
               className="h-12 w-12"
               aria-hidden="true"
             />
