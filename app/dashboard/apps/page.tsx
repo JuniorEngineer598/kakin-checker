@@ -3,6 +3,8 @@
 import {
   AppWindow,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   EllipsisVertical,
   Plus,
   UploadCloud,
@@ -11,10 +13,18 @@ import {
 import { useEffect, useState } from "react";
 import type { SubmitEvent } from "react";
 import { formatCurrency } from "../../lib/format";
-import { createApp, deleteApp, fetchApps, updateAppName } from "../../lib/apps";
+import { createApp, deleteApp, fetchApps, updateApp } from "../../lib/apps";
 import { fetchCharges } from "../../lib/charges";
-import type { App, ChargeRecord } from "../../lib/types";
-import { getNextDefaultAppIconKey } from "../../lib/appIcons";
+import type {
+  App,
+  AppIcon,
+  ChargeRecord,
+  DefaultAppIconKey,
+} from "../../lib/types";
+import {
+  defaultAppIconKeys,
+  getNextDefaultAppIconKey,
+} from "../../lib/appIcons";
 import { uploadAppIcon, deleteAppIcon } from "../../lib/appIconsStorage";
 import AppIconView from "../../components/AppIconView";
 import PageBackground from "../../components/PageBackground";
@@ -29,6 +39,13 @@ export default function AppsPage() {
   const [editAppId, setEditAppId] = useState<string | null>(null);
   const [editAppName, setEditAppName] = useState("");
   const [editAppNameError, setEditAppNameError] = useState("");
+  const [editIconTab, setEditIconTab] = useState<"upload" | "default">(
+    "upload",
+  );
+  const [editIconFile, setEditIconFile] = useState<File | null>(null);
+  const [editIconPreviewUrl, setEditIconPreviewUrl] = useState("");
+  const [editIconFileError, setEditIconFileError] = useState("");
+  const [selectedDefaultIconIndex, setSelectedDefaultIconIndex] = useState(0);
   const [selectedIconFile, setSelectedIconFile] = useState<File | null>(null);
   const [selectedIconPreviewUrl, setSelectedIconPreviewUrl] = useState("");
   const [iconFileError, setIconFileError] = useState("");
@@ -49,7 +66,7 @@ export default function AppsPage() {
     loadInitialData();
   }, []);
 
-  // アイコンファイルが選択されたときに、そのプレビュー画像を表示するための処理
+  //プレビュー画像を表示するための処理。selectedIconFileが変わるたびに一時URLを消す
   useEffect(() => {
     if (!selectedIconFile) {
       setSelectedIconPreviewUrl("");
@@ -63,6 +80,21 @@ export default function AppsPage() {
       URL.revokeObjectURL(objectUrl); //作った一時URLを不要になったタイミング破棄
     };
   }, [selectedIconFile]);
+
+  //編集用アイコンファイルのプレビュー表示のための処理
+  useEffect(() => {
+    if (!editIconFile) {
+      setEditIconPreviewUrl("");
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(editIconFile);
+    setEditIconPreviewUrl(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [editIconFile]);
 
   // アイコンファイルが選択されたときの処理
   function handleIconFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -83,6 +115,50 @@ export default function AppsPage() {
 
     setSelectedIconFile(file);
     setIconFileError("");
+  }
+
+  // 編集用アイコンファイルが選択されたときの処理
+  function handleEditIconFileChange(
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    const file = event.target.files?.[0] ?? null;
+
+    if (!file) {
+      return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png"];
+
+    if (!allowedTypes.includes(file.type)) {
+      setEditIconFile(null);
+      setEditIconFileError("JPGまたはPNG画像を選択してください");
+      event.target.value = "";
+      return;
+    }
+
+    setEditIconFile(file);
+    setEditIconFileError("");
+  }
+  //
+  function getDefaultIconIndex(icon: AppIcon) {
+    if (icon.type !== "default") {
+      return 0;
+    }
+
+    const index = defaultAppIconKeys.indexOf(icon.key); //ない場合は-1が返る
+    return index >= 0 ? index : 0; //アイコンキーが見つからない場合の-1の対策として、0を返す
+  }
+  //標準アイコンの前へ/次へ関数
+  function selectPreviousDefaultIcon() {
+    setSelectedDefaultIconIndex((current) =>
+      current === 0 ? defaultAppIconKeys.length - 1 : current - 1,
+    );
+  }
+
+  function selectNextDefaultIcon() {
+    setSelectedDefaultIconIndex((current) =>
+      current === defaultAppIconKeys.length - 1 ? 0 : current + 1,
+    );
   }
 
   // アプリ追加モーダルを閉じる
@@ -171,6 +247,12 @@ export default function AppsPage() {
     setEditAppId(app.id);
     setEditAppName(app.name);
     setEditAppNameError("");
+
+    setEditIconTab("upload");
+    setEditIconFile(null);
+    setEditIconFileError("");
+    setSelectedDefaultIconIndex(getDefaultIconIndex(app.icon));
+
     setOpenAppMenuId(null);
   }
 
@@ -179,9 +261,14 @@ export default function AppsPage() {
     setEditAppId(null);
     setEditAppName("");
     setEditAppNameError("");
+
+    setEditIconTab("upload");
+    setEditIconFile(null);
+    setEditIconFileError("");
+    setSelectedDefaultIconIndex(0);
   }
 
-  // アプリ名を編集して保存する処理
+  // アプリ名とアイコンを編集して保存する処理
   async function handleEditSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -201,12 +288,55 @@ export default function AppsPage() {
       return;
     }
 
-    if (!editAppId) {
+    if (!editAppId || !editingApp) {
       return;
     }
 
+    let oldIconUrlToDelete: string | null = null;
+    let uploadedIconUrlToDeleteOnError: string | null = null;
+    
+    //編集内容に応じて、名前・画像・標準アイコンの更新処理を分岐する
     try {
-      const updatedApp = await updateAppName(editAppId, trimmedName);
+      let updatedApp: App;
+
+      // 標準アイコンに変更する場合
+      if (editIconTab === "default") {
+        updatedApp = await updateApp(editAppId, {
+          name: trimmedName,
+          icon: {
+            type: "default",
+            key: selectedDefaultIconKey,
+          },
+        });
+
+        //古い画像URLを保存「後で消去」
+        if (editingApp.icon.type === "upload") {
+          oldIconUrlToDelete = editingApp.icon.imageUrl;
+        }
+        // 新しく選択した画像に変更する場合
+      } else if (editIconFile) {
+        const uploadedIconUrl = await uploadAppIcon(editIconFile);
+        uploadedIconUrlToDeleteOnError = uploadedIconUrl;//DB更新失敗時に削除する
+
+        updatedApp = await updateApp(editAppId, {
+          name: trimmedName,
+          icon: {
+            type: "upload",
+            imageUrl: uploadedIconUrl,
+          },
+        });
+
+        uploadedIconUrlToDeleteOnError = null;
+
+        if (editingApp.icon.type === "upload") {
+          oldIconUrlToDelete = editingApp.icon.imageUrl;
+        }
+        // アイコンは変更せず、アプリ名だけ更新する場合
+      } else {
+        updatedApp = await updateApp(editAppId, {
+          name: trimmedName,
+        });
+      }
 
       setApps((current) =>
         current.map((app) => {
@@ -220,7 +350,28 @@ export default function AppsPage() {
 
       closeEditModal();
     } catch {
-      setEditAppNameError("※アプリ名の更新に失敗しました");
+      if (uploadedIconUrlToDeleteOnError) {
+        try {
+          await deleteAppIcon(uploadedIconUrlToDeleteOnError);
+        } catch (error) {
+          console.error(
+            "更新失敗後の新しいアイコン画像削除に失敗しました",
+            error,
+          );
+        }
+      }
+
+      setEditAppNameError("※アプリ情報の更新に失敗しました");
+      return;
+    }
+
+    //古いアイコン画像あれば削除する
+    if (oldIconUrlToDelete) {
+      try {
+        await deleteAppIcon(oldIconUrlToDelete);
+      } catch (error) {
+        console.error("古いアイコン画像の削除に失敗しました", error);
+      }
     }
   }
 
@@ -230,6 +381,27 @@ export default function AppsPage() {
       .filter((charge) => charge.appId === appId)
       .reduce((total, charge) => total + charge.amount, 0);
   }
+
+  const editingApp = apps.find((app) => app.id === editAppId) ?? null;
+  //選択中の標準アイコンキーを取得する
+  const selectedDefaultIconKey: DefaultAppIconKey =
+    defaultAppIconKeys[selectedDefaultIconIndex];
+
+  const editPreviewIcon: AppIcon =
+    editIconTab === "default"
+      ? {
+          type: "default",
+          key: selectedDefaultIconKey,
+        }
+      : editIconFile && editIconPreviewUrl
+        ? {
+            type: "upload",
+            imageUrl: editIconPreviewUrl,
+          }
+        : (editingApp?.icon ?? {
+            type: "default",
+            key: "gamepad",
+          });
 
   return (
     <PageBackground className="px-4 py-6 sm:px-6 sm:py-8">
@@ -513,6 +685,120 @@ export default function AppsPage() {
                   </p>
                 ) : null}
               </label>
+              <div className="mt-6 sm:mt-7">
+                <p className="text-sm font-bold text-slate-700">アイコン画像</p>
+
+                <div className="mt-3 grid grid-cols-2 overflow-hidden rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700">
+                  <button
+                    type="button"
+                    onClick={() => setEditIconTab("upload")}
+                    className={`h-11 transition ${
+                      editIconTab === "upload"
+                        ? "bg-blue-50 text-blue-600"
+                        : "hover:bg-slate-50"
+                    }`}
+                  >
+                    画像アップロード
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditIconTab("default");
+                      setEditIconFile(null);
+                      setEditIconFileError("");
+                    }}
+                    className={`h-11 border-l border-slate-200 transition ${
+                      editIconTab === "default"
+                        ? "bg-blue-50 text-blue-600"
+                        : "hover:bg-slate-50"
+                    }`}
+                  >
+                    標準アイコン
+                  </button>
+                </div>
+                <div className="mt-3 grid grid-cols-[minmax(0,7fr)_minmax(88px,3fr)] gap-3 sm:grid-cols-[minmax(0,1fr)_112px] sm:gap-4">
+                  {editIconTab === "upload" ? (
+                    <label className="flex min-h-[112px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 text-center transition hover:border-slate-400 hover:bg-slate-50 sm:min-h-[170px] sm:rounded-2xl sm:px-5">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png"
+                        onChange={handleEditIconFileChange}
+                        className="sr-only"
+                      />
+
+                      <UploadCloud
+                        size={28}
+                        strokeWidth={2}
+                        className="text-slate-600 sm:h-[34px] sm:w-[34px]"
+                        aria-hidden="true"
+                      />
+
+                      <span className="mt-2 max-w-full truncate text-xs font-bold text-slate-800 sm:mt-4 sm:text-sm">
+                        {editIconFile
+                          ? editIconFile.name
+                          : "画像をアップロード"}
+                      </span>
+
+                      <span className="mt-1 text-[10px] font-semibold text-slate-400 sm:mt-2 sm:text-xs">
+                        JPG, PNG
+                      </span>
+                    </label>
+                  ) : (
+                    <div className="flex min-h-[112px] items-center justify-center gap-8 rounded-xl border border-dashed border-slate-300 bg-white px-3 sm:min-h-[170px] sm:rounded-2xl">
+                      <button
+                        type="button"
+                        onClick={selectPreviousDefaultIcon}
+                        className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-slate-700 shadow-[0_14px_35px_-24px_rgba(15,23,42,0.6)] ring-1 ring-slate-200 transition hover:bg-slate-50"
+                        aria-label="前の標準アイコン"
+                      >
+                        <ChevronLeft
+                          size={24}
+                          strokeWidth={2.4}
+                          aria-hidden="true"
+                        />
+                      </button>
+
+                      <p className="min-w-16 text-center text-lg font-bold text-slate-950">
+                        {selectedDefaultIconIndex + 1} /{" "}
+                        {defaultAppIconKeys.length}
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={selectNextDefaultIcon}
+                        className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-slate-700 shadow-[0_14px_35px_-24px_rgba(15,23,42,0.6)] ring-1 ring-slate-200 transition hover:bg-slate-50"
+                        aria-label="次の標準アイコン"
+                      >
+                        <ChevronRight
+                          size={24}
+                          strokeWidth={2.4}
+                          aria-hidden="true"
+                        />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="aspect-square w-full overflow-hidden rounded-xl border border-slate-200 bg-white sm:h-28 sm:w-28 sm:rounded-2xl">
+                      <AppIconView
+                        icon={editPreviewIcon}
+                        className="h-full w-full rounded-none ring-0"
+                      />
+                    </div>
+
+                    <p className="text-xs font-semibold text-slate-500">
+                      プレビュー
+                    </p>
+                  </div>
+                </div>
+
+                {editIconFileError ? (
+                  <p className="mt-2 text-xs font-bold text-rose-600">
+                    {editIconFileError}
+                  </p>
+                ) : null}
+              </div>
 
               <div className="mt-6 flex justify-end gap-3 sm:mt-8">
                 <button

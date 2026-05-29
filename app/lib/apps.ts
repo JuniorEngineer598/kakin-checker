@@ -32,7 +32,7 @@ function toApp(row: AppRow): App {
   };
 }
 
-type CreateAppIconInput =
+type AppIconInput =
   | {
       type: "default";
       key: DefaultAppIconKey;
@@ -58,7 +58,7 @@ export async function fetchApps() {
 }
 
 //appsテーブルにアプリ情報を保存する
-export async function createApp(name: string, icon: CreateAppIconInput) {
+export async function createApp(name: string, icon: AppIconInput) {
   const supabase = createClient();
   const userId = await getCurrentUserId();
 
@@ -92,13 +92,34 @@ export async function createApp(name: string, icon: CreateAppIconInput) {
   return toApp(data as AppRow);
 }
 
-export async function updateAppName(appId: string, name: string) {
+type UpdateAppInput = {
+  name: string;
+  icon?: AppIconInput;
+};
+
+export async function updateApp(appId: string, input: UpdateAppInput) {
   const supabase = createClient();
+
+  const iconValues =
+    input.icon === undefined
+      ? {}
+      : input.icon.type === "upload"
+        ? {
+            icon_type: "upload",
+            icon_key: null,
+            icon_url: input.icon.imageUrl,
+          }
+        : {
+            icon_type: "default",
+            icon_key: input.icon.key,
+            icon_url: null,
+          };
 
   const { data, error } = await supabase
     .from("apps")
     .update({
-      name,
+      name: input.name,
+      ...iconValues,
       updated_at: new Date().toISOString(),
     })
     .eq("id", appId)
