@@ -10,7 +10,8 @@ import {
   UploadCloud,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import type { SubmitEvent } from "react";
 import { formatCurrency } from "../../lib/format";
 import { createApp, deleteApp, fetchApps, updateApp } from "../../lib/apps";
@@ -43,12 +44,26 @@ export default function AppsPage() {
     "upload",
   );
   const [editIconFile, setEditIconFile] = useState<File | null>(null);
-  const [editIconPreviewUrl, setEditIconPreviewUrl] = useState("");
   const [editIconFileError, setEditIconFileError] = useState("");
   const [selectedDefaultIconIndex, setSelectedDefaultIconIndex] = useState(0);
   const [selectedIconFile, setSelectedIconFile] = useState<File | null>(null);
-  const [selectedIconPreviewUrl, setSelectedIconPreviewUrl] = useState("");
   const [iconFileError, setIconFileError] = useState("");
+
+  const selectedIconPreviewUrl = useMemo(() => {
+    if (!selectedIconFile) {
+      return "";
+    }
+
+    return URL.createObjectURL(selectedIconFile);
+  }, [selectedIconFile]);
+
+  const editIconPreviewUrl = useMemo(() => {
+    if (!editIconFile) {
+      return "";
+    }
+
+    return URL.createObjectURL(editIconFile);
+  }, [editIconFile]);
 
   //登録されているアプリと課金履歴を両方まとめて取得する
   useEffect(() => {
@@ -66,35 +81,27 @@ export default function AppsPage() {
     loadInitialData();
   }, []);
 
-  //プレビュー画像を表示するための処理。selectedIconFileが変わるたびに一時URLを消す
+  // プレビュー画像用に作成した一時URLを不要になったタイミングで破棄する
   useEffect(() => {
-    if (!selectedIconFile) {
-      setSelectedIconPreviewUrl("");
+    if (!selectedIconPreviewUrl) {
       return;
     }
 
-    const objectUrl = URL.createObjectURL(selectedIconFile);
-    setSelectedIconPreviewUrl(objectUrl);
-
     return () => {
-      URL.revokeObjectURL(objectUrl); //作った一時URLを不要になったタイミング破棄
+      URL.revokeObjectURL(selectedIconPreviewUrl);
     };
-  }, [selectedIconFile]);
+  }, [selectedIconPreviewUrl]);
 
-  //編集用アイコンファイルのプレビュー表示のための処理
+  // 編集用プレビュー画像の一時URLを不要になったタイミングで破棄する
   useEffect(() => {
-    if (!editIconFile) {
-      setEditIconPreviewUrl("");
+    if (!editIconPreviewUrl) {
       return;
     }
 
-    const objectUrl = URL.createObjectURL(editIconFile);
-    setEditIconPreviewUrl(objectUrl);
-
     return () => {
-      URL.revokeObjectURL(objectUrl);
+      URL.revokeObjectURL(editIconPreviewUrl);
     };
-  }, [editIconFile]);
+  }, [editIconPreviewUrl]);
 
   // アイコンファイルが選択されたときの処理
   function handleIconFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -606,12 +613,15 @@ export default function AppsPage() {
                   </label>
 
                   <div className="flex flex-col items-center gap-3">
-                    <div className="aspect-square w-full overflow-hidden rounded-xl border border-slate-200 bg-white sm:h-28 sm:w-28 sm:rounded-2xl">
+                    <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-slate-200 bg-white sm:h-28 sm:w-28 sm:rounded-2xl">
                       {selectedIconPreviewUrl ? (
-                        <img
+                        <Image
                           src={selectedIconPreviewUrl}
                           alt="選択したアプリアイコンのプレビュー"
-                          className="h-full w-full object-cover"
+                          fill
+                          sizes="112px"
+                          unoptimized
+                          className="object-cover"
                         />
                       ) : null}
                     </div>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { X } from 'lucide-react';
+import Image from 'next/image';
 import { sidebarItems } from '../lib/navigation';
 
 type MobileDrawerProps = {
@@ -27,9 +28,11 @@ export default function MobileDrawer({ isOpen, pathname, onClose }: MobileDrawer
       <aside className="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[82vw] flex-col border-r border-slate-200 bg-white shadow-[22px_0_60px_-34px_rgba(15,23,42,0.75)]">
         <div className="flex h-16 items-center justify-between gap-3 border-b border-slate-200 px-4">
           <div className="flex min-w-0 items-center gap-2">
-            <img
+            <Image
               src="/kakin_checker_logo_mark_flat.svg"
               alt=""
+              width={40}
+              height={40}
               className="h-10 w-10 shrink-0"
               aria-hidden="true"
             />
