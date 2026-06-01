@@ -36,7 +36,7 @@ export default function TemplateChargeList() {
     itemName: "",
     amount: "",
   });
-
+  const [dateError, setDateError] = useState("");
   const [toast, setToast] = useState({
     message: "",
     id: 0,
@@ -86,6 +86,7 @@ export default function TemplateChargeList() {
     chargedAt = formatDateInputValue(new Date()),
   ) {
     if (!chargedAt) {
+      setDateError("課金日を選択してください");
       return;
     }
 
@@ -127,15 +128,13 @@ export default function TemplateChargeList() {
     setSelectedDate(formatDateInputValue(new Date()));
     setDateTemplateId(templateId);
     setOpenTemplateMenuId(null);
+    setDateError("");
   }
 
   // 日付指定モーダルを閉じる
   function closeDateModal() {
     setDateTemplateId(null);
-    setEditErrors({
-      itemName: "",
-      amount: "",
-    });
+    setDateError("");
   }
 
   // 編集モーダルの開閉と編集対象テンプレートのセット
@@ -183,8 +182,12 @@ export default function TemplateChargeList() {
       nextErrors.itemName = `アイテム名は${ITEM_NAME_MAX_LENGTH}文字以内で入力してください`;
     }
 
-    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      nextErrors.amount = "金額は1円以上で入力してください";
+    if (
+      !Number.isFinite(numericAmount) ||
+      !Number.isInteger(numericAmount) ||
+      numericAmount <= 0
+    ) {
+      nextErrors.amount = "金額は1円以上の整数で入力してください";
     }
 
     setEditErrors(nextErrors);
@@ -389,9 +392,17 @@ export default function TemplateChargeList() {
             <input
               type="date"
               value={selectedDate}
-              onChange={(event) => setSelectedDate(event.target.value)}
+              onChange={(event) => {
+                setSelectedDate(event.target.value);
+                setDateError("");
+              }}
               className="mt-5 h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-slate-400"
             />
+            {dateError && (
+              <p className="mt-2 text-xs font-bold text-rose-600">
+                {dateError}
+              </p>
+            )}
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
@@ -467,6 +478,8 @@ export default function TemplateChargeList() {
                 </span>
                 <input
                   type="number"
+                  min="1"
+                  step="1"
                   value={editAmount}
                   onChange={(event) => {
                     setEditAmount(event.target.value);

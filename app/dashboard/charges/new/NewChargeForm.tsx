@@ -24,6 +24,7 @@ export default function NewChargeForm() {
     appId: "",
     itemName: "",
     amount: "",
+    chargedAt: "",
   });
   const [toast, setToast] = useState({
     message: "",
@@ -75,6 +76,7 @@ export default function NewChargeForm() {
       appId: "",
       itemName: "",
       amount: "",
+      chargedAt: "",
     };
 
     if (!appId) {
@@ -89,13 +91,26 @@ export default function NewChargeForm() {
       nextErrors.itemName = `アイテム名は${ITEM_NAME_MAX_LENGTH}文字以内で入力してください`;
     }
 
-    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      nextErrors.amount = "金額は1円以上で入力してください";
+    if (!chargedAt) {
+      nextErrors.chargedAt = "日付を入力してください";
+    }
+
+    if (
+      !Number.isFinite(numericAmount) ||
+      !Number.isInteger(numericAmount) ||
+      numericAmount <= 0
+    ) {
+      nextErrors.amount = "金額は1円以上の整数で入力してください";
     }
 
     setErrors(nextErrors);
 
-    if (nextErrors.appId || nextErrors.itemName || nextErrors.amount) {
+    if (
+      nextErrors.appId ||
+      nextErrors.itemName ||
+      nextErrors.amount ||
+      nextErrors.chargedAt
+    ) {
       return;
     }
     try {
@@ -136,6 +151,7 @@ export default function NewChargeForm() {
       appId: "",
       itemName: "",
       amount: "",
+      chargedAt: "",
     });
     setToast((current) => ({
       message: "課金記録を追加しました",
@@ -228,9 +244,17 @@ export default function NewChargeForm() {
             <input
               type="date"
               value={chargedAt}
-              onChange={(event) => setChargedAt(event.target.value)}
+              onChange={(event) => {
+                setChargedAt(event.target.value);
+                setErrors((current) => ({ ...current, chargedAt: "" }));
+              }}
               className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:bg-white"
             />
+            {errors.chargedAt ? (
+              <p className="mt-2 text-xs font-bold text-rose-600">
+                {errors.chargedAt}
+              </p>
+            ) : null}
           </label>
 
           <label className="block">
