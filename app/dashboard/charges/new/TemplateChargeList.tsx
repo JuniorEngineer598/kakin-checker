@@ -15,6 +15,8 @@ import {
 import type { ChargeCategory, ChargeTemplate, App } from "../../../lib/types";
 import ToastMessage from "../../../components/ToastMessage";
 
+const ITEM_NAME_MAX_LENGTH = 20;
+
 export default function TemplateChargeList() {
   const [openTemplateMenuId, setOpenTemplateMenuId] = useState<string | null>(
     null,
@@ -30,6 +32,11 @@ export default function TemplateChargeList() {
   const [editItemName, setEditItemName] = useState("");
   const [editAmount, setEditAmount] = useState("");
   const [editCategory, setEditCategory] = useState<ChargeCategory>("ガチャ石");
+  const [editErrors, setEditErrors] = useState({
+    itemName: "",
+    amount: "",
+  });
+
   const [toast, setToast] = useState({
     message: "",
     id: 0,
@@ -125,6 +132,10 @@ export default function TemplateChargeList() {
   // 日付指定モーダルを閉じる
   function closeDateModal() {
     setDateTemplateId(null);
+    setEditErrors({
+      itemName: "",
+      amount: "",
+    });
   }
 
   // 編集モーダルの開閉と編集対象テンプレートのセット
@@ -134,10 +145,18 @@ export default function TemplateChargeList() {
     setEditAmount(String(template.amount));
     setEditCategory(template.category);
     setOpenTemplateMenuId(null);
+    setEditErrors({
+      itemName: "",
+      amount: "",
+    });
   }
 
   function closeEditModal() {
     setEditTemplateId(null);
+    setEditErrors({
+      itemName: "",
+      amount: "",
+    });
   }
 
   // 編集内容を保存
@@ -151,11 +170,26 @@ export default function TemplateChargeList() {
     const trimmedItemName = editItemName.trim();
     const numericAmount = Number(editAmount);
 
-    if (
-      !trimmedItemName ||
-      !Number.isFinite(numericAmount) ||
-      numericAmount <= 0
-    ) {
+    const nextErrors = {
+      itemName: "",
+      amount: "",
+    };
+
+    if (!trimmedItemName) {
+      nextErrors.itemName = "アイテム名を入力してください";
+    }
+
+    if (trimmedItemName.length > ITEM_NAME_MAX_LENGTH) {
+      nextErrors.itemName = `アイテム名は${ITEM_NAME_MAX_LENGTH}文字以内で入力してください`;
+    }
+
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+      nextErrors.amount = "金額は1円以上で入力してください";
+    }
+
+    setEditErrors(nextErrors);
+
+    if (nextErrors.itemName || nextErrors.amount) {
       return;
     }
 
@@ -413,9 +447,18 @@ export default function TemplateChargeList() {
                 <input
                   type="text"
                   value={editItemName}
-                  onChange={(event) => setEditItemName(event.target.value)}
+                  onChange={(event) => {
+                    setEditItemName(event.target.value);
+                    setEditErrors((current) => ({ ...current, itemName: "" }));
+                  }}
+                  maxLength={ITEM_NAME_MAX_LENGTH}
                   className="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-slate-400"
                 />
+                {editErrors.itemName ? (
+                  <p className="mt-2 text-xs font-bold text-rose-600">
+                    {editErrors.itemName}
+                  </p>
+                ) : null}
               </label>
 
               <label className="block">
@@ -425,9 +468,17 @@ export default function TemplateChargeList() {
                 <input
                   type="number"
                   value={editAmount}
-                  onChange={(event) => setEditAmount(event.target.value)}
+                  onChange={(event) => {
+                    setEditAmount(event.target.value);
+                    setEditErrors((current) => ({ ...current, amount: "" }));
+                  }}
                   className="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-slate-400"
                 />
+                {editErrors.amount ? (
+                  <p className="mt-2 text-xs font-bold text-rose-600">
+                    {editErrors.amount}
+                  </p>
+                ) : null}
               </label>
 
               <label className="block">

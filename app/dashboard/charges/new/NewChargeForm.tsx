@@ -10,6 +10,8 @@ import { fetchApps } from "../../../lib/apps";
 import { createChargeTemplate } from "../../../lib/chargeTemplates";
 import ToastMessage from "../../../components/ToastMessage";
 
+const ITEM_NAME_MAX_LENGTH = 20;
+
 export default function NewChargeForm() {
   const [apps, setApps] = useState<App[]>([]);
   const [appId, setAppId] = useState("");
@@ -81,6 +83,10 @@ export default function NewChargeForm() {
 
     if (!trimmedItemName) {
       nextErrors.itemName = "アイテム名を入力してください";
+    }
+
+    if (trimmedItemName.length > ITEM_NAME_MAX_LENGTH) {
+      nextErrors.itemName = `アイテム名は${ITEM_NAME_MAX_LENGTH}文字以内で入力してください`;
     }
 
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
@@ -185,6 +191,7 @@ export default function NewChargeForm() {
                 setItemName(event.target.value);
                 setErrors((current) => ({ ...current, itemName: "" }));
               }}
+              maxLength={ITEM_NAME_MAX_LENGTH}
               placeholder="例: 祝福パック"
               className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
             />
