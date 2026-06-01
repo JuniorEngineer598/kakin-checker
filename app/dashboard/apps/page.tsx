@@ -30,6 +30,21 @@ import { uploadAppIcon, deleteAppIcon } from "../../lib/appIconsStorage";
 import AppIconView from "../../components/AppIconView";
 import PageBackground from "../../components/PageBackground";
 
+const APP_ICON_MAX_FILE_SIZE = 1024 * 1024; // 1MB
+const APP_ICON_ALLOWED_MIME_TYPES = ["image/jpeg", "image/png"];
+
+function validateAppIconFile(file: File) {
+  if (!APP_ICON_ALLOWED_MIME_TYPES.includes(file.type)) {
+    return "JPGまたはPNG画像を選択してください";
+  }
+
+  if (file.size > APP_ICON_MAX_FILE_SIZE) {
+    return "画像サイズは1MB以下にしてください";
+  }
+
+  return "";
+}
+
 export default function AppsPage() {
   const [apps, setApps] = useState<App[]>([]);
   const [charges, setCharges] = useState<ChargeRecord[]>([]);
@@ -111,11 +126,11 @@ export default function AppsPage() {
       return;
     }
 
-    const allowedTypes = ["image/jpeg", "image/png"];
+    const errorMessage = validateAppIconFile(file);
 
-    if (!allowedTypes.includes(file.type)) {
+    if (errorMessage) {
       setSelectedIconFile(null);
-      setIconFileError("JPGまたはPNG画像を選択してください");
+      setIconFileError(errorMessage);
       event.target.value = "";
       return;
     }
@@ -134,11 +149,11 @@ export default function AppsPage() {
       return;
     }
 
-    const allowedTypes = ["image/jpeg", "image/png"];
+    const errorMessage = validateAppIconFile(file);
 
-    if (!allowedTypes.includes(file.type)) {
+    if (errorMessage) {
       setEditIconFile(null);
-      setEditIconFileError("JPGまたはPNG画像を選択してください");
+      setEditIconFileError(errorMessage);
       event.target.value = "";
       return;
     }
@@ -301,7 +316,7 @@ export default function AppsPage() {
 
     let oldIconUrlToDelete: string | null = null;
     let uploadedIconUrlToDeleteOnError: string | null = null;
-    
+
     //編集内容に応じて、名前・画像・標準アイコンの更新処理を分岐する
     try {
       let updatedApp: App;
@@ -323,7 +338,7 @@ export default function AppsPage() {
         // 新しく選択した画像に変更する場合
       } else if (editIconFile) {
         const uploadedIconUrl = await uploadAppIcon(editIconFile);
-        uploadedIconUrlToDeleteOnError = uploadedIconUrl;//DB更新失敗時に削除する
+        uploadedIconUrlToDeleteOnError = uploadedIconUrl; //DB更新失敗時に削除する
 
         updatedApp = await updateApp(editAppId, {
           name: trimmedName,
@@ -608,7 +623,7 @@ export default function AppsPage() {
                     </span>
 
                     <span className="mt-1 text-[10px] font-semibold text-slate-400 sm:mt-2 sm:text-xs">
-                      JPG, PNG
+                      JPG, PNG / 1MB以下
                     </span>
                   </label>
 
@@ -751,7 +766,7 @@ export default function AppsPage() {
                       </span>
 
                       <span className="mt-1 text-[10px] font-semibold text-slate-400 sm:mt-2 sm:text-xs">
-                        JPG, PNG
+                        JPG, PNG / 1MB以下
                       </span>
                     </label>
                   ) : (
