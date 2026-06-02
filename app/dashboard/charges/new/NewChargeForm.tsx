@@ -20,6 +20,7 @@ export default function NewChargeForm() {
   const [chargedAt, setChargedAt] = useState(formatDateInputValue(new Date()));
   const [category, setCategory] = useState<ChargeCategory>("ガチャ石");
   const [shouldSaveAsTemplate, setShouldSaveAsTemplate] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({
     appId: "",
     itemName: "",
@@ -68,6 +69,7 @@ export default function NewChargeForm() {
   // フォーム送信
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSubmitting) return;
 
     const trimmedItemName = itemName.trim();
     const numericAmount = Number(amount);
@@ -113,6 +115,9 @@ export default function NewChargeForm() {
     ) {
       return;
     }
+
+    setIsSubmitting(true);
+
     try {
       await createCharge({
         appId: appId,
@@ -121,42 +126,44 @@ export default function NewChargeForm() {
         category,
         chargedAt,
       });
+
+      // テンプレートとして保存する場合の処理
+      if (shouldSaveAsTemplate) {
+        try {
+          await createChargeTemplate({
+            appId: appId,
+            itemName: trimmedItemName,
+            amount: numericAmount,
+            category,
+          });
+        } catch {
+          window.alert("テンプレートの保存に失敗しました");
+        }
+      }
+
+      setItemName("");
+      setAmount("");
+      setCategory("ガチャ石");
+      setShouldSaveAsTemplate(false);
+      setErrors({
+        appId: "",
+        itemName: "",
+        amount: "",
+        chargedAt: "",
+      });
+      setToast((current) => ({
+        message: "課金記録を追加しました",
+        id: current.id + 1,
+      }));
     } catch {
       setErrors((current) => ({
         ...current,
         amount: "課金記録の追加に失敗しました",
       }));
       return;
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // テンプレートとして保存する場合の処理
-    if (shouldSaveAsTemplate) {
-      try {
-        await createChargeTemplate({
-          appId: appId,
-          itemName: trimmedItemName,
-          amount: numericAmount,
-          category,
-        });
-      } catch {
-        window.alert("テンプレートの保存に失敗しました");
-      }
-    }
-
-    setItemName("");
-    setAmount("");
-    setCategory("ガチャ石");
-    setShouldSaveAsTemplate(false);
-    setErrors({
-      appId: "",
-      itemName: "",
-      amount: "",
-      chargedAt: "",
-    });
-    setToast((current) => ({
-      message: "課金記録を追加しました",
-      id: current.id + 1,
-    }));
   }
 
   return (
@@ -292,9 +299,10 @@ export default function NewChargeForm() {
 
           <button
             type="submit"
+            disabled={isSubmitting}
             className="h-11 rounded-xl bg-slate-900 px-6 text-sm font-bold text-white shadow-[0_12px_28px_-18px_rgba(15,23,42,0.9)] transition hover:bg-slate-800"
           >
-            登録
+            {isSubmitting ? "登録中..." : "登録"}
           </button>
         </div>
       </form>
