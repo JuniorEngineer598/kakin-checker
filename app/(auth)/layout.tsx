@@ -59,7 +59,7 @@ function BrandHero() {
           width={156}
           height={156}
           priority
-          className="h-12 w-12 shrink-0 sm:h-32 sm:w-32 lg:h-36 lg:w-36"
+          className="h-12 w-auto shrink-0 object-contain sm:h-32 lg:h-36"
         />
         <h1 className="min-w-0 text-2xl font-bold tracking-normal text-slate-950 sm:text-5xl lg:text-6xl">
           課金チェッカー

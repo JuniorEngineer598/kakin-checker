@@ -16,7 +16,7 @@ export default function MobileHeader({ onOpenMenu }: MobileHeaderProps) {
           alt=""
           width={40}
           height={40}
-          className="h-10 w-10 shrink-0"
+          className="h-10 w-auto shrink-0 object-contain"
           aria-hidden="true"
         />
         <p className="truncate text-base font-bold text-slate-950">課金チェッカー</p>
