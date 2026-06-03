@@ -1,3 +1,4 @@
+import DeleteAccountButton from "./DeleteAccountButton";
 import LogoutButton from "./LogoutButton";
 import ResetDataButton from "./ResetDataButton";
 import {
@@ -198,19 +199,12 @@ export default function SettingsPage() {
                           strokeWidth={2.2}
                           aria-hidden="true"
                         />
-                        準備中
+                        この操作は取り消せません。
                       </div>
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    disabled
-                    className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center gap-3 rounded-xl border border-rose-200 bg-rose-50 px-6 text-sm font-bold text-rose-300 sm:w-auto"
-                  >
-                    <UserX size={18} strokeWidth={2.2} aria-hidden="true" />
-                    アカウントを消去
-                  </button>
+                  <DeleteAccountButton />
                 </div>
               </article>
             </div>
