@@ -30,9 +30,23 @@ export default function LoginForm() {
     setIsSubmitting(false);
 
     if (error) {
-      setErrorMessage("メールアドレスまたはパスワードが正しくありません");
-      return;
+    // エラーコードに基づいた詳細なメッセージ
+    switch (error.code) {
+      case "invalid_credentials":
+        setErrorMessage("メールアドレスまたはパスワードが正しくありません");
+        break;
+      case "over_request_rate_limit":
+        setErrorMessage("試行回数が多すぎます。後でお試しください");
+        break;
+      case "request_timeout":
+        setErrorMessage("通信がタイムアウトしました。接続を確認してください");
+        break;
+      default:
+        setErrorMessage("ログインに失敗しました。後でお試しください");
     }
+    return;
+  }
+
 
     router.push("/dashboard");
     router.refresh();

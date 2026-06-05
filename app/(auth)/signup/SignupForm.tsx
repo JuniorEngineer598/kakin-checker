@@ -31,8 +31,8 @@ export default function SignupForm() {
       return;
     }
 
-    if (password.length < 6) {
-      setErrorMessage("パスワードは6文字以上で入力してください");
+    if (password.length < 8) {
+      setErrorMessage("パスワードは8文字以上で入力してください");
       return;
     }
 
@@ -48,7 +48,21 @@ export default function SignupForm() {
     setIsSubmitting(false);
 
     if (error) {
-      setErrorMessage("新規登録に失敗しました");
+      // エラーコード別処理
+      switch (error.code) {
+        case "user_already_exists":
+        case "email_exists":
+          setErrorMessage("このメールアドレスは既に登録されています");
+          break;
+        case "email_address_invalid":
+          setErrorMessage("有効なメールアドレスを入力してください");
+          break;
+        case "over_request_rate_limit":
+          setErrorMessage("リクエストが多すぎます。後でお試しください");
+          break;
+        default:
+          setErrorMessage("新規登録に失敗しました。後でお試しください");
+      }
       return;
     }
 
