@@ -27,15 +27,16 @@ export default function MobileDrawer({ isOpen, pathname, onClose }: MobileDrawer
 
       <aside className="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[82vw] flex-col border-r border-slate-200 bg-white shadow-[22px_0_60px_-34px_rgba(15,23,42,0.75)]">
         <div className="flex h-16 items-center justify-between gap-3 border-b border-slate-200 px-4">
-          <div className="flex min-w-0 items-center gap-2">
-            <Image
-              src="/kakin_checker_logo_mark_flat.svg"
-              alt=""
-              width={40}
-              height={40}
-              className="h-10 w-auto shrink-0 object-contain"
-              aria-hidden="true"
-            />
+          <div className="relative flex min-w-0 items-center gap-2">
+            <div className="relative h-10 w-10 shrink-0">
+              <Image
+                src="/kakin_checker_logo_mark_flat.svg"
+                alt=""
+                fill
+                className="object-contain"
+                aria-hidden="true"
+              />
+            </div>
             <p className="truncate text-base font-bold text-slate-950">課金チェッカー</p>
           </div>
 
