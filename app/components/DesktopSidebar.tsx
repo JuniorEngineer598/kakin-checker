@@ -33,15 +33,16 @@ export default function DesktopSidebar({ isOpen, pathname, onOpenChange }: Deskt
             isOpen ? 'w-full opacity-100' : 'pointer-events-none w-0 opacity-0'
           }`}
         >
-          <div className="flex min-w-0 items-center gap-2">
-            <Image
-              src="/kakin_checker_logo_mark_flat.svg"
-              alt=""
-              width={40}
-              height={40}
-              className="h-10 w-auto shrink-0 object-contain"
-              aria-hidden="true"
-            />
+          <div className="relative flex min-w-0 items-center gap-2">
+            <div className="relative h-10 w-10 shrink-0">
+              <Image
+                src="/kakin_checker_logo_mark_flat.svg"
+                alt=""
+                fill
+                className="object-contain"
+                aria-hidden="true"
+              />
+            </div>
             <h1 className="truncate text-base font-bold text-slate-950">課金チェッカー</h1>
           </div>
         </div>
@@ -62,14 +63,15 @@ export default function DesktopSidebar({ isOpen, pathname, onOpenChange }: Deskt
           {isOpen ? (
             <PanelLeft size={20} strokeWidth={2.2} aria-hidden="true" />
           ) : (
-            <Image
-              src="/kakin_checker_logo_mark_flat.svg"
-              alt=""
-              width={48}
-              height={48}
-              className="h-12 w-auto object-contain"
-              aria-hidden="true"
-            />
+            <div className="relative h-12 w-12">
+              <Image
+                src="/kakin_checker_logo_mark_flat.svg"
+                alt=""
+                fill
+                className="object-contain"
+                aria-hidden="true"
+              />
+            </div>
           )}
         </button>
       </div>

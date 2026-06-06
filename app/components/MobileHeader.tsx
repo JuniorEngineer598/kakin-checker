@@ -10,15 +10,16 @@ type MobileHeaderProps = {
 export default function MobileHeader({ onOpenMenu }: MobileHeaderProps) {
   return (
     <header className="fixed left-0 top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white/95 px-4 shadow-[0_12px_30px_-28px_rgba(15,23,42,0.6)] backdrop-blur md:hidden">
-      <div className="flex min-w-0 items-center gap-2">
-        <Image
-          src="/kakin_checker_logo_mark_flat.svg"
-          alt=""
-          width={40}
-          height={40}
-          className="h-10 w-auto shrink-0 object-contain"
-          aria-hidden="true"
-        />
+      <div className="relative flex min-w-0 items-center gap-2">
+        <div className="relative h-10 w-10 shrink-0">
+          <Image
+            src="/kakin_checker_logo_mark_flat.svg"
+            alt=""
+            fill
+            className="object-contain"
+            aria-hidden="true"
+          />
+        </div>
         <p className="truncate text-base font-bold text-slate-950">課金チェッカー</p>
       </div>
 
