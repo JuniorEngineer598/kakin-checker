@@ -22,8 +22,8 @@ export default function UpdatePasswordForm() {
 
     setErrorMessage("");
 
-    if (password.length < 6) {
-      setErrorMessage("パスワードは6文字以上で入力してください");
+    if (password.length < 8) {
+      setErrorMessage("パスワードは8文字以上で入力してください");
       return;
     }
 
@@ -34,17 +34,32 @@ export default function UpdatePasswordForm() {
 
     setIsSubmitting(true);
 
-    const { error } = await updatePassword(password);
+    try {
+      const { error } = await updatePassword(password);
 
-    setIsSubmitting(false);
+      if (error) {
+        switch (error.code) {
+          case "over_request_rate_limit":
+            setErrorMessage(
+              "更新試行回数が多すぎます。少し時間をおいて再度お試しください",
+            );
+            break;
 
-    if (error) {
+          default:
+            setErrorMessage("パスワードの更新に失敗しました");
+            break;
+        }
+
+        return;
+      }
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
       setErrorMessage("パスワードの更新に失敗しました");
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
-
-    router.push("/dashboard");
-    router.refresh();
   }
 
   return (

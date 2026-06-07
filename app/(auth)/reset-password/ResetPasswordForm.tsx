@@ -21,16 +21,31 @@ export default function ResetPasswordForm() {
     setErrorMessage("");
     setIsSubmitting(true);
 
-    const { error } = await sendPasswordResetEmail(trimmedEmail);
+    try {
+      const { error } = await sendPasswordResetEmail(trimmedEmail);
 
-    setIsSubmitting(false);
+      if (error) {
+        switch (error.code) {
+          case "over_request_rate_limit":
+            setErrorMessage(
+              "送信回数が多すぎます。少し時間をおいて再度お試しください",
+            );
+            break;
 
-    if (error) {
+          default:
+            setErrorMessage("再設定用リンクの送信に失敗しました");
+            break;
+        }
+
+        return;
+      }
+
+      setMessage("再設定用リンクをメールで送信しました");
+    } catch {
       setErrorMessage("再設定用リンクの送信に失敗しました");
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setMessage("再設定用リンクをメールで送信しました");
   }
 
   return (
