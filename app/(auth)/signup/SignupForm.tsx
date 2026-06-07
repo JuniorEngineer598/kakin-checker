@@ -31,8 +31,8 @@ export default function SignupForm() {
       return;
     }
 
-    if (password.length < 6) {
-      setErrorMessage("パスワードは6文字以上で入力してください");
+    if (password.length < 8) {
+      setErrorMessage("パスワードは8文字以上で入力してください");
       return;
     }
 
@@ -43,16 +43,31 @@ export default function SignupForm() {
 
     setIsSubmitting(true);
 
-    const { error } = await signUpWithEmail(trimmedEmail, password);
+    try {
+      const { error } = await signUpWithEmail(trimmedEmail, password);
 
-    setIsSubmitting(false);
+      if (error) {
+        switch (error.code) {
+          case "over_request_rate_limit":
+            setErrorMessage(
+              "登録試行回数が多すぎます。少し時間をおいて再度お試しください",
+            );
+            break;
 
-    if (error) {
+          default:
+            setErrorMessage("新規登録に失敗しました");
+            break;
+        }
+
+        return;
+      }
+
+      router.push("/check-email");
+    } catch {
       setErrorMessage("新規登録に失敗しました");
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
-
-    router.push("/check-email");
   }
 
   return (
