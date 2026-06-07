@@ -16,6 +16,7 @@ export default function LoginForm() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -25,26 +26,60 @@ export default function LoginForm() {
     setErrorMessage("");
     setIsSubmitting(true);
 
-    const { error } = await signInWithEmail(trimmedEmail, password);
+    try {
+      const { error } = await signInWithEmail(trimmedEmail, password);
 
-    setIsSubmitting(false);
+      if (error) {
+        switch (error.code) {
+          case "invalid_credentials":
+            setErrorMessage("メールアドレスまたはパスワードが正しくありません");
+            break;
 
-    if (error) {
-      setErrorMessage("メールアドレスまたはパスワードが正しくありません");
-      return;
+          case "email_not_confirmed":
+            setErrorMessage(
+              "メールアドレスの確認が完了していません。確認メールをご確認ください",
+            );
+            break;
+
+          case "over_request_rate_limit":
+            setErrorMessage(
+              "ログイン試行回数が多すぎます。少し時間をおいて再度お試しください",
+            );
+            break;
+
+          default:
+            setErrorMessage(
+              "ログインに失敗しました。時間をおいて再度お試しください",
+            );
+            break;
+        }
+
+        return;
+      }
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      setErrorMessage("ログインに失敗しました。時間をおいて再度お試しください");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    router.push("/dashboard");
-    router.refresh();
   }
 
   async function handleGoogleLogin() {
     setErrorMessage("");
+    setIsGoogleSubmitting(true);
 
-    const { error } = await signInWithGoogle();
+    try {
+      const { error } = await signInWithGoogle();
 
-    if (error) {
+      if (error) {
+        setErrorMessage("Googleログインに失敗しました");
+        setIsGoogleSubmitting(false);
+      }
+    } catch {
       setErrorMessage("Googleログインに失敗しました");
+      setIsGoogleSubmitting(false);
     }
   }
 
@@ -132,6 +167,7 @@ export default function LoginForm() {
           <button
             type="button"
             onClick={handleGoogleLogin}
+            disabled={isGoogleSubmitting}
             className="flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-[#F2F2F2] px-4 text-base font-bold text-slate-800 transition hover:bg-[#E8E8E8]"
           >
             <Image
@@ -142,7 +178,7 @@ export default function LoginForm() {
               className="h-9 w-9"
               aria-hidden="true"
             />
-            Googleでログイン
+            {isGoogleSubmitting ? "Googleでログイン中..." : "Googleでログイン"}
           </button>
 
           <Link
