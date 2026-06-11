@@ -56,6 +56,7 @@ export function buildChargeHistory(charges: ChargeRecord[], apps: App[]): Charge
       appName: app.name,
       appIcon: app.icon,
       itemName: charge.itemName,
+      category: charge.category,
       amount: charge.amount,
     });
   }

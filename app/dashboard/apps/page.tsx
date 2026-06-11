@@ -588,7 +588,7 @@ export default function AppsPage() {
                     setAppName(event.target.value);
                     setAppNameError("");
                   }}
-                  placeholder="例: スターレイル"
+                  placeholder="例: ChatGPT"
                   className="mt-3 h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
                 />
                 {appNameError && (

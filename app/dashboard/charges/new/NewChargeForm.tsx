@@ -215,7 +215,7 @@ export default function NewChargeForm() {
                 setErrors((current) => ({ ...current, itemName: "" }));
               }}
               maxLength={ITEM_NAME_MAX_LENGTH}
-              placeholder="例: 祝福パック"
+              placeholder="例: ChatGPT Plus"
               className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
             />
             {errors.itemName ? (
