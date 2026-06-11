@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { SubmitEvent } from "react";
 import {
   CalendarClock,
@@ -13,7 +13,11 @@ import {
 } from "lucide-react";
 import AppIconView from "../../components/AppIconView";
 import { chargeCategories } from "../../lib/chargeCategories";
-import { createRecurringCharge } from "../../lib/recurringCharges";
+import { fetchApps } from "../../lib/apps";
+import {
+  createRecurringCharge,
+  fetchRecurringCharges,
+} from "../../lib/recurringCharges";
 import {
   formatChargeDateLabel,
   formatCurrency,
@@ -24,11 +28,6 @@ import {
 import type { App, ChargeCategory, RecurringCharge } from "../../lib/types";
 
 const ITEM_NAME_MAX_LENGTH = 20;
-
-type RecurringChargesClientProps = {
-  initialApps: App[];
-  initialRecurringCharges: RecurringCharge[];
-};
 
 function addDays(date: Date, days: number) {
   const next = new Date(date);
@@ -47,17 +46,14 @@ function getDefaultNextBillingDate() {
   return formatDateInputValue(addDays(new Date(), 30));
 }
 
-export default function RecurringChargesClient({
-  initialApps,
-  initialRecurringCharges,
-}: RecurringChargesClientProps) {
-  const [apps] = useState<App[]>(initialApps);
+export default function RecurringChargesClient() {
+  const [apps, setApps] = useState<App[]>([]);
   const [recurringCharges, setRecurringCharges] = useState<RecurringCharge[]>(
-    initialRecurringCharges,
+    [],
   );
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [openActionMenuId, setOpenActionMenuId] = useState<string | null>(null);
-  const [appId, setAppId] = useState(initialApps[0]?.id ?? "");
+  const [appId, setAppId] = useState("");
   const [itemName, setItemName] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<ChargeCategory>("月パス");
@@ -65,7 +61,9 @@ export default function RecurringChargesClient({
     getDefaultNextBillingDate,
   );
   const [intervalDays, setIntervalDays] = useState("30");
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadErrorMessage, setLoadErrorMessage] = useState("");
   const [errors, setErrors] = useState({
     appId: "",
     itemName: "",
@@ -73,6 +71,30 @@ export default function RecurringChargesClient({
     nextBillingDate: "",
     intervalDays: "",
   });
+
+  useEffect(() => {
+    async function loadInitialData() {
+      try {
+        const [loadedApps, loadedRecurringCharges] = await Promise.all([
+          fetchApps(),
+          fetchRecurringCharges(),
+        ]);
+
+        setApps(loadedApps);
+        setRecurringCharges(loadedRecurringCharges);
+        setAppId((current) => current || loadedApps[0]?.id || "");
+        setLoadErrorMessage("");
+      } catch {
+        setApps([]);
+        setRecurringCharges([]);
+        setLoadErrorMessage("定期課金の取得に失敗しました");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadInitialData();
+  }, []);
 
   const appById = useMemo(() => {
     return new Map(apps.map((app) => [app.id, app]));
@@ -259,7 +281,8 @@ export default function RecurringChargesClient({
           <button
             type="button"
             onClick={() => setIsAddModalOpen(true)}
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-bold text-white shadow-[0_16px_28px_-20px_rgba(15,23,42,0.75)] transition hover:bg-slate-800 sm:h-12 sm:rounded-xl sm:bg-slate-950 sm:px-5 sm:shadow-[0_16px_28px_-20px_rgba(37,99,235,0.9)] sm:hover:bg-slate-800"
+            disabled={isLoading}
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-bold text-white shadow-[0_16px_28px_-20px_rgba(15,23,42,0.75)] transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300 sm:h-12 sm:rounded-xl sm:bg-slate-950 sm:px-5 sm:shadow-[0_16px_28px_-20px_rgba(37,99,235,0.9)] sm:hover:bg-slate-800"
           >
             <Plus size={19} strokeWidth={2.4} aria-hidden="true" />
             <span className="sm:hidden">追加</span>
@@ -279,7 +302,19 @@ export default function RecurringChargesClient({
             <span className="text-right">操作</span>
           </div>
 
-          {recurringCharges.length === 0 ? (
+          {isLoading ? (
+            <div className="bg-slate-50 px-5 py-10 text-center">
+              <p className="text-sm font-bold text-slate-600">
+                定期課金を読み込んでいます
+              </p>
+            </div>
+          ) : loadErrorMessage ? (
+            <div className="bg-slate-50 px-5 py-10 text-center">
+              <p className="text-sm font-bold text-rose-600">
+                {loadErrorMessage}
+              </p>
+            </div>
+          ) : recurringCharges.length === 0 ? (
             <div className="bg-slate-50 px-5 py-10 text-center">
               <p className="text-sm font-bold text-slate-600">
                 定期課金がありません
