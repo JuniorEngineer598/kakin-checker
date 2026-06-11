@@ -26,6 +26,22 @@ export type ChargeCategory =
   | 'アイテム'
   | 'その他';
 
+export type RecurringChargeStatus = 'active' | 'paused';
+
+//定期課金設定型
+export type RecurringCharge = {
+  id: string;
+  appId: string;
+  itemName: string;
+  amount: number;
+  category: ChargeCategory;
+  nextBillingDate: string;
+  intervalDays: number;
+  status: RecurringChargeStatus;
+  createdAt: string;
+  updatedAt: string;
+};
+
 //課金記録型
 export type ChargeRecord = {
   id: string;
