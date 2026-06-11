@@ -282,33 +282,31 @@ export default function TemplateChargeList() {
                   key={template.id}
                   className="rounded-2xl border border-l-2 border-slate-200 border-l-blue-500 bg-slate-50 p-3.5 transition hover:bg-white"
                 >
-                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:grid-cols-[minmax(0,1fr)_8rem_minmax(3rem,1fr)_auto]">
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                     <button
                       type="button"
                       onClick={() => {
                         handleAddTemplate(template);
                       }}
-                      className="min-w-0 flex-1 text-left"
+                      className="grid min-w-0 grid-cols-[minmax(0,1fr)_5rem] items-start gap-2 rounded-xl text-left sm:grid-cols-[minmax(0,1fr)_8rem_minmax(3rem,1fr)] sm:gap-3"
                     >
-                      <p className="truncate text-base font-bold text-slate-950">
-                        {template.itemName}
+                      <div className="min-w-0">
+                        <p className="truncate text-base font-bold text-slate-950">
+                          {template.itemName}
+                        </p>
+                        <p className="mt-1 inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-blue-600">
+                          {template.category}
+                        </p>
+                      </div>
+
+                      <p className="self-center text-center text-lg font-extrabold text-slate-950 sm:text-xl">
+                        {formatCurrency(template.amount)}
                       </p>
-                      <p className="mt-1 inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-slate-600">
-                        {template.category}
-                        <span className="sm:hidden">
-                          {" "}
-                          {formatCurrency(template.amount)}
-                        </span>
-                      </p>
+
+                      <span className="hidden sm:block" aria-hidden="true" />
                     </button>
 
-                    <p className="hidden self-center text-center text-xl font-extrabold text-slate-950 sm:block">
-                      {formatCurrency(template.amount)}
-                    </p>
-
-                    <div className="hidden sm:block" aria-hidden="true" />
-
-                    <div className="relative shrink-0">
+                    <div className="relative self-center justify-self-end">
                       <button
                         type="button"
                         title="メニュー"

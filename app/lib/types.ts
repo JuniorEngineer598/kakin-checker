@@ -73,6 +73,7 @@ export type ChargeHistoryItem = {
   appName: string;
   appIcon: AppIcon;
   itemName: string;
+  category: ChargeCategory;
   amount: number;
 };
 

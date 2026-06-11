@@ -231,8 +231,8 @@ export default function ChargeHistoryPage() {
                         key={item.id}
                         className={`grid items-center gap-3 border-b border-slate-200 px-3 py-3 last:border-b-0 sm:px-4 md:gap-4 ${
                           isSelectMode
-                            ? "grid-cols-[28px_minmax(0,1fr)_82px] sm:grid-cols-[28px_minmax(0,1fr)_96px] md:grid-cols-[28px_minmax(160px,0.75fr)_minmax(220px,1fr)_120px]"
-                            : "grid-cols-[minmax(0,1fr)_82px_36px] sm:grid-cols-[minmax(0,1fr)_96px_36px] md:grid-cols-[minmax(160px,0.75fr)_minmax(220px,1fr)_120px_36px]"
+                            ? "grid-cols-[28px_minmax(0,1fr)_82px] sm:grid-cols-[28px_minmax(0,1fr)_96px] md:grid-cols-[28px_minmax(0,1.4fr)_120px_minmax(0,0.8fr)]"
+                            : "grid-cols-[minmax(0,1fr)_82px_36px] sm:grid-cols-[minmax(0,1fr)_96px_36px] md:grid-cols-[minmax(0,1.4fr)_120px_minmax(0,0.8fr)_36px]"
                         }`}
                       >
                         {isSelectMode ? (
@@ -250,21 +250,33 @@ export default function ChargeHistoryPage() {
                             icon={item.appIcon}
                             className="h-11 w-11 shrink-0 md:h-12 md:w-12"
                           />
-                          <p className="min-w-0 truncate text-base font-bold text-slate-950 md:text-lg">
-                            {item.appName}
-                          </p>
+                          <div className="min-w-0">
+                            <div className="flex min-w-0 items-center gap-2">
+                              <p className="truncate text-base font-black text-slate-950 md:text-lg">
+                                {item.appName}
+                              </p>
+                              <span className="shrink-0 text-sm font-bold text-slate-300">
+                                /
+                              </span>
+                              <div className="flex min-w-0 items-center gap-2">
+                                <p className="truncate text-base font-black text-slate-950 md:text-lg">
+                                  {item.itemName}
+                                </p>
+                                <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-600">
+                                  {item.category}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
 
-                        <p className="hidden min-w-0 truncate text-base font-semibold text-slate-800 md:block">
-                          {item.itemName}
-                        </p>
-                        <p className="justify-self-end text-right text-base font-bold text-slate-950 sm:text-lg md:text-xl">
+                        <p className="justify-self-center text-center text-base font-bold text-slate-950 sm:text-lg md:text-xl">
                           {formatCurrency(item.amount)}
                         </p>
 
                         {!isSelectMode ? (
                           <div
-                            className="relative justify-self-end"
+                            className="relative justify-self-end md:col-start-4"
                             data-charge-menu
                           >
                             <button
