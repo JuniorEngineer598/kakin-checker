@@ -1,4 +1,4 @@
-import { AppWindow, BarChart3, CalendarDays, FileText, House, PlusCircle, Settings } from 'lucide-react';
+import { AppWindow, BarChart3, CalendarDays, ClipboardClock, FileText, House, PlusCircle, Settings } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export type SidebarItem = {
@@ -11,6 +11,7 @@ export const sidebarItems: SidebarItem[] = [
   { label: 'ホーム', href: '/dashboard', icon: House },
   { label: '課金追加', href: '/dashboard/charges/new', icon: PlusCircle },
   { label: '課金履歴', href: '/dashboard/charges-history', icon: FileText },
+  { label: '定期課金', href: '/dashboard/recurring', icon: ClipboardClock },
   { label: 'アプリ追加', href: '/dashboard/apps', icon: AppWindow },
   { label: '分析', href: '/dashboard/analysis', icon: BarChart3 },
   { label: 'カレンダー', href: '/dashboard/calendar', icon: CalendarDays },
