@@ -85,3 +85,16 @@ export async function createRecurringCharge(input: {
 
   return toRecurringCharge(data as RecurringChargeRow);
 }
+
+export async function deleteRecurringCharge(recurringChargeId: string) {
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from("recurring_charges")
+    .delete()
+    .eq("id", recurringChargeId);
+
+  if (error) {
+    throw error;
+  }
+}
