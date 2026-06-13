@@ -17,6 +17,7 @@ import { fetchApps } from "../../lib/apps";
 import {
   createRecurringCharge,
   fetchRecurringCharges,
+  deleteRecurringCharge,
 } from "../../lib/recurringCharges";
 import {
   formatChargeDateLabel,
@@ -224,6 +225,23 @@ export default function RecurringChargesClient() {
     }
   }
 
+  //定期課金を削除する処理
+  async function handleDeleteRecurringCharge(chargeId: string) {
+    const ok = window.confirm("この定期課金を削除しますか？");
+    if (!ok) return;
+
+    try {
+      await deleteRecurringCharge(chargeId);
+
+      setRecurringCharges((current) =>
+        current.filter((charge) => charge.id !== chargeId),
+      );
+      setOpenActionMenuId(null);
+    } catch {
+      window.alert("定期課金の削除に失敗しました");
+    }
+  }
+
   return (
     <div className="grid gap-4">
       <div className="inline-flex items-center gap-3">
@@ -275,9 +293,7 @@ export default function RecurringChargesClient() {
 
       <section className="rounded-[28px] bg-white p-5 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.25)] sm:p-6">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-xl font-bold text-slate-950">
-            登録中の定期課金
-          </h2>
+          <h2 className="text-xl font-bold text-slate-950">登録中の定期課金</h2>
           <button
             type="button"
             onClick={() => setIsAddModalOpen(true)}
@@ -458,6 +474,9 @@ export default function RecurringChargesClient() {
                             </button>
                             <button
                               type="button"
+                              onClick={() =>
+                                handleDeleteRecurringCharge(charge.id)
+                              }
                               className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-rose-600 transition hover:bg-rose-50"
                             >
                               削除
