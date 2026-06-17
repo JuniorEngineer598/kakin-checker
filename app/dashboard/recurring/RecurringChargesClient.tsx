@@ -26,10 +26,15 @@ import {
   formatWeekdayLabel,
   parseChargeDate,
 } from "../../lib/format";
-import type { App, ChargeCategory, RecurringCharge } from "../../lib/types";
+import type {
+  App,
+  BillingCycle,
+  ChargeCategory,
+  RecurringCharge,
+} from "../../lib/types";
 
 const ITEM_NAME_MAX_LENGTH = 20;
-
+//指定した日付に周期を足す
 function addDays(date: Date, days: number) {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
@@ -37,14 +42,54 @@ function addDays(date: Date, days: number) {
   return next;
 }
 
+
+function getLastDayOfMonth(year: number, monthIndex: number) {
+  return new Date(year, monthIndex + 1, 0).getDate();
+}
+// 毎月同じ日の次回課金日を取得する
+function getMonthlyBillingDate(baseDate: Date, billingDay: number) {
+  const baseYear = baseDate.getFullYear();
+  const baseMonth = baseDate.getMonth();
+  const today = baseDate.getDate();
+
+  const targetMonth = billingDay > today ? baseMonth : baseMonth + 1;
+
+  //targetMonth が年をまたぐ場合も含めて、正しい対象年を取得する
+  const targetYear = new Date(baseYear, targetMonth, 1).getFullYear();
+  // 年またぎを考慮して、正しい月番号を取得する
+  const targetMonthIndex = new Date(baseYear, targetMonth, 1).getMonth();
+  const lastDay = getLastDayOfMonth(targetYear, targetMonthIndex);
+  const targetDay = Math.min(billingDay, lastDay);
+
+  return new Date(targetYear, targetMonthIndex, targetDay);
+}
+
+function getNextBillingDate(params: {
+  billingCycle: "days" | "monthly";
+  intervalDays: number;
+  billingDay: number;
+}) {
+  const today = new Date();
+
+  if (params.billingCycle === "days") {
+    return formatDateInputValue(addDays(today, params.intervalDays));
+  }
+
+  return formatDateInputValue(getMonthlyBillingDate(today, params.billingDay));
+}
+// 一覧表示用に課金日を整形する
 function formatBillingDate(value: string) {
   const date = parseChargeDate(value);
 
   return `${formatChargeDateLabel(date)}（${formatWeekdayLabel(date)}）`;
 }
 
-function getDefaultNextBillingDate() {
-  return formatDateInputValue(addDays(new Date(), 30));
+function formatBillingCycleLabel(charge: RecurringCharge) {
+  if (charge.billingCycle === "monthly") {
+    return `毎月${charge.billingDay}日`;
+  }
+
+  return `${charge.intervalDays}日`;
 }
 
 export default function RecurringChargesClient() {
@@ -58,10 +103,12 @@ export default function RecurringChargesClient() {
   const [itemName, setItemName] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<ChargeCategory>("月パス");
-  const [nextBillingDate, setNextBillingDate] = useState(
-    getDefaultNextBillingDate,
-  );
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>("days");
   const [intervalDays, setIntervalDays] = useState("30");
+  const [billingDay, setBillingDay] = useState(() =>
+    String(new Date().getDate()),
+  );
+  const [shouldAddTodayCharge, setShouldAddTodayCharge] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadErrorMessage, setLoadErrorMessage] = useState("");
@@ -69,8 +116,8 @@ export default function RecurringChargesClient() {
     appId: "",
     itemName: "",
     amount: "",
-    nextBillingDate: "",
     intervalDays: "",
+    billingDay: "",
   });
 
   useEffect(() => {
@@ -112,18 +159,57 @@ export default function RecurringChargesClient() {
 
   const hasApps = apps.length > 0;
 
+  // 入力中の課金周期から、表示用・保存用の次回課金日を計算する
+  const computedNextBillingDate = useMemo(() => {
+    const numericIntervalDays = Number(intervalDays);
+    const numericBillingDay = Number(billingDay);
+
+    if (billingCycle === "days") {
+      if (
+        !Number.isFinite(numericIntervalDays) ||
+        !Number.isInteger(numericIntervalDays) ||
+        numericIntervalDays <= 0
+      ) {
+        return "";
+      }
+
+      return getNextBillingDate({
+        billingCycle,
+        intervalDays: numericIntervalDays,
+        billingDay: numericBillingDay,
+      });
+    }
+
+    if (
+      !Number.isFinite(numericBillingDay) ||
+      !Number.isInteger(numericBillingDay) ||
+      numericBillingDay < 1 ||
+      numericBillingDay > 31
+    ) {
+      return "";
+    }
+
+    return getNextBillingDate({
+      billingCycle,
+      intervalDays: numericIntervalDays,
+      billingDay: numericBillingDay,
+    });
+  }, [billingCycle, billingDay, intervalDays]);
+
   function resetForm() {
     setItemName("");
     setAmount("");
     setCategory("月パス");
-    setNextBillingDate(getDefaultNextBillingDate());
+    setBillingCycle("days");
     setIntervalDays("30");
+    setBillingDay(String(new Date().getDate()));
+    setShouldAddTodayCharge(true);
     setErrors({
       appId: "",
       itemName: "",
       amount: "",
-      nextBillingDate: "",
       intervalDays: "",
+      billingDay: "",
     });
   }
 
@@ -143,13 +229,14 @@ export default function RecurringChargesClient() {
     const trimmedItemName = itemName.trim();
     const numericAmount = Number(amount);
     const numericIntervalDays = Number(intervalDays);
+    const numericBillingDay = Number(billingDay);
 
     const nextErrors = {
       appId: "",
       itemName: "",
       amount: "",
-      nextBillingDate: "",
       intervalDays: "",
+      billingDay: "",
     };
 
     if (!appId) {
@@ -172,16 +259,23 @@ export default function RecurringChargesClient() {
       nextErrors.amount = "金額は1円以上の整数で入力してください";
     }
 
-    if (!nextBillingDate) {
-      nextErrors.nextBillingDate = "次回課金日を入力してください";
+    if (
+      billingCycle === "days" &&
+      (!Number.isFinite(numericIntervalDays) ||
+        !Number.isInteger(numericIntervalDays) ||
+        numericIntervalDays <= 0)
+    ) {
+      nextErrors.intervalDays = "課金間隔は1日以上の整数で入力してください";
     }
 
     if (
-      !Number.isFinite(numericIntervalDays) ||
-      !Number.isInteger(numericIntervalDays) ||
-      numericIntervalDays <= 0
+      billingCycle === "monthly" &&
+      (!Number.isFinite(numericBillingDay) ||
+        !Number.isInteger(numericBillingDay) ||
+        numericBillingDay < 1 ||
+        numericBillingDay > 31)
     ) {
-      nextErrors.intervalDays = "課金間隔は1日以上の整数で入力してください";
+      nextErrors.billingDay = "課金日は1〜31日の整数で入力してください";
     }
 
     setErrors(nextErrors);
@@ -190,8 +284,9 @@ export default function RecurringChargesClient() {
       nextErrors.appId ||
       nextErrors.itemName ||
       nextErrors.amount ||
-      nextErrors.nextBillingDate ||
-      nextErrors.intervalDays
+      nextErrors.intervalDays ||
+      nextErrors.billingDay ||
+      !computedNextBillingDate
     ) {
       return;
     }
@@ -204,8 +299,10 @@ export default function RecurringChargesClient() {
         itemName: trimmedItemName,
         amount: numericAmount,
         category,
-        nextBillingDate,
-        intervalDays: numericIntervalDays,
+        billingCycle,
+        nextBillingDate: computedNextBillingDate,
+        intervalDays: billingCycle === "days" ? numericIntervalDays : null,
+        billingDay: billingCycle === "monthly" ? numericBillingDay : null,
       });
 
       setRecurringCharges((current) =>
@@ -401,7 +498,7 @@ export default function RecurringChargesClient() {
                             周期
                           </p>
                           <span className="inline-flex whitespace-nowrap rounded-full bg-slate-100 px-3 py-1.5 text-sm font-bold text-slate-600 lg:-translate-x-3">
-                            {charge.intervalDays}日
+                            {formatBillingCycleLabel(charge)}
                           </span>
                         </div>
 
@@ -616,52 +713,141 @@ export default function RecurringChargesClient() {
                 </select>
               </label>
 
-              <label className="block">
+              <div>
                 <span className="text-sm font-semibold text-slate-700">
-                  次回課金日
+                  課金の繰り返し
                 </span>
-                <input
-                  type="date"
-                  value={nextBillingDate}
-                  onChange={(event) => {
-                    setNextBillingDate(event.target.value);
-                    setErrors((current) => ({
-                      ...current,
-                      nextBillingDate: "",
-                    }));
-                  }}
-                  className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:bg-white"
-                />
-                {errors.nextBillingDate ? (
-                  <p className="mt-2 text-xs font-bold text-rose-600">
-                    {errors.nextBillingDate}
-                  </p>
-                ) : null}
-              </label>
+                <div className="mt-2 rounded-2xl border border-slate-200 bg-white p-3">
+                  <div className="grid grid-cols-2 rounded-xl bg-slate-100 p-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setBillingCycle("days");
+                        setErrors((current) => ({
+                          ...current,
+                          billingDay: "",
+                        }));
+                      }}
+                      className={`h-10 rounded-lg text-sm font-bold transition ${
+                        billingCycle === "days"
+                          ? "bg-white text-slate-950 shadow-sm"
+                          : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >
+                      日数ごと
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setBillingCycle("monthly");
+                        setErrors((current) => ({
+                          ...current,
+                          intervalDays: "",
+                        }));
+                      }}
+                      className={`h-10 rounded-lg text-sm font-bold transition ${
+                        billingCycle === "monthly"
+                          ? "bg-white text-slate-950 shadow-sm"
+                          : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >
+                      毎月同じ日
+                    </button>
+                  </div>
 
-              <label className="block">
-                <span className="text-sm font-semibold text-slate-700">
-                  課金間隔（日数）
-                </span>
+                  {billingCycle === "days" ? (
+                    <div className="mt-4">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="number"
+                          min="1"
+                          step="1"
+                          value={intervalDays}
+                          onChange={(event) => {
+                            setIntervalDays(event.target.value);
+                            setErrors((current) => ({
+                              ...current,
+                              intervalDays: "",
+                            }));
+                          }}
+                          className="h-11 w-24 rounded-xl border border-slate-200 bg-slate-50 px-4 text-center text-sm font-bold text-slate-950 outline-none transition focus:border-slate-400 focus:bg-white"
+                        />
+                        <span className="text-sm font-bold text-slate-700">
+                          日ごとに課金
+                        </span>
+                      </div>
+                      {errors.intervalDays ? (
+                        <p className="mt-2 text-xs font-bold text-rose-600">
+                          {errors.intervalDays}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <div className="mt-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-bold text-slate-700">
+                          毎月
+                        </span>
+                        <input
+                          type="number"
+                          min="1"
+                          max="31"
+                          step="1"
+                          value={billingDay}
+                          onChange={(event) => {
+                            setBillingDay(event.target.value);
+                            setErrors((current) => ({
+                              ...current,
+                              billingDay: "",
+                            }));
+                          }}
+                          className="h-11 w-24 rounded-xl border border-slate-200 bg-slate-50 px-4 text-center text-sm font-bold text-slate-950 outline-none transition focus:border-slate-400 focus:bg-white"
+                        />
+                        <span className="text-sm font-bold text-slate-700">
+                          日に課金
+                        </span>
+                      </div>
+                      <p className="mt-3 rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-500">
+                        存在しない日付の月は月末で調整されます。
+                      </p>
+                      {errors.billingDay ? (
+                        <p className="mt-2 text-xs font-bold text-rose-600">
+                          {errors.billingDay}
+                        </p>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-blue-700">
+                <p className="flex items-center gap-2 text-sm font-bold">
+                  <CalendarDays size={18} strokeWidth={2.2} aria-hidden="true" />
+                  {computedNextBillingDate
+                    ? `次回課金日: ${formatBillingDate(
+                        computedNextBillingDate,
+                      )} に予定されます`
+                    : "次回課金日を計算できません"}
+                </p>
+              </div>
+
+              <label className="flex items-start gap-3">
                 <input
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={intervalDays}
-                  onChange={(event) => {
-                    setIntervalDays(event.target.value);
-                    setErrors((current) => ({
-                      ...current,
-                      intervalDays: "",
-                    }));
-                  }}
-                  className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:bg-white"
+                  type="checkbox"
+                  checked={shouldAddTodayCharge}
+                  onChange={(event) =>
+                    setShouldAddTodayCharge(event.target.checked)
+                  }
+                  className="mt-1 h-4 w-4 accent-slate-950"
                 />
-                {errors.intervalDays ? (
-                  <p className="mt-2 text-xs font-bold text-rose-600">
-                    {errors.intervalDays}
-                  </p>
-                ) : null}
+                <span>
+                  <span className="block text-sm font-bold text-slate-800">
+                    今日の課金も履歴に追加する
+                  </span>
+                  <span className="mt-1 block text-xs font-semibold text-slate-500">
+                    加入日を記録したい場合におすすめです
+                  </span>
+                </span>
               </label>
             </div>
 
