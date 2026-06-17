@@ -1,11 +1,11 @@
 import { getCurrentUserId } from "./auth-user";
 import { createClient } from "./supabase/client";
 import type {
+  BillingCycle,
   ChargeCategory,
   RecurringCharge,
   RecurringChargeStatus,
 } from "./types";
-
 type RecurringChargeRow = {
   id: string;
   user_id: string;
@@ -13,8 +13,10 @@ type RecurringChargeRow = {
   item_name: string;
   amount: number;
   category: ChargeCategory;
+  billing_cycle: BillingCycle;
+  interval_days: number | null;
+  billing_day: number | null;
   next_billing_date: string;
-  interval_days: number;
   status: RecurringChargeStatus;
   created_at: string;
   updated_at: string;
@@ -27,8 +29,10 @@ function toRecurringCharge(row: RecurringChargeRow): RecurringCharge {
     itemName: row.item_name,
     amount: row.amount,
     category: row.category,
+    billingCycle: row.billing_cycle,
     nextBillingDate: row.next_billing_date,
     intervalDays: row.interval_days,
+    billingDay: row.billing_day,
     status: row.status,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -58,8 +62,10 @@ export async function createRecurringCharge(input: {
   itemName: string;
   amount: number;
   category: ChargeCategory;
+  billingCycle: BillingCycle;
   nextBillingDate: string;
-  intervalDays: number;
+  intervalDays: number | null;
+  billingDay: number | null;
 }) {
   const supabase = createClient();
   const userId = await getCurrentUserId();
@@ -72,8 +78,10 @@ export async function createRecurringCharge(input: {
       item_name: input.itemName,
       amount: input.amount,
       category: input.category,
+      billing_cycle: input.billingCycle,
       next_billing_date: input.nextBillingDate,
       interval_days: input.intervalDays,
+      billing_day: input.billingDay,
       status: "active",
     })
     .select("*")

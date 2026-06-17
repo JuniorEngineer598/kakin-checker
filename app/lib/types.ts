@@ -28,6 +28,8 @@ export type ChargeCategory =
 
 export type RecurringChargeStatus = 'active' | 'paused';
 
+export type BillingCycle = "days" | "monthly";
+
 //定期課金設定型
 export type RecurringCharge = {
   id: string;
@@ -35,8 +37,10 @@ export type RecurringCharge = {
   itemName: string;
   amount: number;
   category: ChargeCategory;
+  billingCycle: BillingCycle;
+  intervalDays: number | null;
+  billingDay: number | null;
   nextBillingDate: string;
-  intervalDays: number;
   status: RecurringChargeStatus;
   createdAt: string;
   updatedAt: string;
