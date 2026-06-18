@@ -14,6 +14,7 @@ import {
 import AppIconView from "../../components/AppIconView";
 import { chargeCategories } from "../../lib/chargeCategories";
 import { fetchApps } from "../../lib/apps";
+import { createCharge } from "../../lib/charges";
 import {
   createRecurringCharge,
   fetchRecurringCharges,
@@ -41,7 +42,6 @@ function addDays(date: Date, days: number) {
 
   return next;
 }
-
 
 function getLastDayOfMonth(year: number, monthIndex: number) {
   return new Date(year, monthIndex + 1, 0).getDate();
@@ -304,6 +304,20 @@ export default function RecurringChargesClient() {
         intervalDays: billingCycle === "days" ? numericIntervalDays : null,
         billingDay: billingCycle === "monthly" ? numericBillingDay : null,
       });
+
+      if (shouldAddTodayCharge) {
+        try {
+          await createCharge({
+            appId,
+            itemName: trimmedItemName,
+            amount: numericAmount,
+            category,
+            chargedAt: formatDateInputValue(new Date()),
+          });
+        } catch {
+          window.alert("今日の課金履歴の追加に失敗しました");
+        }
+      }
 
       setRecurringCharges((current) =>
         [...current, createdRecurringCharge].sort((a, b) =>
@@ -822,7 +836,11 @@ export default function RecurringChargesClient() {
 
               <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-blue-700">
                 <p className="flex items-center gap-2 text-sm font-bold">
-                  <CalendarDays size={18} strokeWidth={2.2} aria-hidden="true" />
+                  <CalendarDays
+                    size={18}
+                    strokeWidth={2.2}
+                    aria-hidden="true"
+                  />
                   {computedNextBillingDate
                     ? `次回課金日: ${formatBillingDate(
                         computedNextBillingDate,
