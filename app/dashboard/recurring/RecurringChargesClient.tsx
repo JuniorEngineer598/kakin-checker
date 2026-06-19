@@ -15,10 +15,16 @@ import AppIconView from "../../components/AppIconView";
 import { chargeCategories } from "../../lib/chargeCategories";
 import { fetchApps } from "../../lib/apps";
 import { createCharge } from "../../lib/charges";
+import RecurringChargeResumeModal, {
+  type ResumeRecurringChargeInput,
+} from "./RecurringChargeResumeModal";
+import { getNextBillingDate } from "../../lib/recurringBilling";
 import {
   createRecurringCharge,
   fetchRecurringCharges,
   deleteRecurringCharge,
+  updateRecurringChargeStatus,
+  updateRecurringChargeSchedule,
 } from "../../lib/recurringCharges";
 import {
   formatChargeDateLabel,
@@ -35,48 +41,7 @@ import type {
 } from "../../lib/types";
 
 const ITEM_NAME_MAX_LENGTH = 20;
-//指定した日付に周期を足す
-function addDays(date: Date, days: number) {
-  const next = new Date(date);
-  next.setDate(next.getDate() + days);
 
-  return next;
-}
-
-function getLastDayOfMonth(year: number, monthIndex: number) {
-  return new Date(year, monthIndex + 1, 0).getDate();
-}
-// 毎月同じ日の次回課金日を取得する
-function getMonthlyBillingDate(baseDate: Date, billingDay: number) {
-  const baseYear = baseDate.getFullYear();
-  const baseMonth = baseDate.getMonth();
-  const today = baseDate.getDate();
-
-  const targetMonth = billingDay > today ? baseMonth : baseMonth + 1;
-
-  //targetMonth が年をまたぐ場合も含めて、正しい対象年を取得する
-  const targetYear = new Date(baseYear, targetMonth, 1).getFullYear();
-  // 年またぎを考慮して、正しい月番号を取得する
-  const targetMonthIndex = new Date(baseYear, targetMonth, 1).getMonth();
-  const lastDay = getLastDayOfMonth(targetYear, targetMonthIndex);
-  const targetDay = Math.min(billingDay, lastDay);
-
-  return new Date(targetYear, targetMonthIndex, targetDay);
-}
-
-function getNextBillingDate(params: {
-  billingCycle: "days" | "monthly";
-  intervalDays: number;
-  billingDay: number;
-}) {
-  const today = new Date();
-
-  if (params.billingCycle === "days") {
-    return formatDateInputValue(addDays(today, params.intervalDays));
-  }
-
-  return formatDateInputValue(getMonthlyBillingDate(today, params.billingDay));
-}
 // 一覧表示用に課金日を整形する
 function formatBillingDate(value: string) {
   const date = parseChargeDate(value);
@@ -99,6 +64,9 @@ export default function RecurringChargesClient() {
   );
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [openActionMenuId, setOpenActionMenuId] = useState<string | null>(null);
+  const [resumeCharge, setResumeCharge] = useState<RecurringCharge | null>(
+    null,
+  );
   const [appId, setAppId] = useState("");
   const [itemName, setItemName] = useState("");
   const [amount, setAmount] = useState("");
@@ -353,6 +321,57 @@ export default function RecurringChargesClient() {
     }
   }
 
+  //定期課金を一時停止する処理
+  async function handlePauseRecurringCharge(chargeId: string) {
+    try {
+      const updatedRecurringCharge = await updateRecurringChargeStatus(
+        chargeId,
+        "paused",
+      );
+
+      setRecurringCharges((current) =>
+        current.map((charge) =>
+          charge.id === chargeId ? updatedRecurringCharge : charge,
+        ),
+      );
+      setOpenActionMenuId(null);
+    } catch {
+      window.alert("定期課金の一時停止に失敗しました");
+    }
+  }
+
+  //定期課金を再開する処理
+  async function handleResumeRecurringCharge(
+    input: ResumeRecurringChargeInput,
+  ) {
+    if (!resumeCharge) return;
+
+    try {
+      const updatedRecurringCharge = await updateRecurringChargeSchedule(
+        resumeCharge.id,
+        {
+          billingCycle: input.billingCycle,
+          intervalDays: input.intervalDays,
+          billingDay: input.billingDay,
+          nextBillingDate: input.nextBillingDate,
+          status: "active",
+        },
+      );
+
+      setRecurringCharges((current) =>
+        current.map((charge) =>
+          charge.id === updatedRecurringCharge.id
+            ? updatedRecurringCharge
+            : charge,
+        ),
+      );
+
+      setResumeCharge(null);
+    } catch {
+      window.alert("定期課金の再開に失敗しました");
+    }
+  }
+
   return (
     <div className="grid gap-4">
       <div className="inline-flex items-center gap-3">
@@ -579,6 +598,15 @@ export default function RecurringChargesClient() {
                             </button>
                             <button
                               type="button"
+                              onClick={() => {
+                                if (charge.status === "active") {
+                                  handlePauseRecurringCharge(charge.id);
+                                  return;
+                                }
+
+                                setResumeCharge(charge);
+                                setOpenActionMenuId(null);
+                              }}
                               className="flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-bold text-slate-700 transition hover:bg-slate-50"
                             >
                               {charge.status === "active" ? "一時停止" : "再開"}
@@ -887,6 +915,14 @@ export default function RecurringChargesClient() {
             </div>
           </form>
         </div>
+      ) : null}
+
+      {resumeCharge ? (
+        <RecurringChargeResumeModal
+          charge={resumeCharge}
+          onClose={() => setResumeCharge(null)}
+          onResume={handleResumeRecurringCharge}
+        />
       ) : null}
     </div>
   );

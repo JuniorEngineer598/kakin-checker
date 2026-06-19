@@ -14,6 +14,7 @@ export function formatDateInputValue(date: Date) {
 
 const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
 
+//保存用の"YYYY-MM-DD" 形式の文字列を受け取り、Dateオブジェクトを返す
 export function parseChargeDate(value: string) {
   return new Date(`${value}T00:00:00`);
 }

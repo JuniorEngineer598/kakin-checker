@@ -106,3 +106,59 @@ export async function deleteRecurringCharge(recurringChargeId: string) {
     throw error;
   }
 }
+
+export async function updateRecurringChargeStatus(
+  recurringChargeId: string,
+  status: RecurringChargeStatus,
+) {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from("recurring_charges")
+    .update({
+      status,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", recurringChargeId)
+    .select("*")
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return toRecurringCharge(data as RecurringChargeRow);
+}
+
+export async function updateRecurringChargeSchedule(
+  recurringChargeId: string,
+  input: {
+    billingCycle: BillingCycle;
+    nextBillingDate: string;
+    intervalDays: number | null;
+    billingDay: number | null;
+    status: RecurringChargeStatus;
+  },
+) {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from("recurring_charges")
+    .update({
+      billing_cycle: input.billingCycle,
+      next_billing_date: input.nextBillingDate,
+      interval_days: input.intervalDays,
+      billing_day: input.billingDay,
+      status: input.status,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", recurringChargeId)
+    .select("*")
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return toRecurringCharge(data as RecurringChargeRow);
+}
