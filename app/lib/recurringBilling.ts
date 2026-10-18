@@ -58,7 +58,7 @@ export function getNextBillingDate(params: {
   );
 }
 
-//。処理済みの課金日を基準に、次の課金日を1つ計算する。
+//。処理済みの課金日を基準に、次の課金日を1つ計算する。次の周期に１つ進む。
 export function getFollowingBillingDate(params: {
   billingCycle: BillingCycle;
   intervalDays: number;
@@ -97,7 +97,7 @@ export function collectDueBillingDates(params: {
   nextBillingDate: string;
   today: string;
 }) {
-  let billingDate = params.nextBillingDate;
+  let billingDate = params.nextBillingDate;//whileループで更新されるからletで宣言する。
   const chargedDates: string[] = [];
 
   //次回課金日が今日以前であれば、過去の課金日を全て取得する
@@ -109,7 +109,8 @@ export function collectDueBillingDates(params: {
       intervalDays: params.intervalDays,
       billingDay: params.billingDay,
       baseDate: parseChargeDate(billingDate),
-    });
+    });//引数はただの材料で、billingDateが使うのはgetFollowingBillingDateの返り値（一つ次の周期の課金日）だけ。
+    //引数と返り値は同じじゃない。
   }
   // pushされるのは今日以前だけ。billingDateは最後に1つ未来の課金日になる
   return {
