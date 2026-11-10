@@ -43,6 +43,7 @@ import type {
   ChargeCategory,
   RecurringCharge,
 } from "../../lib/types";
+import ToastMessage from "../../components/ToastMessage";
 
 const ITEM_NAME_MAX_LENGTH = 20;
 
@@ -91,6 +92,10 @@ export default function RecurringChargesClient() {
     intervalDays: "",
     billingDay: "",
   });
+  const [toast, setToast] = useState({
+    message: "",
+    id: 0,
+  });
 
   useEffect(() => {
     async function loadInitialData() {
@@ -101,6 +106,7 @@ export default function RecurringChargesClient() {
         ]);
 
         const today = formatDateInputValue(new Date());
+        let totalInsertedCount = 0;
 
         for (const charge of loadedRecurringCharges) {
           if (charge.status !== "active") continue;
@@ -115,13 +121,22 @@ export default function RecurringChargesClient() {
 
           if (result.chargedDates.length === 0) continue;
 
-          await recordRecurringCharges({
+          const insertedCount = await recordRecurringCharges({
             recurringChargeId: charge.id,
             expectedNextBillingDate: charge.nextBillingDate,
             expectedUpdatedAt: charge.updatedAt,
             chargedDates: result.chargedDates,
             nextBillingDate: result.nextBillingDate,
           });
+
+          totalInsertedCount += insertedCount;
+        }
+
+        if (totalInsertedCount > 0) {
+          setToast((current) => ({
+            message: `定期課金の履歴を${totalInsertedCount}件追加しました`,
+            id: current.id + 1,
+          }));
         }
 
         const latestRecurringCharges = await fetchRecurringCharges();
@@ -141,6 +156,19 @@ export default function RecurringChargesClient() {
 
     loadInitialData();
   }, []);
+
+  useEffect(() => {
+    if (!toast.message) return;
+
+    const timerId = window.setTimeout(() => {
+      setToast((current) => ({
+        ...current,
+        message: "",
+      }));
+    }, 2500);
+
+    return () => window.clearTimeout(timerId);
+  }, [toast]);
 
   const appById = useMemo(() => {
     return new Map(apps.map((app) => [app.id, app]));
@@ -954,6 +982,8 @@ export default function RecurringChargesClient() {
           onResume={handleResumeRecurringCharge}
         />
       ) : null}
+
+      <ToastMessage key={toast.id} message={toast.message} />
     </div>
   );
 }
