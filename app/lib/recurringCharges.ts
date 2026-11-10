@@ -57,6 +57,30 @@ export async function fetchRecurringCharges() {
   );
 }
 
+export async function recordRecurringCharges(input: {
+  recurringChargeId: string;
+  expectedNextBillingDate: string;
+  expectedUpdatedAt: string;
+  chargedDates: string[];
+  nextBillingDate: string;
+}) {
+  const supabase = createClient();
+
+  const { data, error } = await supabase.rpc("record_recurring_charges", {
+    p_recurring_charge_id: input.recurringChargeId,
+    p_expected_next_billing_date: input.expectedNextBillingDate,
+    p_expected_updated_at: input.expectedUpdatedAt,
+    p_charged_dates: input.chargedDates,
+    p_next_billing_date: input.nextBillingDate,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? 0;
+}
+
 export async function createRecurringCharge(input: {
   appId: string;
   itemName: string;
