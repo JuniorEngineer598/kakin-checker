@@ -18,10 +18,14 @@ import { createCharge } from "../../lib/charges";
 import RecurringChargeResumeModal, {
   type ResumeRecurringChargeInput,
 } from "./RecurringChargeResumeModal";
-import { getNextBillingDate } from "../../lib/recurringBilling";
+import {
+  getNextBillingDate,
+  collectDueBillingDates,
+} from "../../lib/recurringBilling";
 import {
   createRecurringCharge,
   fetchRecurringCharges,
+  recordRecurringCharges,
   deleteRecurringCharge,
   updateRecurringChargeStatus,
   updateRecurringChargeSchedule,
@@ -96,8 +100,34 @@ export default function RecurringChargesClient() {
           fetchRecurringCharges(),
         ]);
 
+        const today = formatDateInputValue(new Date());
+
+        for (const charge of loadedRecurringCharges) {
+          if (charge.status !== "active") continue;
+
+          const result = collectDueBillingDates({
+            billingCycle: charge.billingCycle,
+            intervalDays: charge.intervalDays ?? 0,
+            billingDay: charge.billingDay ?? 0,
+            nextBillingDate: charge.nextBillingDate,
+            today,
+          });
+
+          if (result.chargedDates.length === 0) continue;
+
+          await recordRecurringCharges({
+            recurringChargeId: charge.id,
+            expectedNextBillingDate: charge.nextBillingDate,
+            expectedUpdatedAt: charge.updatedAt,
+            chargedDates: result.chargedDates,
+            nextBillingDate: result.nextBillingDate,
+          });
+        }
+
+        const latestRecurringCharges = await fetchRecurringCharges();
+
         setApps(loadedApps);
-        setRecurringCharges(loadedRecurringCharges);
+        setRecurringCharges(latestRecurringCharges);
         setAppId((current) => current || loadedApps[0]?.id || "");
         setLoadErrorMessage("");
       } catch {

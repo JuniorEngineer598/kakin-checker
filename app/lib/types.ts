@@ -50,6 +50,7 @@ export type RecurringCharge = {
 export type ChargeRecord = {
   id: string;
   appId: string;
+  recurringChargeId: string | null;
   itemName: string;
   amount: number;
   category: ChargeCategory;

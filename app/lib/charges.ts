@@ -6,6 +6,7 @@ type ChargeRow = {
   id: string;
   user_id: string;
   app_id: string;
+  recurring_charge_id: string | null;
   item_name: string;
   amount: number;
   category: ChargeCategory;
@@ -18,6 +19,7 @@ function toChargeRecord(row: ChargeRow): ChargeRecord {
   return {
     id: row.id,
     appId: row.app_id,
+    recurringChargeId: row.recurring_charge_id,
     itemName: row.item_name,
     amount: row.amount,
     category: row.category,
