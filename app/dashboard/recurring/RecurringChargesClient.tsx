@@ -165,7 +165,7 @@ export default function RecurringChargesClient() {
         ...current,
         message: "",
       }));
-    }, 2500);
+    }, 5000);
 
     return () => window.clearTimeout(timerId);
   }, [toast]);
