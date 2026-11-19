@@ -6,9 +6,9 @@ import {
   formatChargeDateLabel,
   formatWeekdayLabel,
   parseChargeDate,
-} from "../../lib/format";
-import type { BillingCycle, RecurringCharge } from "../../lib/types";
-import { getNextBillingDate } from "../../lib/recurringBilling";
+} from "../../../lib/format";
+import type { BillingCycle, RecurringCharge } from "../../../lib/types";
+import { getNextBillingDate } from "../../../lib/recurringBilling";
 
 type RecurringChargeResumeModalProps = {
   charge: RecurringCharge;
